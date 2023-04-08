@@ -120,9 +120,9 @@ static void is_ascii_test(void unused **state)
   enum_all_chars(&is_ascii, 0, 127);
 }
 
-static void is_alphanum_test(void unused **state)
+static void is_alnum_test(void unused **state)
 {
-  enum_all_chars_multi_bound(&is_alphanum, 65, 90, 97, 122, 48, 57);
+  enum_all_chars_multi_bound(&is_alnum, 65, 90, 97, 122, 48, 57);
 }
 
 static void is_white_test(void unused **state)
@@ -344,7 +344,7 @@ int main(void)
     cmocka_unit_test(is_alpha_test),
     cmocka_unit_test(is_ascii_test),
     cmocka_unit_test(is_white_test),
-    cmocka_unit_test(is_alphanum_test),
+    cmocka_unit_test(is_alnum_test),
 
     cmocka_unit_test(ae_match_test),
   };

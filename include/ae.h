@@ -40,12 +40,12 @@ bool no_alpha(const char c);
 /**
  * @brief Check if a character is alphanumeric.
  */
-bool is_alphanum(const char c);
+bool is_alnum(const char c);
 
 /**
  * @brief Check if a character is not alphanumeric.
  */
-bool no_alphanum(const char c);
+bool no_alnum(const char c);
 
 /**
  * @brief Check if a character is ASCII.

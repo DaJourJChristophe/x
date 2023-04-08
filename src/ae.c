@@ -126,7 +126,7 @@ AE_RESULT_T no_alpha(const char c)
  *        or equal to 65 or less than or equal to 90 or if is
  *        greater than or equal to 48 or less than or equal to 57.
  */
-AE_RESULT_T is_alphanum(const char c)
+AE_RESULT_T is_alnum(const char c)
 {
   return is_alpha(c) || is_digit(c);
 }
@@ -137,7 +137,7 @@ AE_RESULT_T is_alphanum(const char c)
  *        or not equal to 65 or less than or not equal to 90 or if is
  *        not greater than or not equal to 48 or not less than or not equal to 57.
  */
-AE_RESULT_T no_alphanum(const char c)
+AE_RESULT_T no_alnum(const char c)
 {
   return no_alpha(c) && no_digit(c);
 }
@@ -184,8 +184,8 @@ static const ae_expression_t expressions[] = {
   &no_digit,
   &is_lower,
   &no_lower,
-  &is_alphanum,
-  &no_alphanum,
+  &is_alnum,
+  &no_alnum,
   &is_upper,
   &no_upper,
   &is_white,

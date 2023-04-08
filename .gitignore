@@ -4,5 +4,5 @@
 
 .vscode
 
-./bin/ae_test
-./bin/main
+bin/ae_test
+bin/main
