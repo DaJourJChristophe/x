@@ -39,12 +39,29 @@ AE_RESULT_T is_ascii(const char c)
 }
 
 /**
+ * @brief Check if a character is not greater than or equal to zero.
+ */
+AE_RESULT_T no_ascii(const char c)
+{
+  return c < AE_NULL;
+}
+
+/**
  * @brief Check if a character is greater than or equal to 48
  *        or less than or equal to 57.
  */
 AE_RESULT_T is_digit(const char c)
 {
   return c >= AE_ZERO && c <= AE_NINE;
+}
+
+/**
+ * @brief Check if a character is not greater than or not equal to 48
+ *        or not less than or not equal to 57.
+ */
+AE_RESULT_T no_digit(const char c)
+{
+  return c < AE_ZERO || c > AE_NINE;
 }
 
 /**
@@ -57,12 +74,30 @@ AE_RESULT_T is_lower(const char c)
 }
 
 /**
+ * @brief Check if a character is not greater than or not equal to 97
+ *        or not less than or not equal to 122.
+ */
+AE_RESULT_T no_lower(const char c)
+{
+  return c < AE_LOWA || c > AE_LOWZ;
+}
+
+/**
  * @brief Check if a character is greater than or equal to 65
  *        or less than or equal to 90.
  */
 AE_RESULT_T is_upper(const char c)
 {
   return c >= AE_UPPA && c <= AE_UPPZ;
+}
+
+/**
+ * @brief Check if a character is not greater than or not equal to 65
+ *        or not less than or not equal to 90.
+ */
+AE_RESULT_T no_upper(const char c)
+{
+  return c < AE_UPPA || c > AE_UPPZ;
 }
 
 /**
@@ -76,6 +111,16 @@ AE_RESULT_T is_alpha(const char c)
 }
 
 /**
+ * @brief Check if a character is not greater than or not equal to 97
+ *        or not less than or not equal to 122 or if is not greater than
+ *        or not equal to 65 or not less than or not equal to 90.
+ */
+AE_RESULT_T no_alpha(const char c)
+{
+  return no_lower(c) && no_upper(c);
+}
+
+/**
  * @brief Check if a character is greater than or equal to 97
  *        or less than or equal to 122 or if is greater than
  *        or equal to 65 or less than or equal to 90 or if is
@@ -84,6 +129,17 @@ AE_RESULT_T is_alpha(const char c)
 AE_RESULT_T is_alphanum(const char c)
 {
   return is_alpha(c) || is_digit(c);
+}
+
+/**
+ * @brief Check if a character is not greater than or not equal to 97
+ *        or not less than or not equal to 122 or if is not greater than
+ *        or not equal to 65 or less than or not equal to 90 or if is
+ *        not greater than or not equal to 48 or not less than or not equal to 57.
+ */
+AE_RESULT_T no_alphanum(const char c)
+{
+  return no_alpha(c) && no_digit(c);
 }
 
 /**
@@ -99,36 +155,58 @@ AE_RESULT_T is_white(const char c)
 }
 
 /**
+ * @brief Check if a character is not equal to 9 or not equal to 10 or
+ *        not equal to 13 or not equal to 32.
+ */
+AE_RESULT_T no_white(const char c)
+{
+  return  c != AE_TAB    &&
+          c != AE_BREAK  &&
+          c != AE_RETURN &&
+          c != AE_SPACE;
+}
+
+/**
+ * @brief Simplify the expression function definition.
+ */
+typedef bool (*ae_expression_t)(const char);
+
+/**
+ * @brief A collection of expression function definition to speedup
+ *        how expressions are chosen when using `ae_match`.
+ */
+static const ae_expression_t expressions[] = {
+  &is_ascii,
+  &no_ascii,
+  &is_alpha,
+  &no_alpha,
+  &is_digit,
+  &no_digit,
+  &is_lower,
+  &no_lower,
+  &is_alphanum,
+  &no_alphanum,
+  &is_upper,
+  &no_upper,
+  &is_white,
+  &no_white,
+};
+
+/**
  * @brief Given some character `c` check it matches an `expression`.
  */
-bool ae_match(const char c, const char expression)
+bool ae_match(const char c, const int expression)
 {
-  switch (expression)
+  /* Check if the parameter `expression` is in the range of the
+     expression function pool above, if not throw an error. */
+  if (expression < 0 || expression > 14)
   {
-    case AE_IS_ASCII: return  is_ascii(c);
-    case AE_NO_ASCII: return !is_ascii(c);
-
-    case AE_IS_ALPHA: return  is_alpha(c);
-    case AE_NO_ALPHA: return !is_alpha(c);
-
-    case AE_IS_DIGIT: return  is_digit(c);
-    case AE_NO_DIGIT: return !is_digit(c);
-
-    case AE_IS_LOWER: return  is_lower(c);
-    case AE_NO_LOWER: return !is_lower(c);
-
-    case AE_IS_ALNUM: return  is_alphanum(c);
-    case AE_NO_ALNUM: return !is_alphanum(c);
-
-    case AE_IS_UPPER: return  is_upper(c);
-    case AE_NO_UPPER: return !is_upper(c);
-
-    case AE_IS_WHITE: return  is_white(c);
-    case AE_NO_WHITE: return !is_white(c);
-
-    default:
-      die("Unknown ASCII expression", __FILE__, __func__);
+    const char errmsg[] = "Unknown ASCII expression";
+    die(errmsg, __FILE__, __func__);
+    return false;
   }
-
-  return false;
+  /* Select an expression function and store as an `ae_expression_t`. */
+  ae_expression_t const fn = expressions[expression];
+  /* Execute the expression and return to result to the caller. */
+  return fn(c);
 }

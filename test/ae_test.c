@@ -132,7 +132,7 @@ static void is_white_test(void unused **state)
 
 static void ae_match_test(void unused **state)
 {
-  const char expressions[] = {
+  const int expressions[] = {
     AE_IS_ASCII,
     AE_NO_ASCII,
     AE_IS_ALPHA,
