@@ -1,0 +1,8 @@
+*.o
+*.so
+*.so.*
+
+.vscode
+
+./bin/ae_test
+./bin/main
