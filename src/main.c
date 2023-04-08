@@ -5,9 +5,7 @@
 
 int main(void)
 {
-  const char c = '3';
-
-  printf("result: %u\n", is_digit(c));
+  ae_match('3', ' ');
 
   return EXIT_SUCCESS;
 }

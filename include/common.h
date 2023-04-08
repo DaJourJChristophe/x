@@ -1,6 +1,9 @@
 #ifndef X_COMMON_H
 #define X_COMMON_H
 
+#include <stdio.h>
+#include <stdlib.h>
+
 #ifndef always_inline
 #define always_inline __attribute__ ((always_inline))
 #endif/*always_inline*/
@@ -8,5 +11,20 @@
 #ifndef unused
 #define unused __attribute__ ((unused))
 #endif/*unused*/
+
+static inline void always_inline warn(const char *message,
+  const char *file_name, const char *func_name)
+{
+  const char fmt[] = "An error occurred in %s:\n  %s(): %s\n\nAborted\n";
+  fprintf(stderr, fmt, file_name, func_name, message);
+  exit(EXIT_FAILURE);
+}
+
+static inline void always_inline die(const char *message,
+  const char *file_name, const char *func_name)
+{
+  warn(file_name, func_name, message);
+  exit(EXIT_FAILURE);
+}
 
 #endif/*X_COMMON_H*/

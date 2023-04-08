@@ -7,6 +7,7 @@
 #include "common.h"
 #include "ae.h"
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -129,6 +130,211 @@ static void is_white_test(void unused **state)
   enum_all_chars_option(&is_white, 9, 10, 13, 32);
 }
 
+static void ae_match_test(void unused **state)
+{
+  const char expressions[] = {
+    AE_IS_ASCII,
+    AE_NO_ASCII,
+    AE_IS_ALPHA,
+    AE_NO_ALPHA,
+    AE_IS_DIGIT,
+    AE_NO_DIGIT,
+    AE_IS_LOWER,
+    AE_NO_LOWER,
+    AE_IS_ALNUM,
+    AE_NO_ALNUM,
+    AE_IS_UPPER,
+    AE_NO_UPPER,
+    AE_IS_WHITE,
+    AE_NO_WHITE,
+  };
+  const int expressions_count = sizeof(expressions) / sizeof(expressions[0]);
+
+  const int n = 128;
+  char c = -127;
+  int j = -127;
+  int i;
+
+  bool result;
+
+  for (; j < n; j++, c++)
+  {
+    for (i = 0; i < expressions_count; i++)
+    {
+      if (i % 2 == 0)
+      {
+        switch (expressions[i])
+        {
+          case AE_IS_ASCII:
+            result = ae_match(c, AE_IS_ASCII);
+            if (c >= 0)
+            {
+              assert_true(result);
+            }
+            else
+            {
+              assert_false(result);
+            }
+            break;
+          case AE_IS_ALPHA:
+            result = ae_match(c, AE_IS_ALPHA);
+            if ((c >= 65 && c <= 90) || (c >= 97 && c <= 122))
+            {
+              assert_true(result);
+            }
+            else
+            {
+              assert_false(result);
+            }
+            break;
+          case AE_IS_DIGIT:
+            result = ae_match(c, AE_IS_DIGIT);
+            if ((c >= 48 && c <= 57))
+            {
+              assert_true(result);
+            }
+            else
+            {
+              assert_false(result);
+            }
+            break;
+          case AE_IS_LOWER:
+            result = ae_match(c, AE_IS_LOWER);
+            if ((c >= 97 && c <= 122))
+            {
+              assert_true(result);
+            }
+            else
+            {
+              assert_false(result);
+            }
+            break;
+          case AE_IS_ALNUM:
+            result = ae_match(c, AE_IS_ALNUM);
+            if ((c >= 65 && c <= 90)  ||
+                (c >= 97 && c <= 122) ||
+                (c >= 48 && c <= 57))
+            {
+              assert_true(result);
+            }
+            else
+            {
+              assert_false(result);
+            }
+            break;
+          case AE_IS_UPPER:
+            result = ae_match(c, AE_IS_UPPER);
+            if ((c >= 65 && c <= 90))
+            {
+              assert_true(result);
+            }
+            else
+            {
+              assert_false(result);
+            }
+            break;
+          case AE_IS_WHITE:
+            result = ae_match(c, AE_IS_WHITE);
+            if (c == 9 || c == 10 || c == 13 || c == 32)
+            {
+              assert_true(result);
+            }
+            else
+            {
+              assert_false(result);
+            }
+            break;
+        }
+      }
+      else
+      {
+        switch (expressions[i])
+        {
+          case AE_NO_ASCII:
+            result = ae_match(c, AE_NO_ASCII);
+            if (c >= 0)
+            {
+              assert_false(result);
+            }
+            else
+            {
+              assert_true(result);
+            }
+            break;
+          case AE_NO_ALPHA:
+            result = ae_match(c, AE_NO_ALPHA);
+            if ((c >= 65 && c <= 90) || (c >= 97 && c <= 122))
+            {
+              assert_false(result);
+            }
+            else
+            {
+              assert_true(result);
+            }
+            break;
+          case AE_NO_DIGIT:
+            result = ae_match(c, AE_NO_DIGIT);
+            if ((c >= 48 && c <= 57))
+            {
+              assert_false(result);
+            }
+            else
+            {
+              assert_true(result);
+            }
+            break;
+          case AE_NO_LOWER:
+            result = ae_match(c, AE_NO_LOWER);
+            if ((c >= 97 && c <= 122))
+            {
+              assert_false(result);
+            }
+            else
+            {
+              assert_true(result);
+            }
+            break;
+          case AE_NO_ALNUM:
+            result = ae_match(c, AE_NO_ALNUM);
+            if ((c >= 65 && c <= 90)  ||
+                (c >= 97 && c <= 122) ||
+                (c >= 48 && c <= 57))
+            {
+              assert_false(result);
+            }
+            else
+            {
+              assert_true(result);
+            }
+            break;
+          case AE_NO_UPPER:
+            result = ae_match(c, AE_NO_UPPER);
+            if ((c >= 65 && c <= 90))
+            {
+              assert_false(result);
+            }
+            else
+            {
+              assert_true(result);
+            }
+            break;
+          case AE_NO_WHITE:
+            result = ae_match(c, AE_NO_WHITE);
+            if (c == 9 || c == 10 || c == 13 || c == 32)
+            {
+              assert_false(result);
+            }
+            else
+            {
+              assert_true(result);
+            }
+            break;
+        }
+      }
+    }
+  }
+}
+
 int main(void)
 {
   const struct CMUnitTest tests[] = {
@@ -139,6 +345,8 @@ int main(void)
     cmocka_unit_test(is_ascii_test),
     cmocka_unit_test(is_white_test),
     cmocka_unit_test(is_alphanum_test),
+
+    cmocka_unit_test(ae_match_test),
   };
 
   return cmocka_run_group_tests(tests, NULL, NULL);

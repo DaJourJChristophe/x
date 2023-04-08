@@ -26,6 +26,11 @@
 #define AE_RETURN ((char)0x0D)  /* carriage return */
 
 /**
+ * @brief An inline boolean return type.
+ */
+#define AE_RESULT_T inline bool always_inline
+
+/**
  * @brief Check if a character is greater than or equal to zero.
  */
 AE_RESULT_T is_ascii(const char c)
@@ -91,4 +96,39 @@ AE_RESULT_T is_white(const char c)
           c == AE_BREAK  ||
           c == AE_RETURN ||
           c == AE_SPACE;
+}
+
+/**
+ * @brief Given some character `c` check it matches an `expression`.
+ */
+bool ae_match(const char c, const char expression)
+{
+  switch (expression)
+  {
+    case AE_IS_ASCII: return  is_ascii(c);
+    case AE_NO_ASCII: return !is_ascii(c);
+
+    case AE_IS_ALPHA: return  is_alpha(c);
+    case AE_NO_ALPHA: return !is_alpha(c);
+
+    case AE_IS_DIGIT: return  is_digit(c);
+    case AE_NO_DIGIT: return !is_digit(c);
+
+    case AE_IS_LOWER: return  is_lower(c);
+    case AE_NO_LOWER: return !is_lower(c);
+
+    case AE_IS_ALNUM: return  is_alphanum(c);
+    case AE_NO_ALNUM: return !is_alphanum(c);
+
+    case AE_IS_UPPER: return  is_upper(c);
+    case AE_NO_UPPER: return !is_upper(c);
+
+    case AE_IS_WHITE: return  is_white(c);
+    case AE_NO_WHITE: return !is_white(c);
+
+    default:
+      die("Unknown ASCII expression", __FILE__, __func__);
+  }
+
+  return false;
 }

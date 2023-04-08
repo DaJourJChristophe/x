@@ -4,4 +4,4 @@ set -e
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/peter/Documents/x/libexec/
 
-./bin/main
+./bin/ae_test
