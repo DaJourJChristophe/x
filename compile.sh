@@ -8,6 +8,12 @@ gcc -c -Iinclude -std=c99 -pedantic -Wall -Wextra -Werror \
   -ggdb -DNDEBUG -O0 -fPIC -o ./src/ae.o ./src/ae.c
 
 gcc -c -Iinclude -std=c99 -pedantic -Wall -Wextra -Werror \
+  -ggdb -DNDEBUG -O0 -fPIC -o ./src/io.o ./src/io.c
+
+gcc -c -Iinclude -std=c99 -pedantic -Wall -Wextra -Werror \
+  -ggdb -DNDEBUG -O0 -fPIC -o ./src/lexer.o ./src/lexer.c
+
+gcc -c -Iinclude -std=c99 -pedantic -Wall -Wextra -Werror \
   -ggdb -DNDEBUG -O0 -fPIC -o ./src/re.o ./src/re.c
 
 # Program Source Build
@@ -26,7 +32,10 @@ gcc -c -Iinclude -Iinclude/cmocka -std=c99 -pedantic \
 # Link Library
 
 gcc -Llibexec -shared -o ./libexec/libx.so \
-  ./src/ae.o ./src/re.o
+  ./src/ae.o \
+  ./src/io.o \
+  ./src/lexer.o \
+  ./src/re.o
 
 
 # Link Program

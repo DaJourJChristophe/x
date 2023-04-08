@@ -29,8 +29,6 @@
 #include "ae.h"
 #include "re.h"
 
-#include <stdio.h>
-
 /**
  * @brief Max number of regex symbols in expression.
  */
