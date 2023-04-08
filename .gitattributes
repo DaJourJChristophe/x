@@ -1,0 +1,8 @@
+# Auto detect text files and perform LF normalization.
+* text=auto  eol=lf
+
+# JS files must always use LF for tools to work.
+*.js eol=lf
+
+# Don't diff or textually merge source maps.
+*.map binary
