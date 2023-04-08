@@ -42,3 +42,8 @@ Check if a character is whitespace.
 ```c
 bool is_white(const char c);
 ```
+
+Check if a character matches the expression definition.
+```c
+bool ae_match(const char c, const int expression);
+```
