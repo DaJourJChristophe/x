@@ -10,6 +10,10 @@
 #include "common.h"
 #include "ae.h"
 
+/*
+NOTE: Change is_white to is_space.
+*/
+
 /**
  * @brief A collection of ASCII expression evaluation characters.
  */
@@ -24,6 +28,8 @@
 #define AE_BREAK  ((char)0x0A)  /* line-break */
 #define AE_SPACE  ((char)0x20)  /* space */
 #define AE_RETURN ((char)0x0D)  /* carriage return */
+#define AE_FORM_FEED ((char)0x0C)  /* form feed */
+#define AE_VERTICAL_TAB ((char)0x0B)  /* vertical tab */
 
 /**
  * @brief An inline boolean return type.

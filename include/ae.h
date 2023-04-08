@@ -1,6 +1,10 @@
 #ifndef X_ASCII_EXPRESSION_H
 #define X_ASCII_EXPRESSION_H
 
+#ifdef __cplusplus
+extern "C"{
+#endif
+
 #include "common.h"
 
 #include <stdbool.h>
@@ -102,5 +106,9 @@ bool no_white(const char c);
  *        predefined supported expressions.
  */
 bool ae_match(const char c, const int expression);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif/*X_ASCII_EXPRESSION_H*/
