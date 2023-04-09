@@ -198,48 +198,6 @@ enum
   YIELD_RESERVED_WORD = 210734933212,
 };
 
-// static const char keywords[][9] = {
-//   "abstract",
-//   "boolean",
-//   "break",
-//   "case",
-//   "class",
-//   "const",
-//   "default",
-//   "double",
-//   "export",
-//   "false",
-//   "float",
-//   "for",
-//   "if",
-//   "immutable",
-//   "import",
-//   "int",
-//   "is",
-//   "matrix",
-//   "null",
-//   "object",
-//   "package",
-//   "print",
-//   "private",
-//   "protected",
-//   "public",
-//   "return",
-//   "scalar",
-//   "set",
-//   "static",
-//   "string",
-//   "switch",
-//   "true",
-//   "unless",
-//   "vector",
-//   "void",
-//   "while",
-//   "yield",
-// };
-
-// static const size_t keywords_size = sizeof(keywords) / sizeof(keywords[0]);
-
 struct token
 {
   int type;
