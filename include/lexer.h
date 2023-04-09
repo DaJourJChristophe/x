@@ -5,7 +5,7 @@
 extern "C"{
 #endif
 
-
+void compile(const char *filepath);
 
 #ifdef __cplusplus
 }

@@ -1,28 +1,11 @@
-#include "common.h"
-#include "io.h"
-#include "re.h"
+#include "lexer.h"
 
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-
-#define MAXBUF    (1 << 20)
 
 int main(void)
 {
   const char filepath[] = "./example/main.x";
-
-  char data[MAXBUF];
-  memset(data, 0, (MAXBUF * sizeof(char)));
-
-  int err = readfile(data, filepath);
-  if (err < 0)
-  {
-    const char errmsg[] = "could not read a file from the disk";
-    die(errmsg, __FILE__, __func__);
-  }
-
-  printf("%s", data);
+  compile(filepath);
 
   /* Standard int to hold length of match */
   // int match_length;

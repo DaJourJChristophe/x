@@ -10,6 +10,8 @@
 #include "common.h"
 #include "ae.h"
 
+#include <stddef.h>
+
 /*
 NOTE: Change is_white to is_space.
 */
@@ -35,6 +37,22 @@ NOTE: Change is_white to is_space.
  * @brief An inline boolean return type.
  */
 #define AE_RESULT_T inline bool always_inline
+
+/**
+ * @brief Check if a character is equal to zero.
+ */
+AE_RESULT_T is_null(const char c)
+{
+  return c == AE_NULL;
+}
+
+/**
+ * @brief Check if a character is not equal to zero.
+ */
+AE_RESULT_T no_null(const char c)
+{
+  return c != AE_NULL;
+}
 
 /**
  * @brief Check if a character is greater than or equal to zero.
@@ -173,6 +191,28 @@ AE_RESULT_T no_white(const char c)
 }
 
 /**
+ * @brief
+ */
+AE_RESULT_T is_symbl(const char c)
+{
+  return  (c >= ((char)0x21) && c <= ((char)0x2F)) ||
+          (c >= ((char)0x3A) && c <= ((char)0x40)) ||
+          (c >= ((char)0x5B) && c <= ((char)0x60)) ||
+          (c >= ((char)0x7B) && c <= ((char)0x7E));
+}
+
+/**
+ * @brief
+ */
+AE_RESULT_T no_symbl(const char c)
+{
+  return  (c < ((char)0x21) || c > ((char)0x2F)) &&
+          (c < ((char)0x3A) || c > ((char)0x40)) &&
+          (c < ((char)0x5B) || c > ((char)0x60)) &&
+          (c < ((char)0x7B) || c > ((char)0x7E));
+}
+
+/**
  * @brief Simplify the expression function definition.
  */
 typedef bool (*ae_expression_t)(const char);
@@ -196,6 +236,10 @@ static const ae_expression_t expressions[] = {
   &no_upper,
   &is_white,
   &no_white,
+  &is_symbl,
+  &no_symbl,
+  &is_null,
+  &no_null,
 };
 
 /**
@@ -203,9 +247,11 @@ static const ae_expression_t expressions[] = {
  */
 bool ae_match(const char c, const int expression)
 {
+  int const n = sizeof(expressions) / sizeof(expressions[0]);
+
   /* Check if the parameter `expression` is in the range of the
      expression function pool above, if not throw an error. */
-  if (expression < 0 || expression > 14)
+  if (expression < 0 || expression > n)
   {
     const char errmsg[] = "Unknown ASCII expression";
     die(errmsg, __FILE__, __func__);

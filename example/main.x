@@ -1,3 +1,1 @@
-
-print "Hello, World!"
-
+int main(x) => x

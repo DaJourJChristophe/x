@@ -19,6 +19,8 @@ extern "C"{
 #define AE_IS_ALNUM  ((const int)0x08)
 #define AE_IS_UPPER  ((const int)0x0A)
 #define AE_IS_WHITE  ((const int)0x0C)
+#define AE_IS_SYMBL  ((const int)0x0E)
+#define AE_IS_NULL   ((const int)0x10)
 
 /**
  * @brief A collection of negative ASCII expressions.
@@ -30,6 +32,8 @@ extern "C"{
 #define AE_NO_ALNUM ((const int)0x09)
 #define AE_NO_UPPER ((const int)0x0B)
 #define AE_NO_WHITE ((const int)0x0D)
+#define AE_NO_SYMBL ((const int)0x0F)
+#define AE_NO_NULL  ((const int)0x11)
 
 /**
  * @brief Check if a character is alphabetic.
@@ -80,6 +84,26 @@ bool is_lower(const char c);
  * @brief Check if a character is not lower case.
  */
 bool no_lower(const char c);
+
+/**
+ * @brief Check if a character is equal to zero.
+ */
+bool is_null(const char c);
+
+/**
+ * @brief Check if a character is not equal to zero.
+ */
+bool no_null(const char c);
+
+/**
+ * @brief Check if a character is a symbol.
+ */
+bool is_symbl(const char c);
+
+/**
+ * @brief Check if a character is not symbol.
+ */
+bool no_symbl(const char c);
 
 /**
  * @brief Check if a character is upper case.
