@@ -17,6 +17,9 @@ gcc -c -Iinclude -std=c99 -Wall -Wextra -Werror \
 gcc -c -Iinclude -std=c99 -pedantic -Wall -Wextra -Werror \
   -ggdb3 -DNDEBUG -O0 -fPIC -o ./src/re.o ./src/re.c
 
+gcc -c -Iinclude -std=c99 -pedantic -Wall -Wextra -Werror \
+  -ggdb3 -DNDEBUG -O0 -fPIC -o ./src/utils.o ./src/utils.c
+
 # Program Source Build
 
 gcc -c -Iinclude -std=c99 -pedantic -Wall -Wextra -Werror \
@@ -36,7 +39,8 @@ gcc -Llibexec -shared -o ./libexec/libx.so \
   ./src/ae.o \
   ./src/io.o \
   ./src/lexer.o \
-  ./src/re.o
+  ./src/re.o \
+  ./src/utils.o
 
 
 # Link Program
