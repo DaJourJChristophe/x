@@ -5,21 +5,22 @@ set -e
 # Library Source Build
 
 gcc -c -Iinclude -std=c99 -pedantic -Wall -Wextra -Werror \
-  -ggdb -DNDEBUG -O0 -fPIC -o ./src/ae.o ./src/ae.c
+  -ggdb3 -DNDEBUG -O0 -fPIC -o ./src/ae.o ./src/ae.c
 
 gcc -c -Iinclude -std=c99 -pedantic -Wall -Wextra -Werror \
-  -ggdb -DNDEBUG -O0 -fPIC -o ./src/io.o ./src/io.c
+  -ggdb3 -DNDEBUG -O0 -fPIC -o ./src/io.o ./src/io.c
+
+# INFO: Cannot ISO C do to reserved word enums too large.
+gcc -c -Iinclude -std=c99 -Wall -Wextra -Werror \
+  -ggdb3 -DNDEBUG -O0 -fPIC -o ./src/lexer.o ./src/lexer.c
 
 gcc -c -Iinclude -std=c99 -pedantic -Wall -Wextra -Werror \
-  -ggdb -DNDEBUG -O0 -fPIC -o ./src/lexer.o ./src/lexer.c
-
-gcc -c -Iinclude -std=c99 -pedantic -Wall -Wextra -Werror \
-  -ggdb -DNDEBUG -O0 -fPIC -o ./src/re.o ./src/re.c
+  -ggdb3 -DNDEBUG -O0 -fPIC -o ./src/re.o ./src/re.c
 
 # Program Source Build
 
 gcc -c -Iinclude -std=c99 -pedantic -Wall -Wextra -Werror \
-  -ggdb -DNDEBUG -O0 -o ./src/main.o ./src/main.c
+  -ggdb3 -DNDEBUG -O0 -o ./src/main.o ./src/main.c
 
 
 # Test Source Build

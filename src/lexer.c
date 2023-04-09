@@ -20,6 +20,8 @@
 
 #define MAXBUF    (1 << 20)
 
+#define LEXER_HASH_INIT   5381
+
 /**
  * @brief Define a collection of character tokens.
  */
@@ -157,89 +159,86 @@ enum
  */
 enum
 {
-  /**
-   * @brief Numerical Reserved Words.
-   */
-  ABSTRACT_RESERVED_WORD,
-  BOOLEAN_RESERVED_WORD,
-  BREAK_RESERVED_WORD,
-  CASE_RESERVED_WORD,
-  CLASS_RESERVED_WORD,
-  CONST_RESERVED_WORD,
-  DEFAULT_RESERVED_WORD,
-  DOUBLE_RESERVED_WORD,
-  EXPORT_RESERVED_WORD,
-  FALSE_RESERVED_WORD,
-  FLOAT_RESERVED_WORD,
-  FOR_RESERVED_WORD,
-  IF_RESERVED_WORD,
-  IMMUTABLE_RESERVED_WORD,
-  IMPORT_RESERVED_WORD,
-  INTEGER_RESERVED_WORD,
-  IS_RESERVED_WORD,
-  MATRIX_RESERVED_WORD,
-  NIL_RESERVED_WORD,
-  OBJECT_RESERVED_WORD,
-  PACKAGE_RESERVED_WORD,
-  PRINT_RESERVED_WORD,
-  PRIVATE_RESERVED_WORD,
-  PROTECTED_RESERVED_WORD,
-  PUBLIC_RESERVED_WORD,
-  RETURN_RESERVED_WORD,
-  SCALAR_RESERVED_WORD,
-  SET_RESERVED_WORD,
-  STATIC_RESERVED_WORD,
-  STRING_RESERVED_WORD,
-  SWITCH_RESERVED_WORD,
-  TRUE_RESERVED_WORD,
-  UNLESS_RESERVED_WORD,
-  VECTOR_RESERVED_WORD,
-  VOID_RESERVED_WORD,
-  WHILE_RESERVED_WORD,
-  YIELD_RESERVED_WORD,
+  ABSTRACT_RESERVED_WORD = 7572149969927417,
+  BOOLEAN_RESERVED_WORD = 229460885180549,
+  BREAK_RESERVED_WORD = 210707980106,
+  CASE_RESERVED_WORD = 6385108193,
+  CLASS_RESERVED_WORD = 210708946651,
+  CONST_RESERVED_WORD = 210709068620,
+  DEFAULT_RESERVED_WORD = 229463065711754,
+  DOUBLE_RESERVED_WORD = 6953438632736,
+  EXPORT_RESERVED_WORD = 6953488276103,
+  FALSE_RESERVED_WORD = 210712121072,
+  FLOAT_RESERVED_WORD = 210712519067,
+  FOR_RESERVED_WORD = 193491852,
+  IF_RESERVED_WORD = 5863476,
+  IMMUTABLE_RESERVED_WORD = 249892661372121605,
+  IMPORT_RESERVED_WORD = 6953631772544,
+  INTEGER_RESERVED_WORD = 193495088,
+  IS_RESERVED_WORD = 5863489,
+  MATRIX_RESERVED_WORD = 6953774229786,
+  NIL_RESERVED_WORD = 6385525056,
+  OBJECT_RESERVED_WORD = 6953853312764,
+  PACKAGE_RESERVED_WORD = 229478403565457,
+  PRINT_RESERVED_WORD = 210724587794,
+  PRIVATE_RESERVED_WORD = 229479076378400,
+  PROTECTED_RESERVED_WORD = 249902721850767151,
+  PUBLIC_RESERVED_WORD = 6953914700964,
+  RETURN_RESERVED_WORD = 6953974653989,
+  SCALAR_RESERVED_WORD = 6954010724379,
+  SET_RESERVED_WORD = 193505681,
+  STATIC_RESERVED_WORD = 6954030893997,
+  STRING_RESERVED_WORD = 6954031493116,
+  SWITCH_RESERVED_WORD = 6954034739063,
+  TRUE_RESERVED_WORD = 6385737701,
+  UNLESS_RESERVED_WORD = 6954102428575,
+  VECTOR_RESERVED_WORD = 6954130583448,
+  VOID_RESERVED_WORD = 6385805911,
+  WHILE_RESERVED_WORD = 210732529790,
+  YIELD_RESERVED_WORD = 210734933212,
 };
 
-static const char keywords[][9] = {
-  "abstract",
-  "boolean",
-  "break",
-  "case",
-  "class",
-  "const",
-  "default",
-  "double",
-  "export",
-  "false",
-  "float",
-  "for",
-  "if",
-  "immutable",
-  "import",
-  "int",
-  "is",
-  "matrix",
-  "null",
-  "object",
-  "package",
-  "print",
-  "private",
-  "protected",
-  "public",
-  "return",
-  "scalar",
-  "set",
-  "static",
-  "string",
-  "switch",
-  "true",
-  "unless",
-  "vector",
-  "void",
-  "while",
-  "yield",
-};
+// static const char keywords[][9] = {
+//   "abstract",
+//   "boolean",
+//   "break",
+//   "case",
+//   "class",
+//   "const",
+//   "default",
+//   "double",
+//   "export",
+//   "false",
+//   "float",
+//   "for",
+//   "if",
+//   "immutable",
+//   "import",
+//   "int",
+//   "is",
+//   "matrix",
+//   "null",
+//   "object",
+//   "package",
+//   "print",
+//   "private",
+//   "protected",
+//   "public",
+//   "return",
+//   "scalar",
+//   "set",
+//   "static",
+//   "string",
+//   "switch",
+//   "true",
+//   "unless",
+//   "vector",
+//   "void",
+//   "while",
+//   "yield",
+// };
 
-static const size_t keywords_size = sizeof(keywords) / sizeof(keywords[0]);
+// static const size_t keywords_size = sizeof(keywords) / sizeof(keywords[0]);
 
 struct token
 {
@@ -577,6 +576,23 @@ void print_token(token_t *token)
   }
 }
 
+/**
+ * @brief Hash a string, based on the djb2 algorithm, return the hash
+ *        via a pointer parameter. This algorithm (k=33) was first
+ *        reported by Dan Bernstein many years ago in comp.lang.c.
+ *        another version of this algorithm (now favored by bernstein)
+ *        uses xor: hash(i) = hash(i - 1) * 33 ^ str[i]; the magic of
+ *        number 33 (why it works better than many other constants,
+ *        prime or not) has never been adequately explained.
+ */
+static void hash(uint64_t *hash, const char **s)
+{
+  for (; ae_match(**s, AE_IS_ALPHA); *s += 1)
+  {
+    *hash = (*hash << 5) + *hash + **s;
+  }
+}
+
 static void parse(const char *data)
 {
   syntax_token_t token;
@@ -639,175 +655,162 @@ static void parse(const char *data)
       token.type = WORD;
       token.i = data;
 
-      do
+      uint64_t _hash = LEXER_HASH_INIT;
+
+      hash(&_hash, &data);
+
+      switch (_hash)
       {
-        data++;
+        case ABSTRACT_RESERVED_WORD:
+          token.type = ABSTRACT;
+          break;
+
+        case BOOLEAN_RESERVED_WORD:
+          token.type = BOOLEAN;
+          break;
+
+        case BREAK_RESERVED_WORD:
+          token.type = BREAK;
+          break;
+
+        case CASE_RESERVED_WORD:
+          token.type = CASE;
+          break;
+
+        case CLASS_RESERVED_WORD:
+          token.type = CLASS;
+          break;
+
+        case CONST_RESERVED_WORD:
+          token.type = CONST;
+          break;
+
+        case DEFAULT_RESERVED_WORD:
+          token.type = DEFAULT;
+          break;
+
+        case DOUBLE_RESERVED_WORD:
+          token.type = DOUBLE;
+          break;
+
+        case EXPORT_RESERVED_WORD:
+          token.type = EXPORT;
+          break;
+
+        case FALSE_RESERVED_WORD:
+          token.type = FALSE;
+          break;
+
+        case FLOAT_RESERVED_WORD:
+          token.type = FLOAT;
+          break;
+
+        case FOR_RESERVED_WORD:
+          token.type = FOR;
+          break;
+
+        case IF_RESERVED_WORD:
+          token.type = IF;
+          break;
+
+        case IMMUTABLE_RESERVED_WORD:
+          token.type = IMMUTABLE;
+          break;
+
+        case IMPORT_RESERVED_WORD:
+          token.type = IMPORT;
+          break;
+
+        case INTEGER_RESERVED_WORD:
+          token.type = INTEGER;
+          break;
+
+        case IS_RESERVED_WORD:
+          token.type = IS;
+          break;
+
+        case MATRIX_RESERVED_WORD:
+          token.type = MATRIX;
+          break;
+
+        case NIL_RESERVED_WORD:
+          token.type = NIL;
+          break;
+
+        case OBJECT_RESERVED_WORD:
+          token.type = OBJECT;
+          break;
+
+        case PACKAGE_RESERVED_WORD:
+          token.type = PACKAGE;
+          break;
+
+        case PRINT_RESERVED_WORD:
+          token.type = PRINT;
+          break;
+
+        case PRIVATE_RESERVED_WORD:
+          token.type = PRIVATE;
+          break;
+
+        case PROTECTED_RESERVED_WORD:
+          token.type = PROTECTED;
+          break;
+
+        case PUBLIC_RESERVED_WORD:
+          token.type = PUBLIC;
+          break;
+
+        case RETURN_RESERVED_WORD:
+          token.type = RETURN;
+          break;
+
+        case SCALAR_RESERVED_WORD:
+          token.type = SCALAR;
+          break;
+
+        case SET_RESERVED_WORD:
+          token.type = SET;
+          break;
+
+        case STATIC_RESERVED_WORD:
+          token.type = STATIC;
+          break;
+
+        case STRING_RESERVED_WORD:
+          token.type = STRING;
+          break;
+
+        case SWITCH_RESERVED_WORD:
+          token.type = SWITCH;
+          break;
+
+        case TRUE_RESERVED_WORD:
+          token.type = TRUE;
+          break;
+
+        case UNLESS_RESERVED_WORD:
+          token.type = UNLESS;
+          break;
+
+        case VECTOR_RESERVED_WORD:
+          token.type = VECTOR;
+          break;
+
+        case VOID_RESERVED_WORD:
+          token.type = VOID;
+          break;
+
+        case WHILE_RESERVED_WORD:
+          token.type = WHILE;
+          break;
+
+        case YIELD_RESERVED_WORD:
+          token.type = YIELD;
+          break;
       }
-      while (ae_match(*data, AE_IS_ALNUM));
 
       token.j = data;
-
-      for (uint64_t i = 0; i < keywords_size; i++)
-      {
-        /**
-         * NOTE: Use a data structure here to reduce the time complexity
-         *       back to O(n), current O(n²).
-         */
-        if (strncmp(token.i, keywords[i], (token.j - token.i)) == 0)
-        {
-          switch (i)
-          {
-            case ABSTRACT_RESERVED_WORD:
-              token.type = ABSTRACT;
-              break;
-
-            case BOOLEAN_RESERVED_WORD:
-              token.type = BOOLEAN;
-              break;
-
-            case BREAK_RESERVED_WORD:
-              token.type = BREAK;
-              break;
-
-            case CASE_RESERVED_WORD:
-              token.type = CASE;
-              break;
-
-            case CLASS_RESERVED_WORD:
-              token.type = CLASS;
-              break;
-
-            case CONST_RESERVED_WORD:
-              token.type = CONST;
-              break;
-
-            case DEFAULT_RESERVED_WORD:
-              token.type = DEFAULT;
-              break;
-
-            case DOUBLE_RESERVED_WORD:
-              token.type = DOUBLE;
-              break;
-
-            case EXPORT_RESERVED_WORD:
-              token.type = EXPORT;
-              break;
-
-            case FALSE_RESERVED_WORD:
-              token.type = FALSE;
-              break;
-
-            case FLOAT_RESERVED_WORD:
-              token.type = FLOAT;
-              break;
-
-            case FOR_RESERVED_WORD:
-              token.type = FOR;
-              break;
-
-            case IF_RESERVED_WORD:
-              token.type = IF;
-              break;
-
-            case IMMUTABLE_RESERVED_WORD:
-              token.type = IMMUTABLE;
-              break;
-
-            case IMPORT_RESERVED_WORD:
-              token.type = IMPORT;
-              break;
-
-            case INTEGER_RESERVED_WORD:
-              token.type = INTEGER;
-              break;
-
-            case IS_RESERVED_WORD:
-              token.type = IS;
-              break;
-
-            case MATRIX_RESERVED_WORD:
-              token.type = MATRIX;
-              break;
-
-            case NIL_RESERVED_WORD:
-              token.type = NIL;
-              break;
-
-            case OBJECT_RESERVED_WORD:
-              token.type = OBJECT;
-              break;
-
-            case PACKAGE_RESERVED_WORD:
-              token.type = PACKAGE;
-              break;
-
-            case PRINT_RESERVED_WORD:
-              token.type = PRINT;
-              break;
-
-            case PRIVATE_RESERVED_WORD:
-              token.type = PRIVATE;
-              break;
-
-            case PROTECTED_RESERVED_WORD:
-              token.type = PROTECTED;
-              break;
-
-            case PUBLIC_RESERVED_WORD:
-              token.type = PUBLIC;
-              break;
-
-            case RETURN_RESERVED_WORD:
-              token.type = RETURN;
-              break;
-
-            case SCALAR_RESERVED_WORD:
-              token.type = SCALAR;
-              break;
-
-            case SET_RESERVED_WORD:
-              token.type = SET;
-              break;
-
-            case STATIC_RESERVED_WORD:
-              token.type = STATIC;
-              break;
-
-            case STRING_RESERVED_WORD:
-              token.type = STRING;
-              break;
-
-            case SWITCH_RESERVED_WORD:
-              token.type = SWITCH;
-              break;
-
-            case TRUE_RESERVED_WORD:
-              token.type = TRUE;
-              break;
-
-            case UNLESS_RESERVED_WORD:
-              token.type = UNLESS;
-              break;
-
-            case VECTOR_RESERVED_WORD:
-              token.type = VECTOR;
-              break;
-
-            case VOID_RESERVED_WORD:
-              token.type = VOID;
-              break;
-
-            case WHILE_RESERVED_WORD:
-              token.type = WHILE;
-              break;
-
-            case YIELD_RESERVED_WORD:
-              token.type = YIELD;
-              break;
-          }
-        }
-      }
-
       print_token(&token);
     }
 

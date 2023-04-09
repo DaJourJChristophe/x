@@ -27,4 +27,25 @@ static inline void always_inline die(const char *message,
   exit(EXIT_FAILURE);
 }
 
+static inline void always_inline * __malloc(size_t const n)
+{
+  void *p = NULL;
+  p = malloc(n);
+  if (p == NULL)
+  {
+    const char errmsg[] = "memory error";
+    die(errmsg, __FILE__, __func__);
+  }
+  return p;
+}
+
+static inline void always_inline __free(void *p)
+{
+  if (p != NULL)
+  {
+    free(p);
+    p = NULL;
+  }
+}
+
 #endif/*X_COMMON_H*/
