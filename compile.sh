@@ -8,6 +8,9 @@ gcc -c -Iinclude -std=c99 -pedantic -Wall -Wextra -Werror \
   -ggdb3 -DNDEBUG -O0 -fPIC -o ./src/ae.o ./src/ae.c
 
 gcc -c -Iinclude -std=c99 -pedantic -Wall -Wextra -Werror \
+  -ggdb3 -DNDEBUG -O0 -fPIC -o ./src/error.o ./src/error.c
+
+gcc -c -Iinclude -std=c99 -pedantic -Wall -Wextra -Werror \
   -ggdb3 -DNDEBUG -O0 -fPIC -o ./src/io.o ./src/io.c
 
 # INFO: Cannot ISO C do to reserved word enums too large.
@@ -37,6 +40,7 @@ gcc -c -Iinclude -Iinclude/cmocka -std=c99 -pedantic \
 
 gcc -Llibexec -shared -o ./libexec/libx.so \
   ./src/ae.o \
+  ./src/error.o \
   ./src/io.o \
   ./src/lexer.o \
   ./src/re.o \

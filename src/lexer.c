@@ -8,6 +8,7 @@
  * @copyright Copyright (c) 2023 Da'Jour J. Christophe. All rights reserved.
  */
 #include "common.h"
+#include "error.h"
 #include "ae.h"
 #include "io.h"
 #include "re.h"
@@ -737,9 +738,7 @@ static void parse(const char *data)
 
     else
     {
-      printf("unsupported character: %c\n", *data);
-      const char errmsg[] = "The compiler encountered an unsupported character";
-      die(errmsg, __FILE__, __func__);
+      throw(X_ERROR_UNSUPPORTED_CHARACTER);
     }
   }
   while (*data);
