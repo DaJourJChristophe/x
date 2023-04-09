@@ -238,6 +238,477 @@ static void hash(uint64_t *hash, const char **s)
   }
 }
 
+#define INLINE_VOID_T inline void always_inline
+
+static INLINE_VOID_T handle_whitespace(syntax_token_t *token, const char **data)
+{
+  do
+  {
+    switch (**data)
+    {
+      case '\t':
+        token->type = TAB;
+        token->i = *data;
+        break;
+
+      case '\n':
+        token->type = EOL;
+        token->i = *data;
+        break;
+
+      case ' ':
+        token->type = SPACE;
+        token->i = *data;
+        break;
+    }
+
+    *data += 1;
+
+    token->j = *data;
+    print_token(token);
+  }
+  while (ae_match(**data, AE_IS_WHITE));
+}
+
+static INLINE_VOID_T handle_number(syntax_token_t *token, const char **data)
+{
+  token->type = NUMBER;
+  token->i = *data;
+
+  do
+  {
+    *data += 1;
+
+    if (**data == '.')
+    {
+      token->type = DECIMAL;
+      *data += 1;
+    }
+  }
+  while (ae_match(**data, AE_IS_DIGIT));
+
+  token->j = *data;
+  print_token(token);
+}
+
+static INLINE_VOID_T handle_word(syntax_token_t *token, const char **data)
+{
+  uint64_t _hash = LEXER_HASH_INIT;
+
+  token->type = WORD;
+  token->i = *data;
+
+  hash(&_hash, data);
+
+  switch (_hash)
+  {
+    case ABSTRACT_RESERVED_WORD:
+      token->type = ABSTRACT;
+      break;
+
+    case BOOLEAN_RESERVED_WORD:
+      token->type = BOOLEAN;
+      break;
+
+    case BREAK_RESERVED_WORD:
+      token->type = BREAK;
+      break;
+
+    case CASE_RESERVED_WORD:
+      token->type = CASE;
+      break;
+
+    case CLASS_RESERVED_WORD:
+      token->type = CLASS;
+      break;
+
+    case CONST_RESERVED_WORD:
+      token->type = CONST;
+      break;
+
+    case DEFAULT_RESERVED_WORD:
+      token->type = DEFAULT;
+      break;
+
+    case DOUBLE_RESERVED_WORD:
+      token->type = DOUBLE;
+      break;
+
+    case EXPORT_RESERVED_WORD:
+      token->type = EXPORT;
+      break;
+
+    case FALSE_RESERVED_WORD:
+      token->type = FALSE;
+      break;
+
+    case FLOAT_RESERVED_WORD:
+      token->type = FLOAT;
+      break;
+
+    case FOR_RESERVED_WORD:
+      token->type = FOR;
+      break;
+
+    case IF_RESERVED_WORD:
+      token->type = IF;
+      break;
+
+    case IMMUTABLE_RESERVED_WORD:
+      token->type = IMMUTABLE;
+      break;
+
+    case IMPORT_RESERVED_WORD:
+      token->type = IMPORT;
+      break;
+
+    case INTEGER_RESERVED_WORD:
+      token->type = INTEGER;
+      break;
+
+    case IS_RESERVED_WORD:
+      token->type = IS;
+      break;
+
+    case MATRIX_RESERVED_WORD:
+      token->type = MATRIX;
+      break;
+
+    case NIL_RESERVED_WORD:
+      token->type = NIL;
+      break;
+
+    case OBJECT_RESERVED_WORD:
+      token->type = OBJECT;
+      break;
+
+    case PACKAGE_RESERVED_WORD:
+      token->type = PACKAGE;
+      break;
+
+    case PRINT_RESERVED_WORD:
+      token->type = PRINT;
+      break;
+
+    case PRIVATE_RESERVED_WORD:
+      token->type = PRIVATE;
+      break;
+
+    case PROTECTED_RESERVED_WORD:
+      token->type = PROTECTED;
+      break;
+
+    case PUBLIC_RESERVED_WORD:
+      token->type = PUBLIC;
+      break;
+
+    case RETURN_RESERVED_WORD:
+      token->type = RETURN;
+      break;
+
+    case SCALAR_RESERVED_WORD:
+      token->type = SCALAR;
+      break;
+
+    case SET_RESERVED_WORD:
+      token->type = SET;
+      break;
+
+    case STATIC_RESERVED_WORD:
+      token->type = STATIC;
+      break;
+
+    case STRING_RESERVED_WORD:
+      token->type = STRING;
+      break;
+
+    case SWITCH_RESERVED_WORD:
+      token->type = SWITCH;
+      break;
+
+    case TRUE_RESERVED_WORD:
+      token->type = TRUE;
+      break;
+
+    case UNLESS_RESERVED_WORD:
+      token->type = UNLESS;
+      break;
+
+    case VECTOR_RESERVED_WORD:
+      token->type = VECTOR;
+      break;
+
+    case VOID_RESERVED_WORD:
+      token->type = VOID;
+      break;
+
+    case WHILE_RESERVED_WORD:
+      token->type = WHILE;
+      break;
+
+    case YIELD_RESERVED_WORD:
+      token->type = YIELD;
+      break;
+  }
+
+  token->j = *data;
+  print_token(token);
+}
+
+static INLINE_VOID_T handle_symbol(syntax_token_t *token, const char **data)
+{
+  if (**data == '\'')
+  {
+    token->type = TEXT;
+    token->i = *data;
+
+    do
+    {
+      *data += 1;
+    }
+    while (**data != 0 && **data != '\'');
+  }
+  else if (**data == '"')
+  {
+    token->type = TEXT;
+    token->i = *data;
+
+    do
+    {
+      *data += 1;
+    }
+    while (**data != 0 && **data != '"');
+  }
+  else if (**data == '@')
+  {
+    token->type = ANNOTATION;
+    token->i = *data;
+  }
+  else if (**data == '.')
+  {
+    token->type = DOT;
+    token->i = *data;
+  }
+  else if (**data == '<')
+  {
+    token->type = LEFT_CARET;
+    token->i = *data;
+  }
+  else if (**data == '>')
+  {
+    token->type = RIGHT_CARET;
+    token->i = *data;
+  }
+  else if (**data == '=')
+  {
+    if (*(*data + 1) == '>')
+    {
+      *data += 1;
+
+      token->type = LAMBDA;
+      token->i = *data;
+    }
+    else if (*(*data + 1) == '=')
+    {
+      *data += 1;
+
+      token->type = EQUALS;
+      token->i = *data;
+    }
+    else
+    {
+      token->type = EQUAL;
+      token->i = *data;
+    }
+  }
+  else if (**data == ':')
+  {
+    token->type = COLON;
+    token->i = *data;
+  }
+  else if (**data == ',')
+  {
+    token->type = COMMA;
+    token->i = *data;
+  }
+  else if (**data == '(')
+  {
+    token->type = OPEN_PARENTHESIS;
+    token->i = *data;
+  }
+  else if (**data == ')')
+  {
+    token->type = CLOSE_PARENTHESIS;
+    token->i = *data;
+  }
+  else if (**data == '[')
+  {
+    token->type = OPEN_SQUARE_BRACKET;
+    token->i = *data;
+  }
+  else if (**data == ']')
+  {
+    token->type = CLOSE_SQUARE_BRACKET;
+    token->i = *data;
+  }
+  else if (**data == '{')
+  {
+    token->type = OPEN_CURLY_BRACKET;
+    token->i = *data;
+  }
+  else if (**data == '}')
+  {
+    token->type = CLOSE_CURLY_BRACKET;
+    token->i = *data;
+  }
+  else if (**data == '#')
+  {
+    token->type = REMAINDER;
+    token->i = *data;
+  }
+  else if (**data == '+')
+  {
+    if (*(*data + 1) == '+')
+    {
+      *data += 1;
+
+      token->type = INCREMENT;
+      token->i = *data;
+    }
+    else
+    {
+      token->type = ADDITION;
+      token->i = *data;
+    }
+  }
+  else if (**data == '-')
+  {
+    if (*(*data + 1) == '-')
+    {
+      *data += 1;
+
+      token->type = DECREMENT;
+      token->i = *data;
+    }
+    else
+    {
+      token->type = SUBTRACTION;
+      token->i = *data;
+    }
+  }
+  else if (**data == '/')
+  {
+    if (*(*data + 1) == '/')
+    {
+      do
+      {
+        *data += 1;
+      }
+      while (**data != 0 && **data != '\n');
+    }
+    else if (*(*data + 1) == '*')
+    {
+      for (; *(*data + 1); *data += 1)
+      {
+        if (**data == '*' && *(*data + 1) == '/')
+        {
+          *data += 1;
+          break;
+        }
+      }
+    }
+    else
+    {
+      token->type = DIVISION;
+      token->i = *data;
+    }
+  }
+  else if (**data == '*')
+  {
+    if (*(*data + 1) == '*')
+    {
+      *data += 1;
+
+      token->type = EXPONENTIAL;
+      token->i = *data;
+    }
+    else
+    {
+      token->type = STAR;
+      token->i = *data;
+    }
+  }
+  else if (**data == '%')
+  {
+    token->type = MODULUS;
+    token->i = *data;
+  }
+  else if (**data == '^')
+  {
+    token->type = BITWISE_XOR;
+    token->i = *data;
+  }
+  else if (**data == '|')
+  {
+    if (*(*data + 1) == '|')
+    {
+      *data += 1;
+
+      token->type = CONDITIONAL_OR;
+      token->i = *data;
+    }
+    else
+    {
+      token->type = BITWISE_OR;
+      token->i = *data;
+    }
+  }
+  else if (**data == '&')
+  {
+    if (*(*data + 1) == '&')
+    {
+      *data += 1;
+
+      token->type = CONDITIONAL_AND;
+      token->i = *data;
+    }
+    else
+    {
+      token->type = BITWISE_AND;
+      token->i = *data;
+    }
+  }
+  else if (**data == '~')
+  {
+    token->type = BITWISE_TERNARY;
+    token->i = *data;
+  }
+  else if (**data == ';')
+  {
+    token->type = EOE;
+    token->i = *data;
+  }
+  else
+  {
+    token->type = SYMBOL;
+    token->i = *data;
+  }
+
+  *data += 1;
+
+  token->j = *data;
+  print_token(token);
+}
+
+static INLINE_VOID_T handle_end_of_file(syntax_token_t *token, const char **data)
+{
+  token->type = LEXER_EOF;
+  token->i = *data;
+  token->j = *data;
+
+  print_token(token);
+}
+
 static void parse(const char *data)
 {
   syntax_token_t token;
@@ -246,462 +717,22 @@ static void parse(const char *data)
   {
     if (ae_match(*data, AE_IS_WHITE))
     {
-      do
-      {
-        switch (*data)
-        {
-          case '\t':
-            token.type = TAB;
-            token.i = data;
-            break;
-
-          case '\n':
-            token.type = EOL;
-            token.i = data;
-            break;
-
-          case ' ':
-            token.type = SPACE;
-            token.i = data;
-            break;
-        }
-
-        data++;
-
-        token.j = data;
-        print_token(&token);
-      }
-      while (ae_match(*data, AE_IS_WHITE));
+      handle_whitespace(&token, &data);
     }
 
     else if (ae_match(*data, AE_IS_DIGIT))
     {
-      token.type = NUMBER;
-      token.i = data;
-
-      do
-      {
-        data++;
-
-        if (*data == '.')
-        {
-          token.type = DECIMAL;
-          data++;
-        }
-      }
-      while (ae_match(*data, AE_IS_DIGIT));
-
-      token.j = data;
-      print_token(&token);
+      handle_number(&token, &data);
     }
 
     else if (ae_match(*data, AE_IS_ALNUM))
     {
-      token.type = WORD;
-      token.i = data;
-
-      uint64_t _hash = LEXER_HASH_INIT;
-
-      hash(&_hash, &data);
-
-      switch (_hash)
-      {
-        case ABSTRACT_RESERVED_WORD:
-          token.type = ABSTRACT;
-          break;
-
-        case BOOLEAN_RESERVED_WORD:
-          token.type = BOOLEAN;
-          break;
-
-        case BREAK_RESERVED_WORD:
-          token.type = BREAK;
-          break;
-
-        case CASE_RESERVED_WORD:
-          token.type = CASE;
-          break;
-
-        case CLASS_RESERVED_WORD:
-          token.type = CLASS;
-          break;
-
-        case CONST_RESERVED_WORD:
-          token.type = CONST;
-          break;
-
-        case DEFAULT_RESERVED_WORD:
-          token.type = DEFAULT;
-          break;
-
-        case DOUBLE_RESERVED_WORD:
-          token.type = DOUBLE;
-          break;
-
-        case EXPORT_RESERVED_WORD:
-          token.type = EXPORT;
-          break;
-
-        case FALSE_RESERVED_WORD:
-          token.type = FALSE;
-          break;
-
-        case FLOAT_RESERVED_WORD:
-          token.type = FLOAT;
-          break;
-
-        case FOR_RESERVED_WORD:
-          token.type = FOR;
-          break;
-
-        case IF_RESERVED_WORD:
-          token.type = IF;
-          break;
-
-        case IMMUTABLE_RESERVED_WORD:
-          token.type = IMMUTABLE;
-          break;
-
-        case IMPORT_RESERVED_WORD:
-          token.type = IMPORT;
-          break;
-
-        case INTEGER_RESERVED_WORD:
-          token.type = INTEGER;
-          break;
-
-        case IS_RESERVED_WORD:
-          token.type = IS;
-          break;
-
-        case MATRIX_RESERVED_WORD:
-          token.type = MATRIX;
-          break;
-
-        case NIL_RESERVED_WORD:
-          token.type = NIL;
-          break;
-
-        case OBJECT_RESERVED_WORD:
-          token.type = OBJECT;
-          break;
-
-        case PACKAGE_RESERVED_WORD:
-          token.type = PACKAGE;
-          break;
-
-        case PRINT_RESERVED_WORD:
-          token.type = PRINT;
-          break;
-
-        case PRIVATE_RESERVED_WORD:
-          token.type = PRIVATE;
-          break;
-
-        case PROTECTED_RESERVED_WORD:
-          token.type = PROTECTED;
-          break;
-
-        case PUBLIC_RESERVED_WORD:
-          token.type = PUBLIC;
-          break;
-
-        case RETURN_RESERVED_WORD:
-          token.type = RETURN;
-          break;
-
-        case SCALAR_RESERVED_WORD:
-          token.type = SCALAR;
-          break;
-
-        case SET_RESERVED_WORD:
-          token.type = SET;
-          break;
-
-        case STATIC_RESERVED_WORD:
-          token.type = STATIC;
-          break;
-
-        case STRING_RESERVED_WORD:
-          token.type = STRING;
-          break;
-
-        case SWITCH_RESERVED_WORD:
-          token.type = SWITCH;
-          break;
-
-        case TRUE_RESERVED_WORD:
-          token.type = TRUE;
-          break;
-
-        case UNLESS_RESERVED_WORD:
-          token.type = UNLESS;
-          break;
-
-        case VECTOR_RESERVED_WORD:
-          token.type = VECTOR;
-          break;
-
-        case VOID_RESERVED_WORD:
-          token.type = VOID;
-          break;
-
-        case WHILE_RESERVED_WORD:
-          token.type = WHILE;
-          break;
-
-        case YIELD_RESERVED_WORD:
-          token.type = YIELD;
-          break;
-      }
-
-      token.j = data;
-      print_token(&token);
+      handle_word(&token, &data);
     }
 
     else if (ae_match(*data, AE_IS_SYMBL))
     {
-      if (*data == '\'')
-      {
-        token.type = TEXT;
-        token.i = data;
-
-        do
-        {
-          data++;
-        }
-        while (*data != 0 && *data != '\'');
-      }
-      else if (*data == '"')
-      {
-        token.type = TEXT;
-        token.i = data;
-
-        do
-        {
-          data++;
-        }
-        while (*data != 0 && *data != '"');
-      }
-      else if (*data == '@')
-      {
-        token.type = ANNOTATION;
-        token.i = data;
-      }
-      else if (*data == '.')
-      {
-        token.type = DOT;
-        token.i = data;
-      }
-      else if (*data == '<')
-      {
-        token.type = LEFT_CARET;
-        token.i = data;
-      }
-      else if (*data == '>')
-      {
-        token.type = RIGHT_CARET;
-        token.i = data;
-      }
-      else if (*data == '=')
-      {
-        if (*(data + 1) == '>')
-        {
-          data++;
-
-          token.type = LAMBDA;
-          token.i = data;
-        }
-        else if (*(data + 1) == '=')
-        {
-          data++;
-
-          token.type = EQUALS;
-          token.i = data;
-        }
-        else
-        {
-          token.type = EQUAL;
-          token.i = data;
-        }
-      }
-      else if (*data == ':')
-      {
-        token.type = COLON;
-        token.i = data;
-      }
-      else if (*data == ',')
-      {
-        token.type = COMMA;
-        token.i = data;
-      }
-      else if (*data == '(')
-      {
-        token.type = OPEN_PARENTHESIS;
-        token.i = data;
-      }
-      else if (*data == ')')
-      {
-        token.type = CLOSE_PARENTHESIS;
-        token.i = data;
-      }
-      else if (*data == '[')
-      {
-        token.type = OPEN_SQUARE_BRACKET;
-        token.i = data;
-      }
-      else if (*data == ']')
-      {
-        token.type = CLOSE_SQUARE_BRACKET;
-        token.i = data;
-      }
-      else if (*data == '{')
-      {
-        token.type = OPEN_CURLY_BRACKET;
-        token.i = data;
-      }
-      else if (*data == '}')
-      {
-        token.type = CLOSE_CURLY_BRACKET;
-        token.i = data;
-      }
-      else if (*data == '#')
-      {
-        token.type = REMAINDER;
-        token.i = data;
-      }
-      else if (*data == '+')
-      {
-        if (*(data + 1) == '+')
-        {
-          data++;
-
-          token.type = INCREMENT;
-          token.i = data;
-        }
-        else
-        {
-          token.type = ADDITION;
-          token.i = data;
-        }
-      }
-      else if (*data == '-')
-      {
-        if (*(data + 1) == '-')
-        {
-          data++;
-
-          token.type = DECREMENT;
-          token.i = data;
-        }
-        else
-        {
-          token.type = SUBTRACTION;
-          token.i = data;
-        }
-      }
-      else if (*data == '/')
-      {
-        if (*(data + 1) == '/')
-        {
-          do
-          {
-            data++;
-          }
-          while (*data != 0 && *data != '\n');
-        }
-        else if (*(data + 1) == '*')
-        {
-          for (; *(data + 1); data++)
-          {
-            if (*data == '*' && *(data + 1) == '/')
-            {
-              data++;
-              break;
-            }
-          }
-        }
-        else
-        {
-          token.type = DIVISION;
-          token.i = data;
-        }
-      }
-      else if (*data == '*')
-      {
-        if (*(data + 1) == '*')
-        {
-          data++;
-
-          token.type = EXPONENTIAL;
-          token.i = data;
-        }
-        else
-        {
-          token.type = STAR;
-          token.i = data;
-        }
-      }
-      else if (*data == '%')
-      {
-        token.type = MODULUS;
-        token.i = data;
-      }
-      else if (*data == '^')
-      {
-        token.type = BITWISE_XOR;
-        token.i = data;
-      }
-      else if (*data == '|')
-      {
-        if (*(data + 1) == '|')
-        {
-          data++;
-
-          token.type = CONDITIONAL_OR;
-          token.i = data;
-        }
-        else
-        {
-          token.type = BITWISE_OR;
-          token.i = data;
-        }
-      }
-      else if (*data == '&')
-      {
-        if (*(data + 1) == '&')
-        {
-          data++;
-
-          token.type = CONDITIONAL_AND;
-          token.i = data;
-        }
-        else
-        {
-          token.type = BITWISE_AND;
-          token.i = data;
-        }
-      }
-      else if (*data == '~')
-      {
-        token.type = BITWISE_TERNARY;
-        token.i = data;
-      }
-      else if (*data == ';')
-      {
-        token.type = EOE;
-        token.i = data;
-      }
-      else
-      {
-        token.type = SYMBOL;
-        token.i = data;
-      }
-
-      data++;
-
-      token.j = data;
-      print_token(&token);
+      handle_symbol(&token, &data);
     }
 
     else
@@ -713,11 +744,7 @@ static void parse(const char *data)
   }
   while (*data);
 
-  token.type = LEXER_EOF;
-  token.i = data;
-  token.j = data;
-
-  print_token(&token);
+  handle_end_of_file(&token, &data);
 }
 
 /**
