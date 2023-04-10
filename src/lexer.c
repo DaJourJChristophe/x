@@ -241,30 +241,28 @@ static void hash(uint64_t *hash, const char **s)
 
 #define INLINE_VOID_T inline void always_inline
 
+static const int whitespace_syntax_tokens[128] = {
+  0, 0, 0, 0, 0, 0, 0, 0, 0,
+  TAB,
+  EOL,
+  0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  SPACE,
+  0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,
+};
+
 static INLINE_VOID_T handle_whitespace(syntax_token_t *token, const char **data)
 {
   do
   {
-    switch (**data)
-    {
-      case '\t':
-        token->type = TAB;
-        token->i = *data;
-        break;
-
-      case '\n':
-        token->type = EOL;
-        token->i = *data;
-        break;
-
-      case ' ':
-        token->type = SPACE;
-        token->i = *data;
-        break;
-    }
-
+    int index = **data;
+    token->type = whitespace_syntax_tokens[index];
     *data += 1;
-
     token->j = *data;
     print_token(token);
   }
@@ -456,242 +454,255 @@ static INLINE_VOID_T handle_word(syntax_token_t *token, const char **data)
   print_token(token);
 }
 
-static INLINE_VOID_T handle_symbol(syntax_token_t *token, const char **data)
+typedef void (*symbol_handler_t)(syntax_token_t *, const char **);
+
+static void handle_symbol_single_quote(syntax_token_t *token, const char **data)
 {
-  if (**data == '\'')
-  {
-    token->type = TEXT;
-    token->i = *data;
+  token->type = TEXT;
+  token->i = *data;
 
-    do
-    {
-      *data += 1;
-    }
-    while (**data != 0 && **data != '\'');
-  }
-  else if (**data == '"')
+  do
   {
-    token->type = TEXT;
-    token->i = *data;
+    *data += 1;
+  }
+  while (**data != 0 && **data != '\'');
+}
 
-    do
-    {
-      *data += 1;
-    }
-    while (**data != 0 && **data != '"');
-  }
-  else if (**data == '@')
-  {
-    token->type = ANNOTATION;
-    token->i = *data;
-  }
-  else if (**data == '.')
-  {
-    token->type = DOT;
-    token->i = *data;
-  }
-  else if (**data == '<')
-  {
-    token->type = LEFT_CARET;
-    token->i = *data;
-  }
-  else if (**data == '>')
-  {
-    token->type = RIGHT_CARET;
-    token->i = *data;
-  }
-  else if (**data == '=')
-  {
-    if (*(*data + 1) == '>')
-    {
-      *data += 1;
+static void handle_symbol_double_quote(syntax_token_t *token, const char **data)
+{
+  token->type = TEXT;
+  token->i = *data;
 
-      token->type = LAMBDA;
-      token->i = *data;
-    }
-    else if (*(*data + 1) == '=')
-    {
-      *data += 1;
+  do
+  {
+    *data += 1;
+  }
+  while (**data != 0 && **data != '"');
+}
 
-      token->type = EQUALS;
-      token->i = *data;
-    }
-    else
-    {
-      token->type = EQUAL;
-      token->i = *data;
-    }
-  }
-  else if (**data == ':')
+static void handle_symbol_equal_sign(syntax_token_t *token, const char **data)
+{
+  if (*(*data + 1) == '>')
   {
-    token->type = COLON;
-    token->i = *data;
-  }
-  else if (**data == ',')
-  {
-    token->type = COMMA;
-    token->i = *data;
-  }
-  else if (**data == '(')
-  {
-    token->type = OPEN_PARENTHESIS;
-    token->i = *data;
-  }
-  else if (**data == ')')
-  {
-    token->type = CLOSE_PARENTHESIS;
-    token->i = *data;
-  }
-  else if (**data == '[')
-  {
-    token->type = OPEN_SQUARE_BRACKET;
-    token->i = *data;
-  }
-  else if (**data == ']')
-  {
-    token->type = CLOSE_SQUARE_BRACKET;
-    token->i = *data;
-  }
-  else if (**data == '{')
-  {
-    token->type = OPEN_CURLY_BRACKET;
-    token->i = *data;
-  }
-  else if (**data == '}')
-  {
-    token->type = CLOSE_CURLY_BRACKET;
-    token->i = *data;
-  }
-  else if (**data == '#')
-  {
-    token->type = REMAINDER;
-    token->i = *data;
-  }
-  else if (**data == '+')
-  {
-    if (*(*data + 1) == '+')
-    {
-      *data += 1;
+    *data += 1;
 
-      token->type = INCREMENT;
-      token->i = *data;
-    }
-    else
-    {
-      token->type = ADDITION;
-      token->i = *data;
-    }
-  }
-  else if (**data == '-')
-  {
-    if (*(*data + 1) == '-')
-    {
-      *data += 1;
-
-      token->type = DECREMENT;
-      token->i = *data;
-    }
-    else
-    {
-      token->type = SUBTRACTION;
-      token->i = *data;
-    }
-  }
-  else if (**data == '/')
-  {
-    if (*(*data + 1) == '/')
-    {
-      do
-      {
-        *data += 1;
-      }
-      while (**data != 0 && **data != '\n');
-    }
-    else if (*(*data + 1) == '*')
-    {
-      for (; *(*data + 1); *data += 1)
-      {
-        if (**data == '*' && *(*data + 1) == '/')
-        {
-          *data += 1;
-          break;
-        }
-      }
-    }
-    else
-    {
-      token->type = DIVISION;
-      token->i = *data;
-    }
-  }
-  else if (**data == '*')
-  {
-    if (*(*data + 1) == '*')
-    {
-      *data += 1;
-
-      token->type = EXPONENTIAL;
-      token->i = *data;
-    }
-    else
-    {
-      token->type = STAR;
-      token->i = *data;
-    }
-  }
-  else if (**data == '%')
-  {
-    token->type = MODULUS;
+    token->type = LAMBDA;
     token->i = *data;
   }
-  else if (**data == '^')
+  else if (*(*data + 1) == '=')
   {
-    token->type = BITWISE_XOR;
-    token->i = *data;
-  }
-  else if (**data == '|')
-  {
-    if (*(*data + 1) == '|')
-    {
-      *data += 1;
+    *data += 1;
 
-      token->type = CONDITIONAL_OR;
-      token->i = *data;
-    }
-    else
-    {
-      token->type = BITWISE_OR;
-      token->i = *data;
-    }
-  }
-  else if (**data == '&')
-  {
-    if (*(*data + 1) == '&')
-    {
-      *data += 1;
-
-      token->type = CONDITIONAL_AND;
-      token->i = *data;
-    }
-    else
-    {
-      token->type = BITWISE_AND;
-      token->i = *data;
-    }
-  }
-  else if (**data == '~')
-  {
-    token->type = BITWISE_TERNARY;
-    token->i = *data;
-  }
-  else if (**data == ';')
-  {
-    token->type = EOE;
+    token->type = EQUALS;
     token->i = *data;
   }
   else
   {
-    token->type = SYMBOL;
+    token->type = EQUAL;
+    token->i = *data;
+  }
+}
+
+static void handle_symbol_plus_sign(syntax_token_t *token, const char **data)
+{
+  if (*(*data + 1) == '+')
+  {
+    *data += 1;
+
+    token->type = INCREMENT;
+    token->i = *data;
+  }
+  else
+  {
+    token->type = ADDITION;
+    token->i = *data;
+  }
+}
+
+static void handle_symbol_minus_sign(syntax_token_t *token, const char **data)
+{
+  if (*(*data + 1) == '-')
+  {
+    *data += 1;
+
+    token->type = DECREMENT;
+    token->i = *data;
+  }
+  else
+  {
+    token->type = SUBTRACTION;
+    token->i = *data;
+  }
+}
+
+static void handle_symbol_forward_slash(syntax_token_t *token, const char **data)
+{
+  if (*(*data + 1) == '/')
+  {
+    do
+    {
+      *data += 1;
+    }
+    while (**data != 0 && **data != '\n');
+  }
+  else if (*(*data + 1) == '*')
+  {
+    for (; *(*data + 1); *data += 1)
+    {
+      if (**data == '*' && *(*data + 1) == '/')
+      {
+        *data += 1;
+        break;
+      }
+    }
+  }
+  else
+  {
+    token->type = DIVISION;
+    token->i = *data;
+  }
+}
+
+static void handle_symbol_star(syntax_token_t *token, const char **data)
+{
+  if (*(*data + 1) == '*')
+  {
+    *data += 1;
+
+    token->type = EXPONENTIAL;
+    token->i = *data;
+  }
+  else
+  {
+    token->type = STAR;
+    token->i = *data;
+  }
+}
+
+static void handle_symbol_vertical_bar(syntax_token_t *token, const char **data)
+{
+  if (*(*data + 1) == '|')
+  {
+    *data += 1;
+
+    token->type = CONDITIONAL_OR;
+    token->i = *data;
+  }
+  else
+  {
+    token->type = BITWISE_OR;
+    token->i = *data;
+  }
+}
+
+static void handle_symbol_ampersand(syntax_token_t *token, const char **data)
+{
+  if (*(*data + 1) == '&')
+  {
+    *data += 1;
+
+    token->type = CONDITIONAL_AND;
+    token->i = *data;
+  }
+  else
+  {
+    token->type = BITWISE_AND;
+    token->i = *data;
+  }
+}
+
+static const symbol_handler_t multiple_symbol_handlers[128] = {
+  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+  NULL, NULL, NULL, NULL,
+  &handle_symbol_double_quote,
+  NULL, NULL, NULL,
+  &handle_symbol_ampersand,
+  &handle_symbol_single_quote,
+  NULL, NULL,
+  &handle_symbol_star,
+  &handle_symbol_plus_sign,
+  NULL,
+  &handle_symbol_minus_sign,
+  NULL,
+  &handle_symbol_forward_slash,
+  NULL, NULL,
+  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+  NULL,
+  &handle_symbol_equal_sign,
+  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+  NULL, NULL, NULL, NULL,
+  &handle_symbol_vertical_bar,
+  NULL, NULL, NULL,
+};
+
+static const int symbol_syntax_tokens[128] = {
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  REMAINDER,
+  0,
+  MODULUS,
+  0, 0,
+  OPEN_PARENTHESIS,
+  CLOSE_PARENTHESIS,
+  0, 0,
+  COMMA,
+  0,
+  DOT,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  COLON,
+  EOE,
+  LEFT_CARET,
+  0,
+  RIGHT_CARET,
+  0,
+  ANNOTATION,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  OPEN_SQUARE_BRACKET,
+  0,
+  CLOSE_SQUARE_BRACKET,
+  BITWISE_XOR,
+  0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0,
+  OPEN_CURLY_BRACKET,
+  0,
+  CLOSE_CURLY_BRACKET,
+  BITWISE_TERNARY,
+  0,
+};
+
+static INLINE_VOID_T handle_symbol(syntax_token_t *token, const char **data)
+{
+  int index = **data;
+  symbol_handler_t multiple_handler = NULL;
+
+  multiple_handler = multiple_symbol_handlers[index];
+
+  if (multiple_handler != NULL)
+  {
+    multiple_handler(token, data);
+  }
+  else
+  {
+    const int probable_token = symbol_syntax_tokens[index];
+
+    if (probable_token != 0)
+    {
+      token->type = probable_token;
+    }
+    else
+    {
+      token->type = SYMBOL;
+    }
+
     token->i = *data;
   }
 

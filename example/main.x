@@ -1,4 +1,1 @@
-int add(int a, int b)
-{
-  return a + b;
-}
+x <= 60 || x >= 90
