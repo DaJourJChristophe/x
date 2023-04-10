@@ -39,6 +39,18 @@ static inline void always_inline * __malloc(size_t const n)
   return p;
 }
 
+static inline void always_inline * __calloc(size_t const n, size_t const size)
+{
+  void *p = NULL;
+  p = calloc(n, size);
+  if (p == NULL)
+  {
+    const char errmsg[] = "memory error";
+    die(errmsg, __FILE__, __func__);
+  }
+  return p;
+}
+
 static inline void always_inline __free(void *p)
 {
   if (p != NULL)

@@ -1,11 +1,15 @@
 #include "lexer.h"
+#include "parse.h"
 
 #include <stdlib.h>
 
 int main(void)
 {
   const char filepath[] = "./example/main.x";
+
   compile(filepath);
+
+  parse();
 
   /* Standard int to hold length of match */
   // int match_length;

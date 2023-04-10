@@ -12,6 +12,7 @@
 #include "ae.h"
 #include "io.h"
 #include "re.h"
+#include "lexer.h"
 
 #include <stddef.h>
 #include <stdint.h>
@@ -198,24 +199,6 @@ enum
   WHILE_RESERVED_WORD = 210732529790,
   YIELD_RESERVED_WORD = 210734933212,
 };
-
-struct token
-{
-  int type;
-
-  const char *i;   /* start of match */
-  const char *j;   /*   end of match */
-};
-
-/**
- * @brief Define a namespace for the token structure.
- */
-typedef struct token token_t;
-
-/**
- * @brief Define a namespace for the syntax token structure.
- */
-typedef token_t syntax_token_t;
 
 /**
  * @brief Print a Syntax Token for development purposes.

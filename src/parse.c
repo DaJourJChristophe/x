@@ -1,46 +1,10 @@
+#include "common.h"
+#include "lexer.h"
+
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-/* START TEMPORARY COMMON.H */
-
-#define always_inline __attribute__ ((always_inline))
-
-static inline void * always_inline __malloc(size_t const size)
-{
-  void *p = NULL;
-  p = malloc(size);
-  if (p == NULL)
-  {
-    fprintf(stderr, "%s\n", "memory error");
-    exit(EXIT_FAILURE);
-  }
-  return p;
-}
-
-static inline void * always_inline __calloc(size_t const n, size_t const size)
-{
-  void *p = NULL;
-  p = calloc(n, size);
-  if (p == NULL)
-  {
-    fprintf(stderr, "%s\n", "memory error");
-    exit(EXIT_FAILURE);
-  }
-  return p;
-}
-
-static inline void always_inline __free(void *p)
-{
-  if (p != NULL)
-  {
-    free(p);
-    p = NULL;
-  }
-}
-
-/* END   TEMPORARY COMMON.H */
 
 /**
  * @brief A collection of syntax expression datatypes.
@@ -50,28 +14,6 @@ enum
   BinaryExpression,
   NumberExpression,
 };
-
-struct token
-{
-   int  type;      /* Token datatype declaration. */
-  void *data;      /* Data associated with the corresponding datatype. */
-
-  /**
-   * NOTE: Potentially will not apply once data is allocated and casted.
-   */
-  const char *i;   /* Inclusive starting character of token. */
-  const char *j;   /* Exclusive ending   character of token. */
-};
-
-/**
- * @brief Define a namespace for the token structure.
- */
-typedef struct token token_t;
-
-/**
- * @brief Define a namespace for the syntax token structure.
- */
-typedef token_t syntax_token_t;
 
 /**
  * @brief Allocate a new syntax token and set both the type and the data;
@@ -166,7 +108,7 @@ binary_expression_t *binary_expression_new(syntax_token_t *operator, syntax_toke
   return expression_new(operator, number_expression_new(left), number_expression_new(right));
 }
 
-int main(void)
+void parse(void)
 {
   int a = 5;
   int b = 3;
@@ -181,6 +123,4 @@ int main(void)
   printf("%d\n", *(int *)expression->value->data);
 
   expression_destroy(expression);
-
-  return EXIT_SUCCESS;
 }
