@@ -9,6 +9,7 @@
  */
 #include "common.h"
 #include "lexer.h"
+#include "queue.h"
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -16,27 +17,13 @@
 #include <stdio.h>
 #include <string.h>
 
-struct ring_buffer
-{
-  syntax_token_t *data;    /* A pointer to the data buffer.    */
-  size_t cap;              /* The capacity of the data buffer. */
-
-  uint64_t w;              /* A writer iterator.               */
-  uint64_t r;              /* A reader iterator.               */
-};
-
-/**
- * @brief Define a namespace for the ring-buffer structure.
- */
-typedef struct ring_buffer ring_buffer_t;
-
 /**
  * @brief Allocate a new ring-buffer structure and allocate the
  *        ring-buffer data-buffer based upon the capacity parameter
  *        provided by the end-user. Also, store the capacity as apart
  *        of the ring-buffer structure.
  */
-ring_buffer_t *ring_buffer_new(size_t const cap)
+static ring_buffer_t *ring_buffer_new(size_t const cap)
 {
   ring_buffer_t *buffer = NULL;
   buffer = __calloc(1, sizeof(ring_buffer_t));
@@ -45,14 +32,24 @@ ring_buffer_t *ring_buffer_new(size_t const cap)
   return buffer;
 }
 
+inline syntax_queue_t always_inline *syntax_queue_new(size_t const cap)
+{
+  return ring_buffer_new(cap);
+}
+
 /**
  * @brief Deallocate the ring-buffer data-buffer and the ring-buffer
  *        structure.
  */
-void ring_buffer_destroy(ring_buffer_t *buffer)
+static void ring_buffer_destroy(ring_buffer_t *buffer)
 {
   __free(buffer->data);
   __free(buffer);
+}
+
+inline void always_inline syntax_queue_destroy(ring_buffer_t *queue)
+{
+  ring_buffer_destroy(queue);
 }
 
 /**
@@ -93,7 +90,7 @@ static bool ring_buffer_is_full(ring_buffer_t *buffer)
  *        in the data-buffer. Finally, return true to indicate to the
  *        end-user that the write was successful.
  */
-bool ring_buffer_write(ring_buffer_t *buffer, syntax_token_t *data)
+static bool ring_buffer_write(ring_buffer_t *buffer, syntax_token_t *data)
 {
   if (ring_buffer_is_full(buffer))
   {
@@ -102,6 +99,11 @@ bool ring_buffer_write(ring_buffer_t *buffer, syntax_token_t *data)
 
   memcpy((buffer->data + (buffer->w++ % buffer->cap)), data, sizeof(syntax_token_t));
   return true;
+}
+
+inline bool always_inline syntax_queue_write(syntax_queue_t *queue, syntax_token_t *data)
+{
+  return ring_buffer_write(queue, data);
 }
 
 /**
@@ -125,42 +127,12 @@ static bool ring_buffer_is_empty(ring_buffer_t *buffer)
  *        reader position to get the next syntax token. Finally, return a
  *        pointer to the syntax token stored in the data-buffer.
  */
-void *ring_buffer_read(ring_buffer_t *buffer)
+static void *ring_buffer_read(ring_buffer_t *buffer)
 {
-  if (ring_buffer_is_empty(buffer))
-  {
-    return NULL;
-  }
-
-  return (buffer->data + (buffer->r++ % buffer->cap));
+  return ring_buffer_is_empty(buffer) ? NULL : (buffer->data + (buffer->r++ % buffer->cap));
 }
 
-int main(void)
+inline void * always_inline syntax_queue_read(syntax_queue_t *queue)
 {
-  ring_buffer_t *buffer = ring_buffer_new(3);
-
-  uint64_t x = 1515;
-
-  syntax_token_t token = {
-    .type=3,
-    .data=&x,
-    .i=NULL,
-    .j=NULL,
-  };
-
-  ring_buffer_write(buffer, &token);
-
-  syntax_token_t *return_token = ring_buffer_read(buffer);
-
-  if (return_token == NULL)
-  {
-    fprintf(stderr, "%s\n", "empty queue");
-    exit(EXIT_FAILURE);
-  }
-
-  printf("type: %d\n", return_token->type);
-  printf("data: %d\n", *(int *)return_token->data);
-
-  ring_buffer_destroy(buffer);
-  return EXIT_SUCCESS;
+  return ring_buffer_read(queue);
 }

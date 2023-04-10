@@ -1,10 +1,16 @@
 #include "common.h"
 #include "lexer.h"
+#include "token.h"
 
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+/**
+ * @brief Print a Syntax Token for development purposes.
+ */
+void print_token(syntax_token_t *token);
 
 /**
  * @brief A collection of syntax expression datatypes.
@@ -108,19 +114,31 @@ binary_expression_t *binary_expression_new(syntax_token_t *operator, syntax_toke
   return expression_new(operator, number_expression_new(left), number_expression_new(right));
 }
 
-void parse(void)
+void parse(syntax_queue_t *queue)
 {
-  int a = 5;
-  int b = 3;
+  syntax_token_t *token = NULL;
 
-  syntax_token_t *token_o = syntax_token_new(3, NULL, 0);
-  syntax_token_t *token_a = syntax_token_new(5, &a, sizeof(int));
-  syntax_token_t *token_b = syntax_token_new(5, &b, sizeof(int));
+  do
+  {
+    token = syntax_queue_read(queue);
+    if (token != NULL)
+    {
+      print_token(token);
+    }
+  }
+  while (token != NULL);
 
-  binary_expression_t *expression = binary_expression_new(token_o, token_a, token_b);
+  // int a = 5;
+  // int b = 3;
 
-  printf("%d\n", expression->value->type);
-  printf("%d\n", *(int *)expression->value->data);
+  // syntax_token_t *token_o = syntax_token_new(3, NULL, 0);
+  // syntax_token_t *token_a = syntax_token_new(5, &a, sizeof(int));
+  // syntax_token_t *token_b = syntax_token_new(5, &b, sizeof(int));
 
-  expression_destroy(expression);
+  // binary_expression_t *expression = binary_expression_new(token_o, token_a, token_b);
+
+  // printf("%d\n", expression->value->type);
+  // printf("%d\n", *(int *)expression->value->data);
+
+  // expression_destroy(expression);
 }

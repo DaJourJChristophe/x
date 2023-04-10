@@ -13,6 +13,8 @@
 #include "io.h"
 #include "re.h"
 #include "lexer.h"
+#include "queue.h"
+#include "token.h"
 
 #include <stddef.h>
 #include <stdint.h>
@@ -20,7 +22,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAXBUF    (1 << 20)
+#define MAXBUF      (1 << 20)
+#define MAX_QUEUE   1024
 
 #define LEXER_HASH_INIT   5381
 
@@ -201,11 +204,6 @@ enum
 };
 
 /**
- * @brief Print a Syntax Token for development purposes.
- */
-void print_token(syntax_token_t *token);
-
-/**
  * @brief Hash a string, based on the djb2 algorithm, return the hash
  *        via a pointer parameter. This algorithm (k=33) was first
  *        reported by Dan Bernstein many years ago in comp.lang.c.
@@ -239,7 +237,7 @@ static const int whitespace_syntax_tokens[128] = {
   0, 0, 0, 0, 0, 0, 0, 0,
 };
 
-static INLINE_VOID_T handle_whitespace(syntax_token_t *token, const char **data)
+static INLINE_VOID_T handle_whitespace(syntax_queue_t *queue, syntax_token_t *token, const char **data)
 {
   do
   {
@@ -247,12 +245,16 @@ static INLINE_VOID_T handle_whitespace(syntax_token_t *token, const char **data)
     token->type = whitespace_syntax_tokens[index];
     *data += 1;
     token->j = *data;
-    print_token(token);
+
+    if (syntax_queue_write(queue, token) == false)
+    {
+      die(X_ERROR_SYNTAX_QUEUE_WRITE, __FILE__, __func__);
+    }
   }
   while (ae_match(**data, AE_IS_WHITE));
 }
 
-static INLINE_VOID_T handle_number(syntax_token_t *token, const char **data)
+static INLINE_VOID_T handle_number(syntax_queue_t *queue, syntax_token_t *token, const char **data)
 {
   token->type = NUMBER;
   token->i = *data;
@@ -270,10 +272,14 @@ static INLINE_VOID_T handle_number(syntax_token_t *token, const char **data)
   while (ae_match(**data, AE_IS_DIGIT));
 
   token->j = *data;
-  print_token(token);
+
+  if (syntax_queue_write(queue, token) == false)
+  {
+    die(X_ERROR_SYNTAX_QUEUE_WRITE, __FILE__, __func__);
+  }
 }
 
-static INLINE_VOID_T handle_word(syntax_token_t *token, const char **data)
+static INLINE_VOID_T handle_word(syntax_queue_t *queue, syntax_token_t *token, const char **data)
 {
   uint64_t _hash = LEXER_HASH_INIT;
 
@@ -434,7 +440,11 @@ static INLINE_VOID_T handle_word(syntax_token_t *token, const char **data)
   }
 
   token->j = *data;
-  print_token(token);
+
+  if (syntax_queue_write(queue, token) == false)
+  {
+    die(X_ERROR_SYNTAX_QUEUE_WRITE, __FILE__, __func__);
+  }
 }
 
 typedef void (*symbol_handler_t)(syntax_token_t *, const char **);
@@ -662,7 +672,7 @@ static const int symbol_syntax_tokens[128] = {
   0,
 };
 
-static INLINE_VOID_T handle_symbol(syntax_token_t *token, const char **data)
+static INLINE_VOID_T handle_symbol(syntax_queue_t *queue, syntax_token_t *token, const char **data)
 {
   int index = **data;
   symbol_handler_t multiple_handler = NULL;
@@ -692,42 +702,54 @@ static INLINE_VOID_T handle_symbol(syntax_token_t *token, const char **data)
   *data += 1;
 
   token->j = *data;
-  print_token(token);
+
+  if (syntax_queue_write(queue, token) == false)
+  {
+    die(X_ERROR_SYNTAX_QUEUE_WRITE, __FILE__, __func__);
+  }
 }
 
-static INLINE_VOID_T handle_end_of_file(syntax_token_t *token, const char **data)
+static INLINE_VOID_T handle_end_of_file(syntax_queue_t *queue, syntax_token_t *token, const char **data)
 {
   token->type = LEXER_EOF;
+  token->data = NULL;
+
   token->i = *data;
   token->j = *data;
 
-  print_token(token);
+  if (syntax_queue_write(queue, token) == false)
+  {
+    die(X_ERROR_SYNTAX_QUEUE_WRITE, __FILE__, __func__);
+  }
 }
 
-static void parse(const char *data)
+static syntax_queue_t *parse(const char *data)
 {
+  syntax_queue_t *queue = NULL;
   syntax_token_t token;
+
+  queue = syntax_queue_new(MAX_QUEUE);
 
   do
   {
     if (ae_match(*data, AE_IS_WHITE))
     {
-      handle_whitespace(&token, &data);
+      handle_whitespace(queue, &token, &data);
     }
 
     else if (ae_match(*data, AE_IS_DIGIT))
     {
-      handle_number(&token, &data);
+      handle_number(queue, &token, &data);
     }
 
     else if (ae_match(*data, AE_IS_ALNUM))
     {
-      handle_word(&token, &data);
+      handle_word(queue, &token, &data);
     }
 
     else if (ae_match(*data, AE_IS_SYMBL))
     {
-      handle_symbol(&token, &data);
+      handle_symbol(queue, &token, &data);
     }
 
     else
@@ -737,14 +759,16 @@ static void parse(const char *data)
   }
   while (*data);
 
-  handle_end_of_file(&token, &data);
+  handle_end_of_file(queue, &token, &data);
+
+  return queue;
 }
 
 /**
  * @brief Read the data from the disk into memory and than feed
  *        the data into the lexer parser.
  */
-void compile(const char *filepath)
+syntax_queue_t *compile(const char *filepath)
 {
   char data[MAXBUF];
 
@@ -756,5 +780,5 @@ void compile(const char *filepath)
     die(errmsg, __FILE__, __func__);
   }
 
-  parse(data);
+  return parse(data);
 }
