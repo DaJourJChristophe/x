@@ -26,9 +26,6 @@ gcc -c -Iinclude -std=c99 -Wall -Wextra -Werror \
   -ggdb3 -DNDEBUG -O0 -fPIC -o ./src/queue.o ./src/queue.c
 
 gcc -c -Iinclude -std=c99 -pedantic -Wall -Wextra -Werror \
-  -ggdb3 -DNDEBUG -O0 -fPIC -o ./src/re.o ./src/re.c
-
-gcc -c -Iinclude -std=c99 -pedantic -Wall -Wextra -Werror \
   -ggdb3 -DNDEBUG -O0 -fPIC -o ./src/utils.o ./src/utils.c
 
 # Program Source Build
@@ -52,7 +49,6 @@ gcc -Llibexec -shared -o ./libexec/libx.so \
   ./src/lexer.o \
   ./src/parse.o \
   ./src/queue.o \
-  ./src/re.o \
   ./src/utils.o
 
 
