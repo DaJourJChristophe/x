@@ -16,6 +16,7 @@
 #include "queue.h"
 #include "token.h"
 
+#include <limits.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -239,12 +240,18 @@ static const int whitespace_syntax_tokens[128] = {
 
 static INLINE_VOID_T handle_whitespace(syntax_queue_t *queue, syntax_token_t *token, const char **data)
 {
+  int index;
+
   do
   {
-    int index = **data;
+    index = **data;
+
     token->type = whitespace_syntax_tokens[index];
+    token->data = NULL;
+    token->i = NULL;
+    token->j = NULL;
+
     *data += 1;
-    token->j = *data;
 
     if (syntax_queue_write(queue, token) == false)
     {
@@ -254,24 +261,91 @@ static INLINE_VOID_T handle_whitespace(syntax_queue_t *queue, syntax_token_t *to
   while (ae_match(**data, AE_IS_WHITE));
 }
 
+static void parse_integer(const char **s, int *y)
+{
+  int r = 0;
+  int n = 1;
+  int x;
+
+  /**
+   * NOTE: Technically, this does not apply to the lexer as the lexer
+   *       handles whitespace.
+   */
+  for (; **s; *s += 1)
+  {
+    if (**s != 0x20)
+    {
+      break;
+    }
+  }
+
+  if (**s == 0)
+  {
+    *y = n * r;
+    return;
+  }
+
+  if (**s == 0x2d)
+  {
+    n = (-1);
+    *s += 1;
+  }
+  else if (**s == 0x2b)
+  {
+    n = 1;
+    *s += 1;
+  }
+
+  for (; **s; *s += 1)
+  {
+    if (ae_match(**s, AE_NO_DIGIT))
+    {
+      goto done;
+    }
+
+    x = **s - 0x30;
+
+    if ((r > (INT_MAX / 10) || (r == (INT_MAX / 10) && x >  7)) ||
+        (r < (INT_MIN / 10) || (r == (INT_MIN / 10) && x < -8)))
+    {
+      *y = (n < 1) ? INT_MIN : INT_MAX;
+      return;
+    }
+
+    r = 10 * r + x;
+  }
+
+done:
+  *y = n * r;
+  // return (n * r);
+}
+
 static INLINE_VOID_T handle_number(syntax_queue_t *queue, syntax_token_t *token, const char **data)
 {
   token->type = NUMBER;
-  token->i = *data;
+  token->i = NULL;
+  token->j = NULL;
 
-  do
-  {
-    *data += 1;
+  int *y = __malloc(sizeof(int));
+  parse_integer(data, y);
+  printf("%d\n", *y);
+  __free(y);
 
-    if (**data == '.')
-    {
-      token->type = DECIMAL;
-      *data += 1;
-    }
-  }
-  while (ae_match(**data, AE_IS_DIGIT));
+  // token->i = *data;
 
-  token->j = *data;
+  // do
+  // {
+  //   *data += 1;
+
+  //   if (**data == '.')
+  //   {
+  //     token->type = DECIMAL;
+  //     *data += 1;
+  //   }
+  // }
+  // while (ae_match(**data, AE_IS_DIGIT));
+
+  // token->j = *data;
 
   if (syntax_queue_write(queue, token) == false)
   {
