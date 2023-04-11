@@ -1,6 +1,7 @@
 #include "common.h"
 #include "lexer.h"
 #include "token.h"
+#include "cache.h"
 
 #include <stddef.h>
 #include <stdio.h>
@@ -255,8 +256,14 @@ void parse(syntax_queue_t *queue)
 
   number_expression_t *expression = NULL;
 
-  syntax_token_t *prev_prev;
-  syntax_token_t *prev;
+  splay_tree_node_t *node = NULL;
+
+  cache_t *cache = cache_new();
+
+  syntax_token_t a;
+  syntax_token_t b;
+
+  syntax_token_t *temp;
 
   do
   {
@@ -277,7 +284,8 @@ void parse(syntax_queue_t *queue)
           // expression = number_expression_new(token);
           // expression_destroy(expression);
 
-          prev_prev = token; /* NOTE: Cache token in a splay tree. */
+          node = cache_node_new(token);
+          cache_add(cache, node);
 
           do
           {
@@ -289,7 +297,8 @@ void parse(syntax_queue_t *queue)
           {
             if (token->type == ADDITION)
             {
-              prev = token;
+              node = cache_node_new(token);
+              cache_add(cache, node);
 
               do
               {
@@ -301,8 +310,16 @@ void parse(syntax_queue_t *queue)
               {
                 if (token->type == NUMBER)
                 {
+                  temp = cache_peek(cache);
+                  memcpy(&a, temp, sizeof(syntax_token_t));
+                  cache_pop(cache);
+
+                  temp = cache_peek(cache);
+                  memcpy(&b, temp, sizeof(syntax_token_t));
+                  cache_pop(cache);
+
                   puts("BINARY EXPRESSION");
-                  expression = binary_expression_new(prev, prev_prev, token);
+                  expression = binary_expression_new(&b, &a, token);
                   expression_destroy(expression);
                 }
               }

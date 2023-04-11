@@ -10,6 +10,9 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/peter/Documents/x/libexec/
 #   -ggdb3 -DNDEBUG -O0 -fPIC -o ./src/ae.o ./src/ae.c
 
 gcc -c -Iinclude -std=c99 -pedantic -Wall -Wextra -Werror \
+  -ggdb3 -DNDEBUG -O0 -fPIC -o ./src/cache.o ./src/cache.c
+
+gcc -c -Iinclude -std=c99 -pedantic -Wall -Wextra -Werror \
   -ggdb3 -DNDEBUG -O0 -fPIC -o ./src/error.o ./src/error.c
 
 gcc -c -Iinclude -std=c99 -pedantic -Wall -Wextra -Werror \
@@ -44,6 +47,7 @@ gcc -c -Iinclude -Iinclude/cmocka -std=c99 -pedantic \
 # Link Library
 
 gcc -Llibexec -shared -o ./libexec/libx.so \
+  ./src/cache.o \
   ./src/error.o \
   ./src/io.o \
   ./src/lexer.o \

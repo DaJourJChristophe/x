@@ -11,7 +11,6 @@
 #include "error.h"
 #include "ae.h"
 #include "io.h"
-#include "re.h"
 #include "lexer.h"
 #include "queue.h"
 #include "token.h"
