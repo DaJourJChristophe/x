@@ -281,17 +281,17 @@ re_t re_compile(const char *pattern)
 
 static int match_digit(const char c)
 {
-  return ae_match(c, AE_IS_DIGIT);
+  return ae_match(c, ae_is_digit);
 }
 
 static int match_alpha(const char c)
 {
-  return ae_match(c, AE_IS_ALPHA);
+  return ae_match(c, ae_is_alpha);
 }
 
 static int match_space(const char c)
 {
-  return ae_match(c, AE_IS_WHITE);
+  return ae_match(c, ae_is_space);
 }
 
 static int match_alnum(const char c)

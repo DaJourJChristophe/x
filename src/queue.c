@@ -43,6 +43,18 @@ inline syntax_queue_t always_inline *syntax_queue_new(size_t const cap)
  */
 static void ring_buffer_destroy(ring_buffer_t *buffer)
 {
+  syntax_token_t *token = NULL;
+
+  do
+  {
+    token = syntax_queue_read(buffer);
+    if (token != NULL)
+    {
+      __free(token->data);
+    }
+  }
+  while (token != NULL);
+
   __free(buffer->data);
   __free(buffer);
 }

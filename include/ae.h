@@ -12,124 +12,343 @@ extern "C"{
 /**
  * @brief A collection of positive ASCII expressions.
  */
-#define AE_IS_ASCII  ((const int)0x00)
-#define AE_IS_ALPHA  ((const int)0x02)
-#define AE_IS_DIGIT  ((const int)0x04)
-#define AE_IS_LOWER  ((const int)0x06)
-#define AE_IS_ALNUM  ((const int)0x08)
-#define AE_IS_UPPER  ((const int)0x0A)
-#define AE_IS_WHITE  ((const int)0x0C)
-#define AE_IS_SYMBL  ((const int)0x0E)
-#define AE_IS_NULL   ((const int)0x10)
+#define ae_is_ascii
+#define ae_is_alpha
+#define ae_is_digit
+#define ae_is_lower
+#define ae_is_alnum
+#define ae_is_upper
+#define ae_is_space
+#define ae_is_symbol
+#define ae_is_null
 
 /**
  * @brief A collection of negative ASCII expressions.
  */
-#define AE_NO_ASCII ((const int)0x01)
-#define AE_NO_ALPHA ((const int)0x03)
-#define AE_NO_DIGIT ((const int)0x05)
-#define AE_NO_LOWER ((const int)0x07)
-#define AE_NO_ALNUM ((const int)0x09)
-#define AE_NO_UPPER ((const int)0x0B)
-#define AE_NO_WHITE ((const int)0x0D)
-#define AE_NO_SYMBL ((const int)0x0F)
-#define AE_NO_NULL  ((const int)0x11)
-
-/**
- * @brief Check if a character is alphabetic.
- */
-bool is_alpha(const char c);
-
-/**
- * @brief Check if a character is not alphabetic.
- */
-bool no_alpha(const char c);
-
-/**
- * @brief Check if a character is alphanumeric.
- */
-bool is_alnum(const char c);
-
-/**
- * @brief Check if a character is not alphanumeric.
- */
-bool no_alnum(const char c);
-
-/**
- * @brief Check if a character is ASCII.
- */
-bool is_ascii(const char c);
-
-/**
- * @brief Check if a character is not ASCII.
- */
-bool no_ascii(const char c);
-
-/**
- * @brief Check if a character is a digit.
- */
-bool is_digit(const char c);
-
-/**
- * @brief Check if a character is not a digit.
- */
-bool no_digit(const char c);
-
-/**
- * @brief Check if a character is lower case.
- */
-bool is_lower(const char c);
-
-/**
- * @brief Check if a character is not lower case.
- */
-bool no_lower(const char c);
-
-/**
- * @brief Check if a character is equal to zero.
- */
-bool is_null(const char c);
-
-/**
- * @brief Check if a character is not equal to zero.
- */
-bool no_null(const char c);
-
-/**
- * @brief Check if a character is a symbol.
- */
-bool is_symbl(const char c);
-
-/**
- * @brief Check if a character is not symbol.
- */
-bool no_symbl(const char c);
-
-/**
- * @brief Check if a character is upper case.
- */
-bool is_upper(const char c);
-
-/**
- * @brief Check if a character is not upper case.
- */
-bool no_upper(const char c);
-
-/**
- * @brief Check if a character is whitespace.
- */
-bool is_white(const char c);
-
-/**
- * @brief Check if a character is not whitespace.
- */
-bool no_white(const char c);
+#define ae_no_ascii
+#define ae_no_alpha
+#define ae_no_digit
+#define ae_no_lower
+#define ae_no_alnum
+#define ae_no_upper
+#define ae_no_space
+#define ae_no_symbl
+#define ae_no_null
 
 /**
  * @brief Check if a character matches one of the
  *        predefined supported expressions.
  */
-bool ae_match(const char c, const int expression);
+#define ae_match(character, expression) _##expression(character)
+
+/**
+ * @brief Check if a character is alphabetic.
+ */
+// bool _ae_is_alpha(const int c);
+
+/**
+ * @brief Check if a character is not alphabetic.
+ */
+// bool _ae_no_alpha(const int c);
+
+/**
+ * @brief Check if a character is alphanumeric.
+ */
+// bool _ae_is_alnum(const int c);
+
+/**
+ * @brief Check if a character is not alphanumeric.
+ */
+// bool _ae_no_alnum(const int c);
+
+/**
+ * @brief Check if a character is ASCII.
+ */
+// bool _ae_is_ascii(const char c);
+
+/**
+ * @brief Check if a character is not ASCII.
+ */
+// bool _ae_no_ascii(const char c);
+
+/**
+ * @brief Check if a character is a digit.
+ */
+// bool _ae_is_digit(const int c);
+
+/**
+ * @brief Check if a character is not a digit.
+ */
+// bool _ae_no_digit(const int c);
+
+/**
+ * @brief Check if a character is lower case.
+ */
+// bool _ae_is_lower(const int c);
+
+/**
+ * @brief Check if a character is not lower case.
+ */
+// bool _ae_no_lower(const int c);
+
+/**
+ * @brief Check if a character is equal to zero.
+ */
+// bool _ae_is_null(const char c);
+
+/**
+ * @brief Check if a character is not equal to zero.
+ */
+// bool _ae_no_null(const char c);
+
+/**
+ * @brief Check if a character is a symbol.
+ */
+// bool _ae_is_symbl(const int c);
+
+/**
+ * @brief Check if a character is not symbol.
+ */
+// bool _ae_no_symbl(const int c);
+
+/**
+ * @brief Check if a character is upper case.
+ */
+// bool _ae_is_upper(const int c);
+
+/**
+ * @brief Check if a character is not upper case.
+ */
+// bool _ae_no_upper(const int c);
+
+/**
+ * @brief Check if a character is whitespace.
+ */
+// bool _ae_is_space(const int c);
+
+/**
+ * @brief Check if a character is not whitespace.
+ */
+// bool _ae_no_space(const int c);
+
+/**
+ * @brief An inline boolean return type.
+ */
+#define AE_RESULT_T static inline bool always_inline
+
+/**
+ * @brief Check if a character is equal to zero.
+ */
+AE_RESULT_T _ae_is_null(const char c)
+{
+  return c == 0;
+}
+
+/**
+ * @brief Check if a character is greater than or equal to zero.
+ */
+AE_RESULT_T _ae_is_ascii(const char c)
+{
+  return c >= 0;
+}
+
+static const bool valid_digits[256] = {
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+};
+
+/**
+ * @brief Check if a character is greater than or equal to 48
+ *        or less than or equal to 57.
+ */
+AE_RESULT_T _ae_is_digit(const int c)
+{
+  return valid_digits[c];
+}
+
+static const bool valid_lowers[256] = {
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+};
+
+/**
+ * @brief Check if a character is greater than or equal to 97
+ *        or less than or equal to 122.
+ */
+AE_RESULT_T _ae_is_lower(const int c)
+{
+  return valid_lowers[c];
+}
+
+static const bool valid_uppers[256] = {
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+};
+
+/**
+ * @brief Check if a character is greater than or equal to 65
+ *        or less than or equal to 90.
+ */
+AE_RESULT_T _ae_is_upper(const int c)
+{
+  return valid_uppers[c];
+}
+
+static const bool valid_alphas[256] = {
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,
+  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+};
+
+/**
+ * @brief Check if a character is greater than or equal to 97
+ *        or less than or equal to 122 or if is greater than
+ *        or equal to 65 or less than or equal to 90.
+ */
+AE_RESULT_T _ae_is_alpha(const int c)
+{
+  return valid_alphas[c];
+}
+
+static const bool valid_alnums[256] = {
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,
+  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,
+  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+};
+
+/**
+ * @brief Check if a character is greater than or equal to 97
+ *        or less than or equal to 122 or if is greater than
+ *        or equal to 65 or less than or equal to 90 or if is
+ *        greater than or equal to 48 or less than or equal to 57.
+ */
+AE_RESULT_T _ae_is_alnum(const int c)
+{
+  return valid_alnums[c];
+}
+
+static const bool valid_whites[256] = {
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+};
+
+/**
+ * @brief Check if a character is equal to 9 or equal to 10 or
+ *        equal to 13 or equal to 32.
+ */
+AE_RESULT_T _ae_is_space(const int c)
+{
+  return valid_whites[c];
+}
+
+static const bool valid_symbls[256] = {
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1,
+  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+};
+
+/**
+ * @brief
+ */
+AE_RESULT_T _ae_is_symbl(const int c)
+{
+  return valid_symbls[c];
+}
 
 #ifdef __cplusplus
 }

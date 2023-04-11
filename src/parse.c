@@ -71,8 +71,11 @@ syntax_expression_t *expression_new(syntax_token_t *value, syntax_expression_t *
 {
   syntax_expression_t *expression = NULL;
   expression = __calloc(1, sizeof(syntax_expression_t));
+  expression->value = __calloc(1, sizeof(syntax_token_t));
 
-  expression->value = value;
+  memcpy(expression->value, value, sizeof(syntax_token_t));
+
+  // expression->value = value;
   expression->left = left;
   expression->right = right;
 
@@ -114,26 +117,205 @@ binary_expression_t *binary_expression_new(syntax_token_t *operator, syntax_toke
   return expression_new(operator, number_expression_new(left), number_expression_new(right));
 }
 
+/**
+ * @brief Define a collection of character tokens.
+ */
+enum
+{
+  /**
+   * @brief General Purpose Tokens.
+   */
+  DOT,
+  EOE,
+  LEXER_EOF,
+  EOL,
+  SPACE,
+  STAR,
+  SYMBOL,
+  TAB,
+  TEXT,
+  UNDEFINED,
+  WORD,
+
+  /**
+   * @brief Numeric Tokens.
+   */
+  DECIMAL,
+  NUMBER,
+
+  /**
+   * @brief Mathematical Operator Tokens.
+   */
+  ADDITION,
+  DIVISION,
+  EQUAL,
+  EXPONENTIAL,
+  MODULUS,
+  REMAINDER,
+  SUBTRACTION,
+
+  /**
+   * @brief Bitwise Operator Tokens.
+   */
+  BITWISE_AND,
+  BITWISE_OR,
+  BITWISE_TERNARY,
+  BITWISE_XOR,
+
+  /**
+   * @brief Conditional Tokens.
+   */
+  CONDITIONAL_AND,
+  CONDITIONAL_OR,
+
+  /**
+   * @brief Containment Tokens.
+   */
+  LEFT_CARET,
+  OPEN_CURLY_BRACKET,
+  OPEN_PARENTHESIS,
+  OPEN_SQUARE_BRACKET,
+  CLOSE_CURLY_BRACKET,
+  CLOSE_PARENTHESIS,
+  CLOSE_SQUARE_BRACKET,
+  RIGHT_CARET,
+
+  /**
+   * @brief Architecture Tokens.
+   */
+  LAMBDA,
+
+  /**
+   * @brief Comparator Tokens.
+   */
+  EQUALS,
+
+  /**
+   * @brief Iterator Tokens.
+   */
+  DECREMENT,
+  INCREMENT,
+
+  /**
+   * @brief Separator Tokens.
+   */
+  COLON,
+  COMMA,
+
+  /**
+   * @brief Special Tokens.
+   */
+  ANNOTATION,
+
+  /**
+   * @brief Reserved Word Tokens.
+   */
+  ABSTRACT,
+  BOOLEAN,
+  BREAK,
+  CASE,
+  CLASS,
+  CONST,
+  DEFAULT,
+  DOUBLE,
+  EXPORT,
+  FALSE,
+  FLOAT,
+  FOR,
+  IF,
+  IMMUTABLE,
+  IMPORT,
+  INTEGER,
+  IS,
+  MATRIX,
+  NIL,
+  OBJECT,
+  PACKAGE,
+  PRINT,
+  PRIVATE,
+  PROTECTED,
+  PUBLIC,
+  RETURN,
+  SCALAR,
+  SET,
+  STATIC,
+  STRING,
+  SWITCH,
+  TRUE,
+  UNLESS,
+  VECTOR,
+  VOID,
+  WHILE,
+  YIELD,
+};
+
 void parse(syntax_queue_t *queue)
 {
   syntax_token_t *token = NULL;
 
+  number_expression_t *expression = NULL;
+
+  syntax_token_t *prev_prev;
+  syntax_token_t *prev;
+
   do
   {
     token = syntax_queue_read(queue);
+
     if (token != NULL)
     {
-      print_token(token);
+      switch (token->type)
+      {
+        case LEXER_EOF:
+          return;
+
+        case EOL:
+          puts("END OF LINE TOKEN");
+          break;
+
+        case NUMBER:
+          // expression = number_expression_new(token);
+          // expression_destroy(expression);
+
+          prev_prev = token; /* NOTE: Cache token in a splay tree. */
+
+          do
+          {
+            token = syntax_queue_read(queue);
+          }
+          while ( token != NULL && token->type == SPACE );
+
+          if (token != NULL)
+          {
+            if (token->type == ADDITION)
+            {
+              prev = token;
+
+              do
+              {
+                token = syntax_queue_read(queue);
+              }
+              while ( token != NULL && token->type == SPACE );
+
+              if (token != NULL)
+              {
+                if (token->type == NUMBER)
+                {
+                  puts("BINARY EXPRESSION");
+                  expression = binary_expression_new(prev, prev_prev, token);
+                  expression_destroy(expression);
+                }
+              }
+            }
+          }
+          break;
+
+        default:
+          die("unknown token kind", __FILE__, __func__);
+      }
     }
   }
   while (token != NULL);
-
-  // int a = 5;
-  // int b = 3;
-
-  // syntax_token_t *token_o = syntax_token_new(3, NULL, 0);
-  // syntax_token_t *token_a = syntax_token_new(5, &a, sizeof(int));
-  // syntax_token_t *token_b = syntax_token_new(5, &b, sizeof(int));
 
   // binary_expression_t *expression = binary_expression_new(token_o, token_a, token_b);
 

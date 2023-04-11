@@ -213,11 +213,13 @@ enum
  *        number 33 (why it works better than many other constants,
  *        prime or not) has never been adequately explained.
  */
-static void hash(uint64_t *hash, const char **s)
+static void hash(uint64_t *hash, const char **s, char *buffer)
 {
-  for (; ae_match(**s, AE_IS_ALPHA); *s += 1)
+  for (; ae_match(**s, ae_is_alpha); *s += 1, buffer++)
   {
     *hash = (*hash << 5) + *hash + **s;
+
+    *buffer = **s;
   }
 }
 
@@ -248,8 +250,6 @@ static INLINE_VOID_T handle_whitespace(syntax_queue_t *queue, syntax_token_t *to
 
     token->type = whitespace_syntax_tokens[index];
     token->data = NULL;
-    token->i = NULL;
-    token->j = NULL;
 
     *data += 1;
 
@@ -258,7 +258,7 @@ static INLINE_VOID_T handle_whitespace(syntax_queue_t *queue, syntax_token_t *to
       die(X_ERROR_SYNTAX_QUEUE_WRITE, __FILE__, __func__);
     }
   }
-  while (ae_match(**data, AE_IS_WHITE));
+  while (ae_match(**data, ae_is_space));
 }
 
 static void parse_integer(const char **s, int *y)
@@ -298,7 +298,7 @@ static void parse_integer(const char **s, int *y)
 
   for (; **s; *s += 1)
   {
-    if (ae_match(**s, AE_NO_DIGIT))
+    if (ae_match(**s, ae_is_digit) == false)
     {
       goto done;
     }
@@ -323,15 +323,9 @@ done:
 static INLINE_VOID_T handle_number(syntax_queue_t *queue, syntax_token_t *token, const char **data)
 {
   token->type = NUMBER;
-  token->i = NULL;
-  token->j = NULL;
 
-  int *y = __malloc(sizeof(int));
-  parse_integer(data, y);
-  printf("%d\n", *y);
-  __free(y);
-
-  // token->i = *data;
+  token->data = __malloc(sizeof(int));
+  parse_integer(data, token->data);
 
   // do
   // {
@@ -343,9 +337,7 @@ static INLINE_VOID_T handle_number(syntax_queue_t *queue, syntax_token_t *token,
   //     *data += 1;
   //   }
   // }
-  // while (ae_match(**data, AE_IS_DIGIT));
-
-  // token->j = *data;
+  // while (ae_match(**data, ae_is_digit));
 
   if (syntax_queue_write(queue, token) == false)
   {
@@ -358,9 +350,10 @@ static INLINE_VOID_T handle_word(syntax_queue_t *queue, syntax_token_t *token, c
   uint64_t _hash = LEXER_HASH_INIT;
 
   token->type = WORD;
-  token->i = *data;
 
-  hash(&_hash, data);
+  token->data = __malloc(64 * sizeof(char));
+  memset(token->data, 0, (64 * sizeof(char)));
+  hash(&_hash, data, token->data);
 
   switch (_hash)
   {
@@ -513,8 +506,6 @@ static INLINE_VOID_T handle_word(syntax_queue_t *queue, syntax_token_t *token, c
       break;
   }
 
-  token->j = *data;
-
   if (syntax_queue_write(queue, token) == false)
   {
     die(X_ERROR_SYNTAX_QUEUE_WRITE, __FILE__, __func__);
@@ -526,11 +517,17 @@ typedef void (*symbol_handler_t)(syntax_token_t *, const char **);
 static void handle_symbol_single_quote(syntax_token_t *token, const char **data)
 {
   token->type = TEXT;
-  token->i = *data;
+
+  token->data = __malloc(64 * sizeof(char));
+  memset(token->data, 0, (64 * sizeof(char)));
+
+  char *p = token->data;
 
   do
   {
     *data += 1;
+    *p = **data;
+    *p += 1;
   }
   while (**data != 0 && **data != '\'');
 }
@@ -538,11 +535,17 @@ static void handle_symbol_single_quote(syntax_token_t *token, const char **data)
 static void handle_symbol_double_quote(syntax_token_t *token, const char **data)
 {
   token->type = TEXT;
-  token->i = *data;
+
+  token->data = __malloc(64 * sizeof(char));
+  memset(token->data, 0, (64 * sizeof(char)));
+
+  char *p = token->data;
 
   do
   {
     *data += 1;
+    *p = **data;
+    *p += 1;
   }
   while (**data != 0 && **data != '"');
 }
@@ -554,19 +557,19 @@ static void handle_symbol_equal_sign(syntax_token_t *token, const char **data)
     *data += 1;
 
     token->type = LAMBDA;
-    token->i = *data;
+    token->data = NULL;
   }
   else if (*(*data + 1) == '=')
   {
     *data += 1;
 
     token->type = EQUALS;
-    token->i = *data;
+    token->data = NULL;
   }
   else
   {
     token->type = EQUAL;
-    token->i = *data;
+    token->data = NULL;
   }
 }
 
@@ -577,12 +580,12 @@ static void handle_symbol_plus_sign(syntax_token_t *token, const char **data)
     *data += 1;
 
     token->type = INCREMENT;
-    token->i = *data;
+    token->data = NULL;
   }
   else
   {
     token->type = ADDITION;
-    token->i = *data;
+    token->data = NULL;
   }
 }
 
@@ -593,12 +596,12 @@ static void handle_symbol_minus_sign(syntax_token_t *token, const char **data)
     *data += 1;
 
     token->type = DECREMENT;
-    token->i = *data;
+    token->data = NULL;
   }
   else
   {
     token->type = SUBTRACTION;
-    token->i = *data;
+    token->data = NULL;
   }
 }
 
@@ -626,7 +629,7 @@ static void handle_symbol_forward_slash(syntax_token_t *token, const char **data
   else
   {
     token->type = DIVISION;
-    token->i = *data;
+    token->data = NULL;
   }
 }
 
@@ -637,12 +640,12 @@ static void handle_symbol_star(syntax_token_t *token, const char **data)
     *data += 1;
 
     token->type = EXPONENTIAL;
-    token->i = *data;
+    token->data = NULL;
   }
   else
   {
     token->type = STAR;
-    token->i = *data;
+    token->data = NULL;
   }
 }
 
@@ -653,12 +656,12 @@ static void handle_symbol_vertical_bar(syntax_token_t *token, const char **data)
     *data += 1;
 
     token->type = CONDITIONAL_OR;
-    token->i = *data;
+    token->data = NULL;
   }
   else
   {
     token->type = BITWISE_OR;
-    token->i = *data;
+    token->data = NULL;
   }
 }
 
@@ -669,12 +672,12 @@ static void handle_symbol_ampersand(syntax_token_t *token, const char **data)
     *data += 1;
 
     token->type = CONDITIONAL_AND;
-    token->i = *data;
+    token->data = NULL;
   }
   else
   {
     token->type = BITWISE_AND;
-    token->i = *data;
+    token->data = NULL;
   }
 }
 
@@ -769,13 +772,9 @@ static INLINE_VOID_T handle_symbol(syntax_queue_t *queue, syntax_token_t *token,
     {
       token->type = SYMBOL;
     }
-
-    token->i = *data;
   }
 
   *data += 1;
-
-  token->j = *data;
 
   if (syntax_queue_write(queue, token) == false)
   {
@@ -783,13 +782,10 @@ static INLINE_VOID_T handle_symbol(syntax_queue_t *queue, syntax_token_t *token,
   }
 }
 
-static INLINE_VOID_T handle_end_of_file(syntax_queue_t *queue, syntax_token_t *token, const char **data)
+static INLINE_VOID_T handle_end_of_file(syntax_queue_t *queue, syntax_token_t *token)
 {
   token->type = LEXER_EOF;
   token->data = NULL;
-
-  token->i = *data;
-  token->j = *data;
 
   if (syntax_queue_write(queue, token) == false)
   {
@@ -806,22 +802,22 @@ static syntax_queue_t *parse(const char *data)
 
   do
   {
-    if (ae_match(*data, AE_IS_WHITE))
+    if (ae_match(*data, ae_is_space))
     {
       handle_whitespace(queue, &token, &data);
     }
 
-    else if (ae_match(*data, AE_IS_DIGIT))
+    else if (ae_match(*data, ae_is_digit))
     {
       handle_number(queue, &token, &data);
     }
 
-    else if (ae_match(*data, AE_IS_ALNUM))
+    else if (ae_match(*data, ae_is_alnum))
     {
       handle_word(queue, &token, &data);
     }
 
-    else if (ae_match(*data, AE_IS_SYMBL))
+    else if (ae_match(*data, ae_is_symbl))
     {
       handle_symbol(queue, &token, &data);
     }
@@ -833,7 +829,7 @@ static syntax_queue_t *parse(const char *data)
   }
   while (*data);
 
-  handle_end_of_file(queue, &token, &data);
+  handle_end_of_file(queue, &token);
 
   return queue;
 }

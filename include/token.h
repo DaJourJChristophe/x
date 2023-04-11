@@ -5,12 +5,6 @@ struct token
 {
    int  type;      /* Token datatype declaration. */
   void *data;      /* Data associated with the corresponding datatype. */
-
-  /**
-   * NOTE: Potentially will not apply once data is allocated and casted.
-   */
-  const char *i;   /* Inclusive starting character of token match. */
-  const char *j;   /* Exclusive ending   character of token match. */
 };
 
 /**
