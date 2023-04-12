@@ -23,52 +23,65 @@
  *        provided by the end-user. Also, store the capacity as apart
  *        of the ring-buffer structure.
  */
-static ring_buffer_t *ring_buffer_new(size_t const cap)
+// static ring_buffer_t *ring_buffer_new(size_t const cap)
+// {
+//   ring_buffer_t *buffer = NULL;
+//   buffer = __calloc(1, sizeof(ring_buffer_t));
+//   buffer->data = __calloc(cap, sizeof(syntax_token_t));
+//   buffer->cap = cap;
+//   return buffer;
+// }
+
+/**
+ * @brief Allocate a new ring-buffer structure and allocate the
+ *        ring-buffer data-buffer based upon the capacity parameter
+ *        provided by the end-user. Also, store the capacity as apart
+ *        of the ring-buffer structure.
+ */
+inline queue_t * always_inline queue_new(void *data /* data-pointer */, size_t const cap /* offset */, size_t const ofs /* offset */)
 {
-  ring_buffer_t *buffer = NULL;
-  buffer = __calloc(1, sizeof(ring_buffer_t));
-  buffer->data = __calloc(cap, sizeof(syntax_token_t));
-  buffer->cap = cap;
-  return buffer;
+  queue_t queue = {.data=data, .ofs=ofs, .w=0, .r=0}, *queue_ptr = &queue;
+  return queue_ptr;
 }
 
-inline syntax_queue_t always_inline *syntax_queue_new(size_t const cap)
+inline syntax_queue_t * always_inline syntax_queue_new(size_t const cap /* capacity */)
 {
-  return ring_buffer_new(cap);
+  syntax_token_t data[cap];
+  return queue_new(data, sizeof(syntax_token_t));
 }
 
 /**
  * @brief Deallocate the ring-buffer data-buffer and the ring-buffer
  *        structure.
  */
-static void ring_buffer_destroy(ring_buffer_t *buffer)
-{
-  syntax_token_t *token = NULL;
+// static void ring_buffer_destroy(ring_buffer_t *buffer)
+// {
+//   syntax_token_t *token = NULL;
 
-  do
-  {
-    token = syntax_queue_read(buffer);
-    if (token != NULL)
-    {
-      __free(token->data);
-    }
-  }
-  while (token != NULL);
+//   do
+//   {
+//     token = syntax_queue_read(buffer);
+//     if (token != NULL)
+//     {
+//       __free(token->data);
+//     }
+//   }
+//   while (token != NULL);
 
-  __free(buffer->data);
-  __free(buffer);
-}
+//   __free(buffer->data);
+//   __free(buffer);
+// }
 
-inline void always_inline syntax_queue_destroy(ring_buffer_t *queue)
-{
-  ring_buffer_destroy(queue);
-}
+// inline void always_inline syntax_queue_destroy(ring_buffer_t *queue)
+// {
+//   ring_buffer_destroy(queue);
+// }
 
 /**
  * @brief Calculate the ring-buffer capacity by subtracting the writer
  *        position from the reader position and return to the end-user.
  */
-static inline size_t always_inline ring_buffer_size(ring_buffer_t *buffer)
+static inline size_t always_inline queue_size(queue_t *buffer /* queue-buffer */)
 {
   return buffer->w - buffer->r;
 }

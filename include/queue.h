@@ -8,24 +8,41 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#define MAX_QUEUE    1024 /* The capacity of the queue buffer. */
+
+// struct ring_buffer
+// {
+//   void *data;    /* A pointer to the data buffer.           */
+//   size_t ofs;    /* The size of a single item in the queue. */
+
+//   uint64_t w;    /* A writer iterator.                      */
+//   uint64_t r;    /* A reader iterator.                      */
+// };
+
 struct ring_buffer
 {
-  syntax_token_t *data;    /* A pointer to the data buffer.    */
-  size_t cap;              /* The capacity of the data buffer. */
+  void *data;    /* A pointer to the data buffer.           */
+  size_t ofs;    /* The size of a single item in the queue. */
+  size_t cap;    /* The capacity of the data buffer. */
 
-  uint64_t w;              /* A writer iterator.               */
-  uint64_t r;              /* A reader iterator.               */
+  uint64_t w;    /* A writer iterator.                      */
+  uint64_t r;    /* A reader iterator.                      */
 };
 
 /**
- * @brief Define a namespace for the ring-buffer structure.
+ * @brief Define a namespace for the ring-buffer data structure.
  */
-typedef struct ring_buffer ring_buffer_t;
+// typedef struct ring_buffer ring_buffer_t;
+
+/**
+ * @brief Define a namespace for the generic queue data structure.
+ */
+typedef struct ring_buffer queue_t;
 
 /**
  * @brief Define a namespace for the syntax_queue_t structure.
  */
-typedef ring_buffer_t syntax_queue_t;
+typedef queue_t syntax_queue_t;
 
 syntax_queue_t *syntax_queue_new(size_t const cap);
 
