@@ -2,6 +2,7 @@
 #include "lexer.h"
 #include "token.h"
 #include "cache.h"
+#include "expression.h"
 
 #include <stddef.h>
 #include <stdio.h>
@@ -12,15 +13,6 @@
  * @brief Print a Syntax Token for development purposes.
  */
 void print_token(syntax_token_t *token);
-
-/**
- * @brief A collection of syntax expression datatypes.
- */
-enum
-{
-  BinaryExpression,
-  NumberExpression,
-};
 
 /**
  * @brief Allocate a new syntax token and set both the type and the data;
@@ -47,31 +39,16 @@ void syntax_token_destroy(syntax_token_t *token)
   __free(token);
 }
 
-struct syntax_node
-{
-  syntax_token_t *value;       /* A data structure containing the type and data for the syntax token. */
-
-  struct syntax_node *left;    /* A left  child pointer to a syntax node. */
-  struct syntax_node *right;   /* A right child pointer to a syntax node. */
-};
-
-/**
- * @brief Define a namespace for the syntax node structure.
- */
-typedef struct syntax_node syntax_node_t;
-
-/**
- * @brief Define a namespace for the syntax expression structure.
- */
-typedef syntax_node_t syntax_expression_t;
-
 /**
  * @brief Allocate a new syntax expression and set the value, left child, and right child.
  */
-syntax_expression_t *expression_new(syntax_token_t *value, syntax_expression_t *left, syntax_expression_t *right)
+syntax_expression_t *expression_new(int kind, syntax_token_t *value, syntax_expression_t *left, syntax_expression_t *right)
 {
   syntax_expression_t *expression = NULL;
   expression = __calloc(1, sizeof(syntax_expression_t));
+
+  expression->kind = kind;
+
   expression->value = __calloc(1, sizeof(syntax_token_t));
 
   memcpy(expression->value, value, sizeof(syntax_token_t));
@@ -102,7 +79,7 @@ typedef syntax_expression_t number_expression_t;
  */
 number_expression_t *number_expression_new(syntax_token_t *value)
 {
-  return expression_new(value, NULL, NULL);
+  return expression_new(NUMBER_EXPRESSION, value, NULL, NULL);
 }
 
 /**
@@ -113,9 +90,9 @@ typedef syntax_expression_t binary_expression_t;
 /**
  * @brief Allocate a new syntax expression, set the operator token, and set both the left and the right expressions.
  */
-binary_expression_t *binary_expression_new(syntax_token_t *operator, syntax_token_t *left, syntax_token_t *right)
+binary_expression_t *binary_expression_new(syntax_token_t *operator, syntax_expression_t *left, syntax_expression_t *right)
 {
-  return expression_new(operator, number_expression_new(left), number_expression_new(right));
+  return expression_new(BINARY_EXPRESSION, operator, left, right);
 }
 
 /**
@@ -254,9 +231,9 @@ void parse(syntax_queue_t *queue)
 {
   syntax_token_t *token = NULL;
 
-  number_expression_t *expression = NULL;
-
-  splay_tree_node_t *node = NULL;
+  number_expression_t *expression1 = NULL;
+  number_expression_t *expression2 = NULL;
+  number_expression_t *expression3 = NULL;
 
   cache_t *cache = cache_new();
 
@@ -264,6 +241,7 @@ void parse(syntax_queue_t *queue)
   syntax_token_t b;
 
   syntax_token_t *temp;
+
 
   do
   {
@@ -277,52 +255,65 @@ void parse(syntax_queue_t *queue)
           return;
 
         case EOL:
-          puts("END OF LINE TOKEN");
+        case TAB:
+        case SPACE:
+          break;
+
+        case ADDITION:
+          if (cache_peek(cache) != NULL)
+          {
+            if (cache_peek(cache)->type == NUMBER)
+            {
+              cache_add(cache, cache_node_new(token));
+            }
+          }
           break;
 
         case NUMBER:
-          // expression = number_expression_new(token);
-          // expression_destroy(expression);
-
-          node = cache_node_new(token);
-          cache_add(cache, node);
-
-          do
+          if (cache_peek(cache) == NULL)
           {
-            token = syntax_queue_read(queue);
+            cache_add(cache, cache_node_new(token));
+            break;
           }
-          while ( token != NULL && token->type == SPACE );
-
-          if (token != NULL)
+          else
           {
-            if (token->type == ADDITION)
+            if (cache_peek(cache)->type != ADDITION)
             {
-              node = cache_node_new(token);
-              cache_add(cache, node);
+              cache_add(cache, cache_node_new(token));
+              break;
+            }
+            else
+            {
+              temp = cache_peek(cache);
+              memcpy(&a, temp, sizeof(syntax_token_t));
+              cache_pop(cache);
+              temp = NULL;
 
-              do
-              {
-                token = syntax_queue_read(queue);
-              }
-              while ( token != NULL && token->type == SPACE );
+              temp = cache_peek(cache);
+              memcpy(&b, temp, sizeof(syntax_token_t));
+              cache_pop(cache);
+              temp = NULL;
 
-              if (token != NULL)
+              expression1 = number_expression_new(&b);
+              expression2 = number_expression_new(token);
+
+              expression3 = binary_expression_new(&a, expression1, expression2);
+
+              if (expression3->kind == BINARY_EXPRESSION)
               {
-                if (token->type == NUMBER)
+                switch ( expression3->value->type )
                 {
-                  temp = cache_peek(cache);
-                  memcpy(&a, temp, sizeof(syntax_token_t));
-                  cache_pop(cache);
-
-                  temp = cache_peek(cache);
-                  memcpy(&b, temp, sizeof(syntax_token_t));
-                  cache_pop(cache);
-
-                  puts("BINARY EXPRESSION");
-                  expression = binary_expression_new(&b, &a, token);
-                  expression_destroy(expression);
+                  case ADDITION:
+                    printf("%d\n",
+                      *(int *)expression3->left->value->data +
+                      *(int *)expression3->right->value->data);
+                    break;
                 }
               }
+
+              expression_destroy(expression1);
+              expression_destroy(expression2);
+              expression_destroy(expression3);
             }
           }
           break;
@@ -333,11 +324,4 @@ void parse(syntax_queue_t *queue)
     }
   }
   while (token != NULL);
-
-  // binary_expression_t *expression = binary_expression_new(token_o, token_a, token_b);
-
-  // printf("%d\n", expression->value->type);
-  // printf("%d\n", *(int *)expression->value->data);
-
-  // expression_destroy(expression);
 }

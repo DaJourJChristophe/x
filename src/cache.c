@@ -237,7 +237,7 @@ void cache_remove(splay_tree_t *tree, splay_tree_node_t *node)
 
 syntax_token_t *cache_peek(cache_t *cache)
 {
-  return cache->root->data;
+  return (cache->root != NULL) ? cache->root->data : NULL;
 }
 
 void cache_pop(cache_t *cache)
