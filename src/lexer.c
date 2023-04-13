@@ -12,7 +12,7 @@
 #include "ae.h"
 #include "io.h"
 #include "lexer.h"
-#include "queue.h"
+#include "syntax-queue.h"
 #include "token.h"
 
 #include <limits.h>

@@ -1,6 +1,6 @@
 #include "lexer.h"
 #include "parse.h"
-#include "queue.h"
+#include "syntax-queue.h"
 
 #include <stdlib.h>
 

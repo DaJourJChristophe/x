@@ -5,7 +5,7 @@
 extern "C"{
 #endif
 
-#include "queue.h"
+#include "syntax-queue.h"
 
 syntax_queue_t *compile(const char *filepath);
 

@@ -3,6 +3,7 @@
 #include "token.h"
 #include "cache.h"
 #include "expression.h"
+#include "syntax-queue.h"
 
 #include <stddef.h>
 #include <stdio.h>

@@ -1,5 +1,5 @@
-#ifndef X_SYNTAX_QUEUE_H
-#define X_SYNTAX_QUEUE_H
+#ifndef X_QUEUE_H
+#define X_QUEUE_H
 
 #include "common.h"
 
@@ -40,4 +40,4 @@ bool queue_write(queue_t *buffer, void *data);
 
 void *queue_read(queue_t *buffer);
 
-#endif/*X_SYNTAX_QUEUE_H*/
+#endif/*X_QUEUE_H*/
