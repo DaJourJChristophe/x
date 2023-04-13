@@ -1,27 +1,26 @@
+/**
+ * @file ast.c
+ * @author Da'Jour J. Christophe (dajour.christophe@gmail.com)
+ * @brief
+ * @version 0.1
+ * @date 2023-04-13
+ *
+ * @copyright Copyright (c) 2023 Da'Jour J. Christophe. All rights reserved.
+ */
+#include "ast.h"
+#include "expression.h"
+#include "syntax-expression-queue.h"
+#include "token.h"
 
-
-struct syntax_expression
-{
-  int value;
-
-  struct syntax_expression *left;
-  struct syntax_expression *right;
-};
-
-typedef struct syntax_expression syntax_expression_t;
-
-struct abstract_syntax_tree
-{
-  syntax_expression_t root;
-};
-
-typedef struct abstract_syntax_tree abstract_syntax_tree_t;
+/**
+ * @brief Print a Syntax Token for development purposes.
+ */
+void print_token(syntax_token_t *token);
 
 abstract_syntax_tree_t *abstract_syntax_tree_new(void)
 {
   abstract_syntax_tree_t *tree = NULL;
-  tree = __malloc(sizeof(abstract_syntax_tree_t));
-  tree->root = NULL;
+  tree = __calloc(1, sizeof(abstract_syntax_tree_t));
   return tree;
 }
 
@@ -39,35 +38,7 @@ void abstract_syntax_tree_destroy(abstract_syntax_tree_t *tree)
   __free(tree);
 }
 
-void printLevelOrder(struct node *root)
-{
-  int h = height(root);
-  int i;
-
-  for (i = 1; i <= h; i++)
-  {
-    printCurrentLevel(root, i);
-  }
-}
-
-void printCurrentLevel(struct node *root, int level)
-{
-  if (root == NULL)
-  {
-    return;
-  }
-  if (level == 1)
-  {
-    printf("%d ", root->data);
-  }
-  else if (level > 1)
-  {
-    printCurrentLevel(root->left, level - 1);
-    printCurrentLevel(root->right, level - 1);
-  }
-}
-
-int height(struct node *node)
+static int height(syntax_expression_t *node)
 {
   if (node == NULL)
   {
@@ -89,42 +60,69 @@ int height(struct node *node)
   }
 }
 
-void abstract_syntax_tree_insert(abstract_syntax_tree_t *tree, syntax_expression_t *new_node)
+static void printCurrentLevel(syntax_expression_t *root, int level)
+{
+  if (root == NULL)
+  {
+    return;
+  }
+  if (level == 1)
+  {
+    print_token(root->value);
+  }
+  else if (level > 1)
+  {
+    printCurrentLevel(root->left, level - 1);
+    printCurrentLevel(root->right, level - 1);
+  }
+}
+
+void printLevelOrder(syntax_expression_t *root)
+{
+  int h = height(root);
+  int i;
+
+  for (i = 1; i <= h; i++)
+  {
+    printCurrentLevel(root, i);
+  }
+}
+
+void abstract_syntax_tree_insert(abstract_syntax_tree_t *tree, int kind, syntax_token_t *token)
 {
   syntax_expression_t *node = tree->root;
 
   if (node == NULL)
   {
-    tree->root = // [new expression node]
+    tree->root = expression_new(kind, token, NULL, NULL);
     return;
   }
 
-  expression_queue_t *queue = // linked list;
+  syntax_expression_queue_t *queue = NULL;
+  queue = syntax_expression_queue_new(64);
+  syntax_expression_queue_write(queue, node);
 
-  expression_queue_enqueue(node);
-
-  while (!expression_queue_is_empty(queue))
+  while (node != NULL)
   {
-    node = expression_queue_peek(queue);
-    expression_queue_dequeue(queue);
+    node = syntax_expression_queue_read(queue);
 
-    if (node.left == NULL)
+    if (node->left == NULL)
     {
-      node.left = // new expression node
+      node->left = expression_new(kind, token, NULL, NULL);
       break;
     }
     else
     {
-      expression_queue_enqueue(node.left);
+      syntax_expression_queue_write(queue, node->left);
     }
 
-    if (node.right == NULL)
+    if (node->right == NULL)
     {
-      node.right = // new expression node
+      node->right = expression_new(kind, token, NULL, NULL);
     }
     else
     {
-      expression_queue_enqueue(node.right);
+      syntax_expression_queue_write(queue, node->right);
     }
   }
 }

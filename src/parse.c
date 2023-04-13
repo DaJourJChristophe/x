@@ -5,16 +5,12 @@
 #include "expression.h"
 #include "syntax-queue.h"
 #include "syntax-stack.h"
+#include "ast.h"
 
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-/**
- * @brief Print a Syntax Token for development purposes.
- */
-void print_token(syntax_token_t *token);
 
 /**
  * @brief Allocate a new syntax token and set both the type and the data;
@@ -39,36 +35,6 @@ void syntax_token_destroy(syntax_token_t *token)
 {
   __free(token->data);
   __free(token);
-}
-
-/**
- * @brief Allocate a new syntax expression and set the value, left child, and right child.
- */
-syntax_expression_t *expression_new(int kind, syntax_token_t *value, syntax_expression_t *left, syntax_expression_t *right)
-{
-  syntax_expression_t *expression = NULL;
-  expression = __calloc(1, sizeof(syntax_expression_t));
-
-  expression->kind = kind;
-
-  expression->value = __calloc(1, sizeof(syntax_token_t));
-
-  memcpy(expression->value, value, sizeof(syntax_token_t));
-
-  // expression->value = value;
-  expression->left = left;
-  expression->right = right;
-
-  return expression;
-}
-
-/**
- * @brief Deallocate the expression value and the expression data structure.
- */
-void expression_destroy(syntax_expression_t *expression)
-{
-  __free(expression->value);
-  __free(expression);
 }
 
 /**
@@ -257,6 +223,11 @@ void parse(syntax_queue_t *queue)
   syntax_stack_t *symbol_stack = syntax_stack_new(64);
   syntax_queue_t *number_queue = syntax_queue_new(64);
 
+  abstract_syntax_tree_t *tree = NULL;
+  tree = abstract_syntax_tree_new();
+
+  binary_expression_t *bexpr = NULL;
+
   do
   {
     token = syntax_queue_read(queue);
@@ -276,19 +247,31 @@ void parse(syntax_queue_t *queue)
               die("failed to write to syntax queue", __FILE__, __func__);
             }
           }
+          bexpr = binary_expression_new(NULL, NULL, NULL);
           while ((temp = syntax_queue_read(number_queue)) != NULL)
           {
             switch (temp->type)
             {
               case NUMBER:
-                printf("%d\n", *(int *)temp->data);
+                if (bexpr->left == NULL)
+                {
+                  bexpr->left = number_expression_new(temp);
+                }
+                else
+                {
+                  bexpr->right = number_expression_new(temp);
+                }
                 break;
 
               case ADDITION:
-                printf("%s\n", "+");
+                memcpy(bexpr->value, temp, sizeof(syntax_token_t));
+                // bexpr->value = temp;
                 break;
             }
           }
+
+          printf("%d\n", *(int *)bexpr->left->value->data +
+                         *(int *)bexpr->right->value->data);
           break;
 
         case EOL:
@@ -316,6 +299,10 @@ void parse(syntax_queue_t *queue)
     }
   }
   while (token != NULL);
+
+  expression_destroy(bexpr);
+
+  abstract_syntax_tree_destroy(tree);
 
   syntax_stack_destroy(symbol_stack);
   syntax_queue_destroy(number_queue);
