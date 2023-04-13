@@ -33,14 +33,13 @@ typedef struct stack stack_t;
  * @brief Allocate a new stack data structure to the CPU stack and
  *        return a CPU pointer.
  */
-static inline stack_t always_inline *stack_new(void *data /* data-pointer */, size_t const cap /* capacity */, size_t const ofs /* offset */)
-{
-  stack_t  stack_obj = {.data=data, .ofs=ofs, .cap=cap, .top=0};
-  stack_t *stack_ptr = &stack_obj;
-  return   stack_ptr;
-}
+stack_t *stack_new(void *data /* data-pointer */, size_t const cap /* capacity */, size_t const ofs /* offset */);
 
-bool stack_push(stack_t *stack, void *item, size_t const size);
+void stack_destroy(stack_t *stack);
+
+void *stack_peek(stack_t *stack);
+
+bool stack_push(stack_t *stack, void *item);
 
 void *stack_pop(stack_t *stack);
 

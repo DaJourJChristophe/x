@@ -19,21 +19,8 @@ extern "C"{
 #define ae_is_alnum
 #define ae_is_upper
 #define ae_is_space
-#define ae_is_symbol
+#define ae_is_symbl
 #define ae_is_null
-
-/**
- * @brief A collection of negative ASCII expressions.
- */
-#define ae_no_ascii
-#define ae_no_alpha
-#define ae_no_digit
-#define ae_no_lower
-#define ae_no_alnum
-#define ae_no_upper
-#define ae_no_space
-#define ae_no_symbl
-#define ae_no_null
 
 /**
  * @brief Check if a character matches one of the

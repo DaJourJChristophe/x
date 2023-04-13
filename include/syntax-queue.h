@@ -14,7 +14,7 @@ typedef queue_t syntax_queue_t;
 
 static inline syntax_queue_t * always_inline syntax_queue_new(size_t const cap /* capacity */)
 {
-  syntax_token_t data[cap];
+  syntax_token_t *data = __calloc(cap, sizeof(syntax_token_t));
   return queue_new(data, cap, sizeof(syntax_token_t));
 }
 
@@ -23,9 +23,9 @@ static inline bool always_inline syntax_queue_write(syntax_queue_t *queue, synta
   return queue_write(queue, data);
 }
 
-static inline void * always_inline syntax_queue_read(syntax_queue_t *queue)
+static inline syntax_token_t * always_inline syntax_queue_read(syntax_queue_t *queue)
 {
-  return queue_read(queue);
+  return (syntax_token_t *)queue_read(queue);
 }
 
 /**
@@ -36,15 +36,23 @@ static inline void always_inline syntax_queue_destroy(syntax_queue_t *buffer)
 {
   syntax_token_t *token = NULL;
 
-  do
+  while ((token = syntax_queue_read(buffer)) != NULL)
   {
-    token = syntax_queue_read(buffer);
-    if (token != NULL)
-    {
-      __free(token->data);
-    }
+    __free(token->data);
   }
-  while (token != NULL);
+
+  __free(buffer->data);
+  __free(buffer);
+
+  // do
+  // {
+  //   token = syntax_queue_read(buffer);
+  //   if (token != NULL)
+  //   {
+  //     __free(token->data);
+  //   }
+  // }
+  // while (token != NULL);
 }
 
 #endif/*X_SYNTAX_QUEUE_H*/

@@ -16,6 +16,29 @@
 #include <string.h>
 
 /**
+ * @brief Allocate a new ring-buffer structure and allocate the
+ *        ring-buffer data-buffer based upon the capacity parameter
+ *        provided by the end-user. Also, store the capacity as apart
+ *        of the ring-buffer structure.
+ */
+queue_t *queue_new(void *data /* data-pointer */, size_t const cap /* offset */, size_t const ofs /* offset */)
+{
+  queue_t *buffer = NULL;
+  buffer = __calloc(1, sizeof(queue_t));
+
+  buffer->data = data;
+  buffer->ofs  = ofs;
+  buffer->cap  = cap;
+
+  return buffer;
+}
+
+void queue_destroy(queue_t *buffer)
+{
+  __free(buffer);
+}
+
+/**
  * @brief Calculate the ring-buffer capacity by subtracting the writer
  *        position from the reader position and return to the end-user.
  */

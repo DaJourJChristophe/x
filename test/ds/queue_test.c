@@ -24,6 +24,8 @@ static void queue_new_test(void unused **state)
   assert_int_equal(queue->cap, DEFAULT_QUEUESIZE);
   assert_int_equal(queue->w, 0);
   assert_int_equal(queue->r, 0);
+
+  queue_destroy(queue);
 }
 
 static void queue_write_test(void unused **state)
@@ -38,6 +40,8 @@ static void queue_write_test(void unused **state)
   assert_int_equal(queue->w, (uint64_t)1);
 
   assert_false(queue_write(queue, &x));
+
+  queue_destroy(queue);
 }
 
 static void queue_read_test(void unused **state)
@@ -54,6 +58,8 @@ static void queue_read_test(void unused **state)
   assert_int_equal(queue->r, queue->w);
 
   assert_null(queue_read(queue));
+
+  queue_destroy(queue);
 }
 
 int main(void)

@@ -29,12 +29,9 @@ typedef struct ring_buffer queue_t;
  *        provided by the end-user. Also, store the capacity as apart
  *        of the ring-buffer structure.
  */
-static inline queue_t * always_inline queue_new(void *data /* data-pointer */, size_t const cap /* offset */, size_t const ofs /* offset */)
-{
-  queue_t  queue_obj = {.data=data, .ofs=ofs, .cap=cap, .w=0, .r=0};
-  queue_t *queue_ptr = &queue_obj;
-  return   queue_ptr;
-}
+queue_t *queue_new(void *data /* data-pointer */, size_t const cap /* offset */, size_t const ofs /* offset */);
+
+void queue_destroy(queue_t *buffer);
 
 bool queue_write(queue_t *buffer, void *data);
 

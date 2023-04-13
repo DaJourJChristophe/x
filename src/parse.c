@@ -4,6 +4,7 @@
 #include "cache.h"
 #include "expression.h"
 #include "syntax-queue.h"
+#include "syntax-stack.h"
 
 #include <stddef.h>
 #include <stdio.h>
@@ -228,21 +229,33 @@ enum
   YIELD,
 };
 
+int precedence(int kind)
+{
+  switch (kind)
+  {
+    case STAR:
+      return 3;
+
+    case DIVISION:
+      return 2;
+
+    case ADDITION:
+      return 1;
+
+    case SUBTRACTION:
+      return 0;
+  }
+
+  return (-1);
+}
+
 void parse(syntax_queue_t *queue)
 {
   syntax_token_t *token = NULL;
-
-  number_expression_t *expression1 = NULL;
-  number_expression_t *expression2 = NULL;
-  number_expression_t *expression3 = NULL;
-
-  cache_t *cache = cache_new();
-
-  syntax_token_t a;
-  syntax_token_t b;
-
   syntax_token_t *temp;
 
+  syntax_stack_t *symbol_stack = syntax_stack_new(64);
+  syntax_queue_t *number_queue = syntax_queue_new(64);
 
   do
   {
@@ -255,67 +268,45 @@ void parse(syntax_queue_t *queue)
         case LEXER_EOF:
           return;
 
+        case EOE:
+          while ((temp = syntax_stack_pop(symbol_stack)) != NULL)
+          {
+            if (queue_write(number_queue, temp) == false)
+            {
+              die("failed to write to syntax queue", __FILE__, __func__);
+            }
+          }
+          while ((temp = syntax_queue_read(number_queue)) != NULL)
+          {
+            switch (temp->type)
+            {
+              case NUMBER:
+                printf("%d\n", *(int *)temp->data);
+                break;
+
+              case ADDITION:
+                printf("%s\n", "+");
+                break;
+            }
+          }
+          break;
+
         case EOL:
         case TAB:
         case SPACE:
           break;
 
         case ADDITION:
-          if (cache_peek(cache) != NULL)
+          if (syntax_stack_push(symbol_stack, token) == false)
           {
-            if (cache_peek(cache)->type == NUMBER)
-            {
-              cache_add(cache, cache_node_new(token));
-            }
+            die("failed to push to syntax stack", __FILE__, __func__);
           }
           break;
 
         case NUMBER:
-          if (cache_peek(cache) == NULL)
+          if (syntax_queue_write(number_queue, token) == false)
           {
-            cache_add(cache, cache_node_new(token));
-            break;
-          }
-          else
-          {
-            if (cache_peek(cache)->type != ADDITION)
-            {
-              cache_add(cache, cache_node_new(token));
-              break;
-            }
-            else
-            {
-              temp = cache_peek(cache);
-              memcpy(&a, temp, sizeof(syntax_token_t));
-              cache_pop(cache);
-              temp = NULL;
-
-              temp = cache_peek(cache);
-              memcpy(&b, temp, sizeof(syntax_token_t));
-              cache_pop(cache);
-              temp = NULL;
-
-              expression1 = number_expression_new(&b);
-              expression2 = number_expression_new(token);
-
-              expression3 = binary_expression_new(&a, expression1, expression2);
-
-              if (expression3->kind == BINARY_EXPRESSION)
-              {
-                switch ( expression3->value->type )
-                {
-                  case ADDITION:
-                    printf("%d\n",
-                      *(int *)expression3->left->value->data +
-                      *(int *)expression3->right->value->data);
-                    break;
-                }
-              }
-
-              expression_destroy(expression1);
-              expression_destroy(expression2);
-              expression_destroy(expression3);
-            }
+            die("failed to write to syntax queue", __FILE__, __func__);
           }
           break;
 
@@ -325,4 +316,7 @@ void parse(syntax_queue_t *queue)
     }
   }
   while (token != NULL);
+
+  syntax_stack_destroy(symbol_stack);
+  syntax_queue_destroy(number_queue);
 }
