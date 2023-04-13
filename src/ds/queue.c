@@ -8,47 +8,12 @@
  * @copyright Copyright (c) 2023 Da'Jour J. Christophe. All rights reserved.
  */
 #include "common.h"
-#include "lexer.h"
-#include "queue.h"
+#include "ds/queue.h"
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <stdio.h>
 #include <string.h>
-
-/**
- * @brief Allocate a new ring-buffer structure and allocate the
- *        ring-buffer data-buffer based upon the capacity parameter
- *        provided by the end-user. Also, store the capacity as apart
- *        of the ring-buffer structure.
- */
-// static ring_buffer_t *ring_buffer_new(size_t const cap)
-// {
-//   ring_buffer_t *buffer = NULL;
-//   buffer = __calloc(1, sizeof(ring_buffer_t));
-//   buffer->data = __calloc(cap, sizeof(syntax_token_t));
-//   buffer->cap = cap;
-//   return buffer;
-// }
-
-/**
- * @brief Allocate a new ring-buffer structure and allocate the
- *        ring-buffer data-buffer based upon the capacity parameter
- *        provided by the end-user. Also, store the capacity as apart
- *        of the ring-buffer structure.
- */
-inline queue_t * always_inline queue_new(void *data /* data-pointer */, size_t const cap /* offset */, size_t const ofs /* offset */)
-{
-  queue_t queue = {.data=data, .ofs=ofs, .w=0, .r=0}, *queue_ptr = &queue;
-  return queue_ptr;
-}
-
-inline syntax_queue_t * always_inline syntax_queue_new(size_t const cap /* capacity */)
-{
-  syntax_token_t data[cap];
-  return queue_new(data, sizeof(syntax_token_t));
-}
 
 /**
  * @brief Deallocate the ring-buffer data-buffer and the ring-buffer
@@ -89,7 +54,7 @@ static inline size_t always_inline queue_size(queue_t *buffer /* queue-buffer */
 /**
  * @brief Return the ring-buffer capacity to the end-user.
  */
-static inline size_t always_inline ring_buffer_capacity(ring_buffer_t *buffer)
+static inline size_t always_inline queue_capacity(queue_t *buffer)
 {
   return buffer->cap;
 }
@@ -100,9 +65,9 @@ static inline size_t always_inline ring_buffer_capacity(ring_buffer_t *buffer)
  *        or equal to the capacity, the ring-buffer is full, if not, the
  *        ring-buffer is not full.
  */
-static bool ring_buffer_is_full(ring_buffer_t *buffer)
+static bool queue_is_full(queue_t *buffer)
 {
-  return ring_buffer_size(buffer) >= ring_buffer_capacity(buffer);
+  return queue_size(buffer) >= queue_capacity(buffer);
 }
 
 /**
@@ -115,20 +80,15 @@ static bool ring_buffer_is_full(ring_buffer_t *buffer)
  *        in the data-buffer. Finally, return true to indicate to the
  *        end-user that the write was successful.
  */
-static bool ring_buffer_write(ring_buffer_t *buffer, syntax_token_t *data)
+bool queue_write(queue_t *buffer, void *data)
 {
-  if (ring_buffer_is_full(buffer))
+  if (queue_is_full(buffer))
   {
     return false;
   }
 
-  memcpy((buffer->data + (buffer->w++ % buffer->cap)), data, sizeof(syntax_token_t));
+  memcpy((buffer->data + ((buffer->w++ * buffer->ofs) % buffer->cap)), data, buffer->ofs);
   return true;
-}
-
-inline bool always_inline syntax_queue_write(syntax_queue_t *queue, syntax_token_t *data)
-{
-  return ring_buffer_write(queue, data);
 }
 
 /**
@@ -137,7 +97,7 @@ inline bool always_inline syntax_queue_write(syntax_queue_t *queue, syntax_token
  *        or equal to the writer position the ring-buffer is empty, if
  *        not than the ring-buffer is not empty.
  */
-static bool ring_buffer_is_empty(ring_buffer_t *buffer)
+static bool queue_is_empty(queue_t *buffer)
 {
   return buffer->r >= buffer->w;
 }
@@ -152,12 +112,7 @@ static bool ring_buffer_is_empty(ring_buffer_t *buffer)
  *        reader position to get the next syntax token. Finally, return a
  *        pointer to the syntax token stored in the data-buffer.
  */
-static void *ring_buffer_read(ring_buffer_t *buffer)
+void *queue_read(queue_t *buffer)
 {
-  return ring_buffer_is_empty(buffer) ? NULL : (buffer->data + (buffer->r++ % buffer->cap));
-}
-
-inline void * always_inline syntax_queue_read(syntax_queue_t *queue)
-{
-  return ring_buffer_read(queue);
+  return queue_is_empty(buffer) ? NULL : (buffer->data + ((buffer->r++ * buffer->ofs) % buffer->cap));
 }
