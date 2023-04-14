@@ -6,5 +6,5 @@
 
 .vscode
 
-bin/ae_test
-bin/main
+bin/*
+!bin/.keep
