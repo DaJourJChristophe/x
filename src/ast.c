@@ -12,6 +12,8 @@
 #include "syntax-expression-queue.h"
 #include "token.h"
 
+#include <stdio.h>
+
 /**
  * @brief Print a Syntax Token for development purposes.
  */
@@ -88,41 +90,60 @@ void printLevelOrder(syntax_expression_t *root)
   }
 }
 
-void abstract_syntax_tree_insert(abstract_syntax_tree_t *tree, int kind, syntax_token_t *token)
+static syntax_expression_t *_abstract_syntax_tree_insert(syntax_expression_t *node, int kind, syntax_token_t *token)
 {
-  syntax_expression_t *node = tree->root;
-
   if (node == NULL)
   {
-    tree->root = expression_new(kind, token, NULL, NULL);
-    return;
+    return expression_new(kind, token, NULL, NULL);
   }
 
   syntax_expression_queue_t *queue = NULL;
-  queue = syntax_expression_queue_new(64);
-  syntax_expression_queue_write(queue, node);
+  queue = syntax_expression_queue_new(128);
 
-  while (node != NULL)
+  if (syntax_expression_queue_write(queue, node) == false)
+  {
+    fprintf(stderr, "%s\n", "failed to write to syntax expression queue");
+    exit(EXIT_FAILURE);
+  }
+
+  while (syntax_expression_queue_is_empty(queue) == false)
   {
     node = syntax_expression_queue_read(queue);
 
-    if (node->left == NULL)
+    if (node->left != NULL)
+    {
+      if (syntax_expression_queue_write(queue, node->left) == false)
+      {
+        fprintf(stderr, "%s\n", "failed to write to syntax expression queue");
+        exit(EXIT_FAILURE);
+      }
+    }
+    else
     {
       node->left = expression_new(kind, token, NULL, NULL);
       break;
     }
-    else
-    {
-      syntax_expression_queue_write(queue, node->left);
-    }
 
     if (node->right == NULL)
     {
-      node->right = expression_new(kind, token, NULL, NULL);
+      if (syntax_expression_queue_write(queue, node->right) == false)
+      {
+        fprintf(stderr, "%s\n", "failed to write to syntax expression queue");
+        exit(EXIT_FAILURE);
+      }
     }
     else
     {
-      syntax_expression_queue_write(queue, node->right);
+      node->right = expression_new(kind, token, NULL, NULL);
+      break;
     }
   }
+
+  syntax_expression_queue_destroy(queue);
+  return node;
+}
+
+void abstract_syntax_tree_insert(abstract_syntax_tree_t *tree, int kind, syntax_token_t *token)
+{
+  tree->root = _abstract_syntax_tree_insert(tree->root, kind, token);
 }

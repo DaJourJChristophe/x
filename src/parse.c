@@ -221,12 +221,12 @@ void parse(syntax_queue_t *queue)
   syntax_token_t *temp;
 
   syntax_stack_t *symbol_stack = syntax_stack_new(64);
-  syntax_queue_t *number_queue = syntax_queue_new(64);
+  // syntax_queue_t *number_queue = syntax_queue_new(64);
 
   abstract_syntax_tree_t *tree = NULL;
   tree = abstract_syntax_tree_new();
 
-  binary_expression_t *bexpr = NULL;
+  // binary_expression_t *bexpr = NULL;
 
   do
   {
@@ -237,41 +237,39 @@ void parse(syntax_queue_t *queue)
       switch (token->type)
       {
         case LEXER_EOF:
-          return;
+          break;
 
         case EOE:
           while ((temp = syntax_stack_pop(symbol_stack)) != NULL)
           {
-            if (queue_write(number_queue, temp) == false)
-            {
-              die("failed to write to syntax queue", __FILE__, __func__);
-            }
+            abstract_syntax_tree_insert(tree, BINARY_EXPRESSION, temp);
+            // if (queue_write(number_queue, temp) == false)
+            // {
+            //   die("failed to write to syntax queue", __FILE__, __func__);
+            // }
           }
-          bexpr = binary_expression_new(NULL, NULL, NULL);
-          while ((temp = syntax_queue_read(number_queue)) != NULL)
-          {
-            switch (temp->type)
-            {
-              case NUMBER:
-                if (bexpr->left == NULL)
-                {
-                  bexpr->left = number_expression_new(temp);
-                }
-                else
-                {
-                  bexpr->right = number_expression_new(temp);
-                }
-                break;
+          // bexpr = binary_expression_new(NULL, NULL, NULL);
+          // while ((temp = syntax_queue_read(number_queue)) != NULL)
+          // {
+          //   switch (temp->type)
+          //   {
+          //     case NUMBER:
+          //       if (bexpr->left == NULL)
+          //       {
+          //         bexpr->left = number_expression_new(temp);
+          //       }
+          //       else
+          //       {
+          //         bexpr->right = number_expression_new(temp);
+          //       }
+          //       break;
 
-              case ADDITION:
-                memcpy(bexpr->value, temp, sizeof(syntax_token_t));
-                // bexpr->value = temp;
-                break;
-            }
-          }
-
-          printf("%d\n", *(int *)bexpr->left->value->data +
-                         *(int *)bexpr->right->value->data);
+          //     case ADDITION:
+          //       memcpy(bexpr->value, temp, sizeof(syntax_token_t));
+          //       // bexpr->value = temp;
+          //       break;
+          //   }
+          // }
           break;
 
         case EOL:
@@ -287,10 +285,11 @@ void parse(syntax_queue_t *queue)
           break;
 
         case NUMBER:
-          if (syntax_queue_write(number_queue, token) == false)
-          {
-            die("failed to write to syntax queue", __FILE__, __func__);
-          }
+          abstract_syntax_tree_insert(tree, NUMBER_EXPRESSION, token);
+          // if (syntax_queue_write(number_queue, token) == false)
+          // {
+          //   die("failed to write to syntax queue", __FILE__, __func__);
+          // }
           break;
 
         default:
@@ -300,10 +299,12 @@ void parse(syntax_queue_t *queue)
   }
   while (token != NULL);
 
-  expression_destroy(bexpr);
+  printLevelOrder(tree->root);
+
+  // expression_destroy(bexpr);
 
   abstract_syntax_tree_destroy(tree);
 
   syntax_stack_destroy(symbol_stack);
-  syntax_queue_destroy(number_queue);
+  // syntax_queue_destroy(number_queue);
 }
