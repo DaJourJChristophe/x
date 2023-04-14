@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -e
+
+WORKSPACE=$(pwd)
+
+# Check if the build directory exists, if not create the directory.
+if [[ ! -d "${WORKSPACE}/build" ]]; then
+  mkdir -v "${WORKSPACE}/build"
+fi
+
+# To make the build verbose add: -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
+cmake -DCMAKE_BUILD_TYPE=Debug -S $WORKSPACE -B $WORKSPACE/build

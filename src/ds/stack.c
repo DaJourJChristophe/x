@@ -11,8 +11,6 @@
 #include "common.h"
 #include "ds/stack.h"
 
-#include <stdio.h>
-
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
