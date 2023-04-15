@@ -21,7 +21,7 @@
  *        provided by the end-user. Also, store the capacity as apart
  *        of the ring-buffer structure.
  */
-queue_t *queue_new(void *data /* data-pointer */, size_t const cap /* offset */, size_t const ofs /* offset */)
+queue_t *queue_new(void *data /* data-pointer */, size_t const cap /* capacity */, size_t const ofs /* offset */)
 {
   queue_t *buffer = NULL;
   buffer = __calloc(1, sizeof(queue_t));

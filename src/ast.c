@@ -124,7 +124,7 @@ static syntax_expression_t *_abstract_syntax_tree_insert(syntax_expression_t *no
       break;
     }
 
-    if (node->right == NULL)
+    if (node->right != NULL)
     {
       if (syntax_expression_queue_write(queue, node->right) == false)
       {

@@ -171,7 +171,7 @@ void print_token(syntax_token_t *token)
       break;
 
     case NUMBER:
-      printf("[NUMBER TOKEN <%p>]\n", token->data);
+      printf("[NUMBER TOKEN <%d>]\n", *(int *)token->data);
       break;
 
     case WORD:
