@@ -4,8 +4,6 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 binary_tree_t *binary_tree_new(size_t const cap /* capacity */,

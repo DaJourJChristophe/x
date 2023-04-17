@@ -14,8 +14,7 @@ typedef queue_t syntax_queue_t;
 
 static inline syntax_queue_t * always_inline syntax_queue_new(size_t const cap /* capacity */)
 {
-  syntax_token_t *data = __calloc(cap, sizeof(syntax_token_t));
-  return queue_new(data, cap, sizeof(syntax_token_t));
+  return queue_new(cap, sizeof(syntax_token_t));
 }
 
 static inline bool always_inline syntax_queue_write(syntax_queue_t *queue, syntax_token_t *data)
@@ -32,27 +31,9 @@ static inline syntax_token_t * always_inline syntax_queue_read(syntax_queue_t *q
  * @brief Deallocate the ring-buffer data-buffer and the ring-buffer
  *        structure.
  */
-static inline void always_inline syntax_queue_destroy(syntax_queue_t *buffer)
+static inline void always_inline syntax_queue_destroy(syntax_queue_t *queue)
 {
-  syntax_token_t *token = NULL;
-
-  while ((token = syntax_queue_read(buffer)) != NULL)
-  {
-    __free(token->data);
-  }
-
-  __free(buffer->data);
-  __free(buffer);
-
-  // do
-  // {
-  //   token = syntax_queue_read(buffer);
-  //   if (token != NULL)
-  //   {
-  //     __free(token->data);
-  //   }
-  // }
-  // while (token != NULL);
+  queue_destroy(queue);
 }
 
 #endif/*X_SYNTAX_QUEUE_H*/

@@ -14,12 +14,10 @@
 
 static void queue_new_test(void unused **state)
 {
-  int data[DEFAULT_QUEUESIZE];
-  queue_t *queue = queue_new(data, DEFAULT_QUEUESIZE, sizeof(int));
+  queue_t *queue = queue_new(DEFAULT_QUEUESIZE, sizeof(int));
 
   assert_non_null(queue);
   assert_non_null(queue->data);
-  assert_ptr_equal((void *)data, queue->data);
   assert_int_equal(queue->ofs, sizeof(int));
   assert_int_equal(queue->cap, DEFAULT_QUEUESIZE);
   assert_int_equal(queue->w, 0);
@@ -31,10 +29,9 @@ static void queue_new_test(void unused **state)
 static void queue_write_test(void unused **state)
 {
   size_t const n = 1;
-  int data[n];
   int x = 1;
 
-  queue_t *queue = queue_new(data, n, sizeof(int));
+  queue_t *queue = queue_new(n, sizeof(int));
 
   assert_true(queue_write(queue, &x));
   assert_int_equal(queue->w, (uint64_t)1);
@@ -46,10 +43,9 @@ static void queue_write_test(void unused **state)
 
 static void queue_read_test(void unused **state)
 {
-  int data[1];
   int x = 1;
 
-  queue_t *queue = queue_new(data, 1, sizeof(int));
+  queue_t *queue = queue_new(1, sizeof(int));
 
   queue_write(queue, &x);
   assert_int_equal(queue->w, (uint64_t)1);

@@ -1,10 +1,13 @@
 #ifndef X_TOKEN_H
 #define X_TOKEN_H
 
+#include <stddef.h>
+
 struct token
 {
-   int  type;      /* Token datatype declaration. */
-  void *data;      /* Data associated with the corresponding datatype. */
+   int   type;      /* Token datatype declaration. */
+  void  *data;      /* Data associated with the corresponding datatype. */
+  size_t size;
 };
 
 /**

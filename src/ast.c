@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2023 Da'Jour J. Christophe. All rights reserved.
  */
 #include "ast.h"
-#include "expression.h"
+#include "expr.h"
 #include "syntax-expression-queue.h"
 #include "token.h"
 
@@ -19,20 +19,17 @@
  */
 void print_token(syntax_token_t *token);
 
+/**
+ * @brief Print an Expression for development purposes.
+ */
+void print_expression(syntax_expression_t *expr);
+
 abstract_syntax_tree_t *abstract_syntax_tree_new(void)
 {
   abstract_syntax_tree_t *tree = NULL;
   tree = __calloc(1, sizeof(abstract_syntax_tree_t));
   return tree;
 }
-
-/*
-          0
-        /   \
-       1     2
-      / \   / \
-     3   4 5   6
-*/
 
 void abstract_syntax_tree_destroy(abstract_syntax_tree_t *tree)
 {
@@ -70,7 +67,7 @@ static void printCurrentLevel(syntax_expression_t *root, int level)
   }
   if (level == 1)
   {
-    print_token(root->value);
+    print_expression(root);
   }
   else if (level > 1)
   {

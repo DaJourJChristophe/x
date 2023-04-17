@@ -14,12 +14,10 @@
 
 static void stack_new_test(void unused **state)
 {
-  int data[DEFAULT_STACKSIZE];
-  stack_t *stack = stack_new(data, DEFAULT_STACKSIZE, sizeof(int));
+  stack_t *stack = stack_new(DEFAULT_STACKSIZE, sizeof(int));
 
   assert_non_null(stack);
   assert_non_null(stack->data);
-  assert_ptr_equal((void *)data, stack->data);
   assert_int_equal(stack->ofs, sizeof(int));
   assert_int_equal(stack->cap, DEFAULT_STACKSIZE);
   assert_int_equal(stack->top, 0);
@@ -30,10 +28,9 @@ static void stack_new_test(void unused **state)
 static void stack_push_test(void unused **state)
 {
   size_t const n = 1;
-  int data[n];
   int x = 1;
 
-  stack_t *stack = stack_new(data, n, sizeof(int));
+  stack_t *stack = stack_new(n, sizeof(int));
 
   assert_true(stack_push(stack, &x));
   assert_int_equal(stack->top, (uint64_t)1);
@@ -45,10 +42,9 @@ static void stack_push_test(void unused **state)
 
 static void stack_pop_test(void unused **state)
 {
-  int data[1];
   int x = 1;
 
-  stack_t *stack = stack_new(data, 1, sizeof(int));
+  stack_t *stack = stack_new(1, sizeof(int));
 
   stack_push(stack, &x);
   assert_int_equal(stack->top, (uint64_t)1);

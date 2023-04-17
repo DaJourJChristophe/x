@@ -21,12 +21,13 @@
  *        provided by the end-user. Also, store the capacity as apart
  *        of the ring-buffer structure.
  */
-queue_t *queue_new(void *data /* data-pointer */, size_t const cap /* capacity */, size_t const ofs /* offset */)
+queue_t *queue_new(size_t const cap /* capacity */,
+                   size_t const ofs /* offset   */)
 {
   queue_t *buffer = NULL;
   buffer = __calloc(1, sizeof(queue_t));
+  buffer->data = __calloc(cap, sizeof(uintptr_t));
 
-  buffer->data = data;
   buffer->ofs  = ofs;
   buffer->cap  = cap;
 
@@ -35,6 +36,18 @@ queue_t *queue_new(void *data /* data-pointer */, size_t const cap /* capacity *
 
 void queue_destroy(queue_t *buffer)
 {
+  const   size_t cap = buffer->cap;
+  const uint64_t   w = buffer->w;
+        uint64_t   r = buffer->r;
+
+  void **ptr = buffer->data;
+
+  for (; r < w; r++)
+  {
+    __free(ptr[r % cap]);
+  }
+
+  __free(buffer->data);
   __free(buffer);
 }
 
@@ -44,7 +57,10 @@ void queue_destroy(queue_t *buffer)
  */
 static inline size_t always_inline queue_size(queue_t *buffer /* queue-buffer */)
 {
-  return buffer->w - buffer->r;
+  const uint64_t w = buffer->w;
+  const uint64_t r = buffer->r;
+
+  return w - r;
 }
 
 /**
@@ -61,7 +77,7 @@ static inline size_t always_inline queue_capacity(queue_t *buffer)
  *        or equal to the capacity, the ring-buffer is full, if not, the
  *        ring-buffer is not full.
  */
-static bool queue_is_full(queue_t *buffer)
+static inline bool always_inline queue_is_full(queue_t *buffer)
 {
   return queue_size(buffer) >= queue_capacity(buffer);
 }
@@ -83,7 +99,13 @@ bool queue_write(queue_t *buffer, void *data)
     return false;
   }
 
-  memcpy((buffer->data + ((buffer->w++ * buffer->ofs) % buffer->cap)), data, buffer->ofs);
+  const uint64_t w   = buffer->w;
+  const   size_t cap = buffer->cap;
+  const   size_t ofs = buffer->ofs;
+  void **ptr = buffer->data;
+  ptr[w % cap] = __malloc(ofs);
+  memcpy(ptr[w % cap], data, ofs);
+  buffer->w++;
   return true;
 }
 
@@ -93,9 +115,12 @@ bool queue_write(queue_t *buffer, void *data)
  *        or equal to the writer position the ring-buffer is empty, if
  *        not than the ring-buffer is not empty.
  */
-static bool queue_is_empty(queue_t *buffer)
+bool queue_is_empty(queue_t *buffer)
 {
-  return buffer->r >= buffer->w;
+  const uint64_t r = buffer->r;
+  const uint64_t w = buffer->w;
+
+  return r >= w;
 }
 
 /**
@@ -110,5 +135,18 @@ static bool queue_is_empty(queue_t *buffer)
  */
 void *queue_read(queue_t *buffer)
 {
-  return queue_is_empty(buffer) ? NULL : (buffer->data + ((buffer->r++ * buffer->ofs) % buffer->cap));
+  if (queue_is_empty(buffer))
+  {
+    return NULL;
+  }
+
+  const   size_t ofs = buffer->ofs;
+  const   size_t cap = buffer->cap;
+  const uint64_t   r = buffer->r;
+  void **ptr = buffer->data;
+  void *ret = __malloc(ofs);
+  memcpy(ret, ptr[r % cap], ofs);
+  __free(ptr[r % cap]);
+  buffer->r++;
+  return ret;
 }

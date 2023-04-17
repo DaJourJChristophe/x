@@ -4,6 +4,7 @@
 #include "common.h"
 #include "token.h"
 
+#include <stddef.h>
 #include <string.h>
 
 /**
@@ -18,7 +19,9 @@ enum
 struct syntax_node
 {
   int kind;
-  syntax_token_t *value;       /* A data structure containing the type and data for the syntax token. */
+  int type;
+  void *data;
+  size_t size;
 
   struct syntax_node *left;    /* A left  child pointer to a syntax node. */
   struct syntax_node *right;   /* A right child pointer to a syntax node. */
@@ -37,34 +40,13 @@ typedef syntax_node_t syntax_expression_t;
 /**
  * @brief Allocate a new syntax expression and set the value, left child, and right child.
  */
-static inline syntax_expression_t * always_inline expression_new(int kind, syntax_token_t *value, syntax_expression_t *left, syntax_expression_t *right)
-{
-  syntax_expression_t *expression = NULL;
-  expression = __calloc(1, sizeof(syntax_expression_t));
-
-  expression->kind = kind;
-
-  expression->value = __calloc(1, sizeof(syntax_token_t));
-
-  if (value != NULL)
-  {
-    memcpy(expression->value, value, sizeof(syntax_token_t));
-  }
-
-  // expression->value = value;
-  expression->left = left;
-  expression->right = right;
-
-  return expression;
-}
+syntax_expression_t *expression_new(int kind, syntax_token_t *value, syntax_expression_t *left, syntax_expression_t *right);
 
 /**
  * @brief Deallocate the expression value and the expression data structure.
  */
-static inline void always_inline expression_destroy(syntax_expression_t *expression)
-{
-  __free(expression->value);
-  __free(expression);
-}
+void expression_destroy(syntax_expression_t *expr);
+
+syntax_expression_t *expression_copy(syntax_expression_t *old_expr);
 
 #endif/*X_SYNTAX_EXPRESSION_H*/

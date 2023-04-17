@@ -11,7 +11,7 @@
 
 struct ring_buffer
 {
-  void *data;    /* A pointer to the data buffer.           */
+  void **data;   /* A pointer to the data buffer.           */
   size_t ofs;    /* The size of a single item in the queue. */
   size_t cap;    /* The capacity of the data buffer.        */
   uint64_t w;    /* A writer iterator.                      */
@@ -29,11 +29,14 @@ typedef struct ring_buffer queue_t;
  *        provided by the end-user. Also, store the capacity as apart
  *        of the ring-buffer structure.
  */
-queue_t *queue_new(void *data /* data-pointer */, size_t const cap /* offset */, size_t const ofs /* offset */);
+queue_t *queue_new(size_t const cap /* capacity */,
+                   size_t const ofs /* offset   */);
 
 void queue_destroy(queue_t *buffer);
 
 bool queue_write(queue_t *buffer, void *data);
+
+bool queue_is_empty(queue_t *buffer);
 
 void *queue_read(queue_t *buffer);
 

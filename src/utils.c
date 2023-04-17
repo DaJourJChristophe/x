@@ -1,3 +1,5 @@
+#include "error.h"
+#include "expr.h"
 #include "token.h"
 
 #include <stdio.h>
@@ -134,8 +136,90 @@ enum
   YIELD,
 };
 
+void print_expr(syntax_expression_t *expr)
+{
+  if (expr == NULL)
+  {
+    throw("null expression pointer");
+  }
+
+#ifdef VERBOSE
+  if (expr->data == NULL)
+  {
+    fprintf(stdout, "warn(): %s\n", "null expr->data pointer");
+  }
+#endif/*VERBOSE*/
+
+  switch (expr->kind)
+  {
+    case BINARY_EXPRESSION:
+      switch (expr->type)
+      {
+        case ADDITION:
+          printf("+");
+          break;
+
+        case STAR:
+          printf("*");
+          break;
+      }
+      break;
+
+    case NUMBER_EXPRESSION:
+      printf("%d", *(int *)expr->data);
+      break;
+  }
+}
+
+void print_expression(syntax_expression_t *expr)
+{
+  if (expr == NULL)
+  {
+    throw("null expression pointer");
+  }
+
+#ifdef VERBOSE
+  if (expr->data == NULL)
+  {
+    fprintf(stdout, "warn(): %s\n", "null expr->data pointer");
+  }
+#endif/*VERBOSE*/
+
+  switch (expr->kind)
+  {
+    case BINARY_EXPRESSION:
+      switch (expr->type)
+      {
+        case ADDITION:
+          printf("[BINARY EXPRESSION <add>]\n");
+          break;
+
+        case STAR:
+          printf("[BINARY EXPRESSION <mul>]\n");
+          break;
+      }
+      break;
+
+    case NUMBER_EXPRESSION:
+      printf("[NUMBER EXPRESSION <%d>]\n", *(int *)expr->data);
+      break;
+  }
+}
+
 void print_token(syntax_token_t *token)
 {
+  if (token == NULL)
+  {
+    throw("null token pointer");
+  }
+
+#ifdef VERBOSE
+  if (token->data == NULL)
+  {
+    fprintf(stdout, "warn(): %s\n", "null token->data pointer");
+  }
+#endif/*VERBOSE*/
+
   switch (token->type)
   {
     case UNDEFINED:

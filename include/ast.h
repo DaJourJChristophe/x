@@ -1,7 +1,7 @@
 #ifndef X_ABSTRACT_SYNTAX_TREE_H
 #define X_ABSTRACT_SYNTAX_TREE_H
 
-#include "expression.h"
+#include "expr.h"
 
 struct abstract_syntax_tree
 {

@@ -18,6 +18,7 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
   "${CMAKE_CURRENT_SOURCE_DIR}/ast.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/cache.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/error.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/expr.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/io.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/lexer.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/parse.c"
@@ -27,3 +28,5 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
 set_target_properties("${CMAKE_PROJECT_NAME}" PROPERTIES
   LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/libexec"
 )
+
+target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE m)

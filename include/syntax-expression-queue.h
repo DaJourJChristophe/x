@@ -3,8 +3,8 @@
 
 #include "common.h"
 #include "ds/queue.h"
+#include "expr.h"
 #include "token.h"
-#include "expression.h"
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -16,72 +16,89 @@ typedef queue_t syntax_expression_queue_t;
 
 static inline syntax_expression_queue_t * always_inline syntax_expression_queue_new(size_t const cap /* capacity */)
 {
-  syntax_expression_t **data = NULL;
-  data = (syntax_expression_t **)__calloc(cap, sizeof(syntax_expression_t *));
-  return queue_new(data, cap, sizeof(syntax_expression_t *));
+  return queue_new(cap, sizeof(syntax_expression_t));
 }
 
 static inline bool always_inline syntax_expression_queue_is_empty(syntax_expression_queue_t *queue)
 {
-  return queue->r >= queue->w;
+  return queue_is_empty(queue);
 }
 
-static inline size_t always_inline syntax_expression_queue_size(syntax_expression_queue_t *buffer /* queue-buffer */)
+/**
+ * @brief Calculate the ring-buffer capacity by subtracting the writer
+ *        position from the reader position and return to the end-user.
+ */
+static inline size_t always_inline queue_size(queue_t *buffer /* queue-buffer */)
 {
-  return buffer->w - buffer->r;
+  const uint64_t w = buffer->w;
+  const uint64_t r = buffer->r;
+
+  return w - r;
 }
-static inline size_t always_inline syntax_expression_queue_capacity(syntax_expression_queue_t *buffer)
+
+/**
+ * @brief Return the ring-buffer capacity to the end-user.
+ */
+static inline size_t always_inline queue_capacity(queue_t *buffer)
 {
   return buffer->cap;
 }
-static bool syntax_expression_queue_is_full(syntax_expression_queue_t *buffer)
+
+static inline bool always_inline queue_is_full(queue_t *buffer)
 {
-  return syntax_expression_queue_size(buffer) >= syntax_expression_queue_capacity(buffer);
+  return queue_size(buffer) >= queue_capacity(buffer);
 }
 
-static inline bool always_inline syntax_expression_queue_write(syntax_expression_queue_t *queue, syntax_expression_t *data)
+static bool syntax_expression_queue_write(syntax_expression_queue_t *queue, syntax_expression_t *expr)
 {
-  if (syntax_expression_queue_is_full(queue))
+  if (queue_is_full(queue))
   {
     return false;
   }
 
-  syntax_expression_t **pool = queue->data;
-
-  pool[queue->w++ % queue->cap] = data;
-
-  // memcpy((queue->data + ((queue->w++ * queue->ofs) % queue->cap)), data, queue->ofs);
+  const uint64_t w   = queue->w;
+  const   size_t cap = queue->cap;
+  void **ptr = queue->data;
+  ptr[w % cap] = expression_copy(expr);
+  queue->w++;
   return true;
-  // return queue_write(queue, data);
 }
 
-static inline syntax_expression_t * always_inline syntax_expression_queue_read(syntax_expression_queue_t *queue)
+static syntax_expression_t *syntax_expression_queue_read(syntax_expression_queue_t *queue)
 {
-  if (syntax_expression_queue_is_empty(queue))
+  if (queue_is_empty(queue))
   {
     return NULL;
   }
-  syntax_expression_t **pool = queue->data;
-  return pool[queue->r++ % queue->cap];
-  // return (queue->data + ((queue->r++ * queue->ofs) % queue->cap));
-  // return (syntax_expression_t *)queue_read(queue);
+
+  const   size_t cap = queue->cap;
+  const uint64_t   r = queue->r;
+  void **ptr = queue->data;
+  syntax_expression_t *ret = expression_copy(ptr[r % cap]);
+  expression_destroy(ptr[r % cap]);
+  queue->r++;
+  return ret;
 }
 
 /**
  * @brief Deallocate the ring-buffer data-buffer and the ring-buffer
  *        structure.
  */
-static inline void always_inline syntax_expression_queue_destroy(syntax_expression_queue_t *buffer)
+static void syntax_expression_queue_destroy(syntax_expression_queue_t *queue)
 {
-  // syntax_expression_t *expression = NULL;
+  const   size_t cap = queue->cap;
+  const uint64_t   w = queue->w;
+        uint64_t   r = queue->r;
 
-  // while ((expression = syntax_expression_queue_read(buffer)) != NULL)
-  // {
-  //   __free(expression->value->data);
-  // }
+  void **ptr = queue->data;
 
-  __free(buffer->data);
-  __free(buffer);
+  for (; r < w; r++)
+  {
+    expression_destroy(ptr[r % cap]);
+  }
+
+  __free(queue->data);
+  __free(queue);
 }
 
 #endif/*X_SYNTAX_EXPRESSION_QUEUE_H*/
