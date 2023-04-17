@@ -244,6 +244,11 @@ static syntax_expression_t *__insert(syntax_expression_t *node,
   {
     return new_node;
   }
+  if (node->left == NULL)
+  {
+    node->left = __insert(node->left, new_node);
+    return node;
+  }
   node->right = __insert(node->right, new_node);
   return node;
 }
@@ -361,12 +366,10 @@ void parse(syntax_queue_t *queue)
   syntax_token_t *token = NULL;
   syntax_expression_t *expr = NULL;
   syntax_expression_t *temp = NULL;
-  // syntax_expression_t *copy = NULL;
   syntax_expression_t *root = NULL;
 
   syntax_expression_queue_t *number_queue = syntax_expression_queue_new(64);
   syntax_expression_stack_t *symbol_stack = syntax_expression_stack_new(64);
-  syntax_expression_queue_t *number2_queue = syntax_expression_queue_new(64);
 
   syntax_expression_stack_t *expr_stack = syntax_expression_stack_new(64);
 
@@ -393,21 +396,25 @@ void parse(syntax_queue_t *queue)
           switch (temp->kind)
           {
             case BINARY_EXPRESSION:
-              temp->left = syntax_expression_queue_read(number2_queue);
-              if (syntax_expression_queue_is_empty(number_queue))
+              temp->left = syntax_expression_stack_pop(symbol_stack);
+              temp->right = syntax_expression_stack_pop(symbol_stack);
+              if (syntax_expression_stack_push(expr_stack, temp) == false)
               {
-                temp->right = syntax_expression_queue_read(number2_queue);
+                throw("failed to push to the expr stack");
               }
-              root = __insert(root, temp);
               break;
 
             case NUMBER_EXPRESSION:
-              if (syntax_expression_queue_write(number2_queue, temp) == false)
+              if (syntax_expression_stack_push(symbol_stack, temp) == false)
               {
                 throw("failed to push to the symbol stack");
               }
               break;
           }
+        }
+        while ((temp = syntax_expression_stack_pop(expr_stack)) != NULL)
+        {
+          root = __insert(root, temp);
         }
         print_tree(root);
         break;
@@ -476,6 +483,5 @@ void parse(syntax_queue_t *queue)
 
   syntax_expression_queue_destroy(number_queue);
   syntax_expression_stack_destroy(symbol_stack);
-  syntax_expression_queue_destroy(number2_queue);
   syntax_expression_stack_destroy(expr_stack);
 }
