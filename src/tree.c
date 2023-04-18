@@ -36,6 +36,8 @@ tree_node_t *tree_node_new(int kind)
     exit(EXIT_FAILURE);
   }
   node->kind = kind;
+  node->left = NULL;
+  node->right =NULL;
   return node;
 }
 
@@ -84,6 +86,8 @@ tree_node_t *_tree_insert(tree_node_t *node, int kind)
     return tree_node_new(kind);
   }
 
+  tree_node_t *temp = NULL;
+
   switch (kind)
   {
     case NUMBER_LITERAL:
@@ -109,62 +113,97 @@ tree_node_t *_tree_insert(tree_node_t *node, int kind)
     case MUL_EXPRESSION:
       if (node->right == NULL)
       {
-        node->right = _tree_insert(node->right, kind);
-        node->right->parent = node->parent;
-        node->right->left = node;
-        node = node->right;
-        node->left->right = NULL;
-
-        if (node->left)
+        if (node->left == NULL)
         {
-          if (node->left->left)
+          node->right = _tree_insert(node->right, kind);
+          node->right->parent = node;
+          if (node->parent)
           {
-            node->right = node->left->left;
+            if (node->parent->parent)
+            {
+              node->right->parent = node->parent->parent;
+            }
+            node->right->left = node->parent->left;
+            node->parent->left = NULL;
+          }
+          node->right->right = node;
+          node = node->right;
+          if (node->left)
+          {
+            node->left->parent = node;
+          }
+          node->right->parent = node;
+          if (node->left)
+          {
             node->left->left = NULL;
+            node->left->right = NULL;
           }
-        }
-      }
-      else
-      {
-        if (node->parent != NULL)
-        {
-          puts("NON NULL PARENT");
-          switch (node->parent->kind)
-          {
-            case NUMBER_LITERAL:
-            case NUMBER_ONE_LITERAL:
-            case NUMBER_TWO_LITERAL:
-            case NUMBER_THREE_LITERAL:
-            case NUMBER_FOUR_LITERAL:
-            case NUMBER_FIVE_LITERAL:
-              node->right = _tree_insert(node->right, kind);
-              node->right->parent = node->parent;
-              node->right->left = node;
-              node = node->right;
-              node->left->right = NULL;
-
-              if (node->left)
-              {
-                if (node->left->left)
-                {
-                   node->right = node->left->left;
-                   node->left->left = NULL;
-                }
-              }
-              break;
-
-            case BINARY_EXPRESSION:
-            case ADD_EXPRESSION:
-            case MUL_EXPRESSION:
-              node->right = _tree_insert(node->right, kind);
-              node->right->parent = node;
-              break;
-          }
+          node->right->left = NULL;
+          node->right->right = NULL;
         }
         else
         {
           node->right = _tree_insert(node->right, kind);
           node->right->parent = node;
+          if (node->parent)
+          {
+            if (node->parent->parent)
+            {
+              node->right->parent = node->parent->parent;
+            }
+          }
+          node->right->right = node->left;
+          node->right->left = node;
+          node = node->right;
+          node->left->parent = node;
+          node->right->parent = node;
+          node->left->left = NULL;
+          node->left->right = NULL;
+          node->right->left = NULL;
+          node->right->right = NULL;
+        }
+      }
+      else
+      {
+        node->right = _tree_insert(node->right, kind);
+        node->right->parent = node;
+
+        switch (node->kind)
+        {
+          case BINARY_EXPRESSION:
+          case ADD_EXPRESSION:
+          case MUL_EXPRESSION:
+            node->right->parent = node->parent;
+            node->left = node->right->left;
+            if (node->parent)
+            {
+              node->right->left = node->parent->left;
+              node->parent->left = NULL;
+            }
+            node->parent = node->right;
+            temp = node->right->right;
+            node->right->right = node;
+            node = node->right;
+            node->right->right = temp;
+
+            if (node->parent)
+            {
+              switch (node->parent->kind)
+              {
+                case NUMBER_LITERAL:
+                case NUMBER_ONE_LITERAL:
+                case NUMBER_TWO_LITERAL:
+                case NUMBER_THREE_LITERAL:
+                case NUMBER_FOUR_LITERAL:
+                case NUMBER_FIVE_LITERAL:
+                  // node->left = node->parent;
+                  // node->parent = NULL;
+                  // node->left->right = NULL;
+                  break;
+              }
+            }
+
+            break;
         }
       }
       break;
@@ -180,6 +219,28 @@ tree_node_t *_tree_insert(tree_node_t *node, int kind)
 void tree_insert(tree_t *tree, int kind)
 {
   tree->root = _tree_insert(tree->root, kind);
+
+  if (tree->root != NULL)
+  {
+    switch (tree->root->kind)
+    {
+      case NUMBER_LITERAL:
+      case NUMBER_ONE_LITERAL:
+      case NUMBER_TWO_LITERAL:
+      case NUMBER_THREE_LITERAL:
+      case NUMBER_FOUR_LITERAL:
+      case NUMBER_FIVE_LITERAL:
+        // if (tree->root->right != NULL)
+        // {
+        //   tree->root->right->parent = tree->root->parent;
+        //   tree->root->right->left = tree->root;
+        // }
+        // tree->root->left = NULL;
+        // tree->root->parent = tree->root->right;
+        // tree->root = tree->root->right;
+        break;
+    }
+  }
 }
 
 void tree_traverse(tree_t *tree);
@@ -189,11 +250,11 @@ int main(void)
   tree_t *tree = tree_new();
 
   //infix example
-  //tree_insert(tree, NUMBER_ONE_LITERAL);
-  //tree_insert(tree, ADD_EXPRESSION);
-  //tree_insert(tree, NUMBER_TWO_LITERAL);
-  //tree_insert(tree, ADD_EXPRESSION);
-  //tree_insert(tree, NUMBER_THREE_LITERAL);
+  // tree_insert(tree, NUMBER_ONE_LITERAL);
+  // tree_insert(tree, ADD_EXPRESSION);
+  // tree_insert(tree, NUMBER_TWO_LITERAL);
+  // tree_insert(tree, ADD_EXPRESSION);
+  // tree_insert(tree, NUMBER_THREE_LITERAL);
 
   // infix:   1 + 2 + 3
   // postfix: 1 2 3 + +
@@ -202,8 +263,13 @@ int main(void)
   tree_insert(tree, NUMBER_ONE_LITERAL);
   tree_insert(tree, NUMBER_TWO_LITERAL);
   tree_insert(tree, NUMBER_THREE_LITERAL);
+  // tree_insert(tree, NUMBER_FOUR_LITERAL);
+  tree_traverse(tree); printf("\n");
+  // tree_insert(tree, NUMBER_FIVE_LITERAL);
   tree_insert(tree, ADD_EXPRESSION);
-  tree_insert(tree, ADD_EXPRESSION);
+  tree_traverse(tree); printf("\n");
+  tree_insert(tree, MUL_EXPRESSION);
+  // tree_insert(tree, ADD_EXPRESSION);
 
   tree_traverse(tree);
 
