@@ -1,18 +1,12 @@
-#include "lexer.h"
-#include "parse.h"
-#include "syntax-queue.h"
+#include "interface.h"
 
 #include <stdlib.h>
 
 int main(void)
 {
-  const char filepath[] = "./example/main.x";
+  banner();
 
-  syntax_queue_t *queue = compile(filepath);
-
-  parse(queue);
-
-  syntax_queue_destroy(queue);
+  getexpr();
 
   exit(EXIT_SUCCESS);
 

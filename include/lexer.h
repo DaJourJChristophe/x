@@ -9,6 +9,8 @@ extern "C"{
 
 syntax_queue_t *compile(const char *filepath);
 
+syntax_queue_t *compile_line(const char *data);
+
 #ifdef __cplusplus
 }
 #endif

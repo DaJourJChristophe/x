@@ -873,3 +873,8 @@ syntax_queue_t *compile(const char *filepath)
 
   return parse(data);
 }
+
+syntax_queue_t *compile_line(const char *data)
+{
+  return parse(data);
+}

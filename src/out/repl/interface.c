@@ -1,4 +1,7 @@
 #include "common.h"
+#include "lexer.h"
+#include "parse.h"
+#include "syntax-queue.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -47,7 +50,11 @@ void getexpr(void)
     }
     else
     {
-      printf("%s\n", line);
+      syntax_queue_t *queue = compile_line(line);
+
+      parse(queue);
+
+      syntax_queue_destroy(queue);
     }
   }
 
@@ -59,12 +66,4 @@ static const char banner_message[] = "X 1.0.0 (main, Mar 12 2023, 07:10:41) [GCC
 void banner(void)
 {
   printf("%s\n", banner_message);
-}
-
-int main(void)
-{
-  banner();
-  getexpr();
-
-  return EXIT_SUCCESS;
 }
