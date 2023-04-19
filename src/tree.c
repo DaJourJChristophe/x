@@ -53,7 +53,8 @@ void tree_node_destroy(tree_node_t *node)
 
 struct tree
 {
-  tree_node_t *root;
+  tree_node_t *root; /* first node */
+  tree_node_t *curr; /* last inserted position */
 };
 
 typedef struct tree tree_t;
@@ -80,74 +81,113 @@ void tree_destroy(tree_t *tree)
   }
 }
 
-static tree_node_t *_tree_insert_right(tree_node_t *node)
+void _tree_insert_number_literal(tree_t *tree, int kind)
 {
-  node->left->right = node;
-  node->left->parent = node->parent;
-  node = node->left;
-  node->right->left = NULL;
-  node->right->parent = node;
-  return node;
-}
-
-static tree_node_t *_tree_insert_left(tree_node_t *node)
-{
-  node->left->left = node;
-  node->left->parent = node->parent;
-  node = node->left;
-  node->left->left = NULL;
-  node->left->parent = node;
-  node->parent->right = node;
-  return node;
-}
-
-tree_node_t *_tree_insert(tree_node_t *node, int kind)
-{
-  if (node == NULL)
+  if (tree->root == NULL)
   {
-    return tree_node_new(kind);
+    tree->root = tree_node_new(kind);
+    tree->curr = tree->root;
+    return;
+  }
+  if (tree->curr)
+  {
+    if (tree->curr->parent)
+    {
+      switch (tree->curr->parent->kind)
+      {
+        case BINARY_EXPRESSION:
+        case ADD_EXPRESSION:
+        case MUL_EXPRESSION:
+          if (tree->curr->parent->right == NULL)
+          {
+            tree->curr->parent->right = tree_node_new(kind);
+            tree->curr->parent->right->parent = tree->curr;
+          }
+          break;
+
+        default:
+          tree->curr->left = tree_node_new(kind);
+          tree->curr->left->parent = tree->curr;
+          tree->curr = tree->curr->left;
+      }
+    }
+    else
+    {
+      tree->curr->left = tree_node_new(kind);
+      tree->curr->left->parent = tree->curr;
+      tree->curr = tree->curr->left;
+    }
+  }
+}
+
+void _tree_insert_binary_expression(tree_t *tree, int kind)
+{
+  if (tree->root == NULL)
+  {
+    tree->root = tree_node_new(kind);
+    tree->curr = tree->root;
+    return;
   }
 
-  switch (kind)
+  tree->curr->left = tree_node_new(kind);
+
+  if (tree->curr->right && tree->curr->parent)
   {
-    case NUMBER_LITERAL:
-    case NUMBER_ONE_LITERAL:
-    case NUMBER_TWO_LITERAL:
-    case NUMBER_THREE_LITERAL:
-    case NUMBER_FOUR_LITERAL:
-    case NUMBER_FIVE_LITERAL:
-      node->left = _tree_insert(node->left, kind);
-      node->left->parent = node;
-      break;
 
-    case BINARY_EXPRESSION:
-    case ADD_EXPRESSION:
-    case MUL_EXPRESSION:
-      node->left = _tree_insert(node->left, kind);
-      node->left->parent = node;
-
-      if (node->left->right == NULL)
-      {
-        node = _tree_insert_right(node);
-      }
-      else if (node->left->left == NULL)
-      {
-        node = _tree_insert_left(node);
-      }
-
-      break;
-
-    default:
-      fprintf(stderr, "%s\n", "_tree_insert(): unknown node kind");
-      exit(EXIT_FAILURE);
   }
+  else if (tree->curr->right && !tree->curr->parent)
+  {
 
-  return node;
-}
+  }
+  else if (!tree->curr->right &&  tree->curr->parent &&
+                                  tree->curr->parent->parent)
+  {
+    tree->curr->left->right = tree->curr->parent->left;
+    tree->curr->left->left = tree->curr->parent->parent->left;
+    tree->curr->left->parent = tree->curr->parent->parent;
 
-void tree_insert(tree_t *tree, int kind)
-{
-  tree->root = _tree_insert(tree->root, kind);
+    tree->curr->parent->parent->left = tree->curr->left;
+    tree->curr = tree->curr->left;
+
+    tree->curr->right->parent = tree->curr;
+    tree->curr->left->parent = tree->curr;
+
+    tree->curr->right->left = NULL;
+    tree->curr->left->left = NULL;
+
+    tree->curr = tree->curr->left;
+  }
+  else if (!tree->curr->right && tree->curr->parent)
+  {
+    tree->curr->left->right = tree->curr;
+    tree->curr->left->left = tree->curr->parent;
+    tree->curr->left->parent = tree->curr->parent->parent;
+
+    tree->root = tree->curr->left;
+    tree->curr = tree->curr->left;
+
+    tree->curr->right->parent = tree->curr;
+    tree->curr->left->parent = tree->curr;
+
+    tree->curr->right->left = NULL;
+    tree->curr->left->left = NULL;
+
+    tree->curr = tree->curr->left;
+  }
+  else if (!tree->curr->right && !tree->curr->parent)
+  {
+    tree->curr->left->left = tree->curr;
+    tree->curr->left->parent = tree->curr->parent;
+
+    tree->root = tree->curr->left;
+    tree->curr = tree->curr->left;
+
+    tree->curr->left->parent = tree->curr;
+
+    tree->curr->left->left = NULL;
+
+    tree->curr = tree->curr->left;
+  }
 }
 
 void tree_traverse(tree_t *tree);
@@ -167,17 +207,13 @@ int main(void)
   // postfix: 1 2 3 + +
 
   //postfix example
-  tree_insert(tree, NUMBER_ONE_LITERAL);
-  tree_insert(tree, NUMBER_TWO_LITERAL);
-  tree_insert(tree, NUMBER_THREE_LITERAL);
-  // tree_insert(tree, NUMBER_FOUR_LITERAL);
-  // tree_insert(tree, NUMBER_FIVE_LITERAL);
-  tree_traverse(tree); printf("\n");
-  tree_insert(tree, ADD_EXPRESSION);
-  // tree_traverse(tree); printf("\n");
-  // tree_insert(tree, MUL_EXPRESSION);
-  // tree_traverse(tree); printf("\n");
-  // tree_insert(tree, ADD_EXPRESSION);
+  _tree_insert_number_literal(tree, NUMBER_ONE_LITERAL);
+  _tree_insert_binary_expression(tree, ADD_EXPRESSION);
+  _tree_insert_number_literal(tree, NUMBER_TWO_LITERAL);
+  // _tree_insert_binary_expression(tree, MUL_EXPRESSION);
+
+  printf("%p %p\n", (void *)tree->root->left,
+                    (void *)tree->root->right);
 
   tree_traverse(tree);
 
