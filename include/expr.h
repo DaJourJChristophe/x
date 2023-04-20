@@ -50,4 +50,25 @@ void expression_destroy(syntax_expression_t *expr);
 
 syntax_expression_t *expression_copy(syntax_expression_t *old_expr);
 
+/**
+ * @brief Define a namespace for the number expression structure.
+ */
+typedef syntax_expression_t number_expression_t;
+
+number_expression_t *number_expression_new(syntax_token_t *value);
+
+/**
+ * @brief Define a namespace for the binary expression structure.
+ */
+typedef syntax_expression_t binary_expression_t;
+
+binary_expression_t *binary_expression_new(syntax_token_t *operator, syntax_expression_t *left, syntax_expression_t *right);
+
+/**
+ * @brief Define a namespace for the binary expression structure.
+ */
+typedef syntax_expression_t unary_expression_t;
+
+unary_expression_t *unary_expression_new(syntax_token_t *operator);
+
 #endif/*X_SYNTAX_EXPRESSION_H*/

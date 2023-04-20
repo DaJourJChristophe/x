@@ -1,36 +1,6 @@
 #include "common.h"
 #include "expr.h"
-
-syntax_expression_t *expression_copy(syntax_expression_t *old_expr)
-{
-  syntax_expression_t *new_expr = NULL;
-  new_expr = (syntax_expression_t *)__malloc(sizeof(syntax_expression_t));
-
-  new_expr->kind = old_expr->kind;
-  new_expr->type = old_expr->type;
-  new_expr->size = 0;
-  new_expr->data = NULL;
-  new_expr->left = NULL;
-  new_expr->right = NULL;
-
-  if (old_expr->data != NULL)
-  {
-    new_expr->size = old_expr->size;
-    new_expr->data = __malloc(new_expr->size);
-    memcpy(new_expr->data, old_expr->data, new_expr->size);
-  }
-
-  if (old_expr->left != NULL)
-  {
-    new_expr->left = expression_copy(old_expr->left);
-  }
-  if (old_expr->right != NULL)
-  {
-    new_expr->right = expression_copy(old_expr->right);
-  }
-
-  return new_expr;
-}
+#include "token.h"
 
 /**
  * @brief Allocate a new syntax expression and set the value, left child, and right child.
@@ -74,4 +44,74 @@ void expression_destroy(syntax_expression_t *expr)
   }
 
   __free(expr);
+}
+
+syntax_expression_t *expression_copy(syntax_expression_t *old_expr)
+{
+  syntax_expression_t *new_expr = NULL;
+  new_expr = (syntax_expression_t *)__malloc(sizeof(syntax_expression_t));
+
+  new_expr->kind = old_expr->kind;
+  new_expr->type = old_expr->type;
+  new_expr->size = 0;
+  new_expr->data = NULL;
+  new_expr->left = NULL;
+  new_expr->right = NULL;
+
+  if (old_expr->data != NULL)
+  {
+    new_expr->size = old_expr->size;
+    new_expr->data = __malloc(new_expr->size);
+    memcpy(new_expr->data, old_expr->data, new_expr->size);
+  }
+
+  if (old_expr->left != NULL)
+  {
+    new_expr->left = expression_copy(old_expr->left);
+  }
+  if (old_expr->right != NULL)
+  {
+    new_expr->right = expression_copy(old_expr->right);
+  }
+
+  return new_expr;
+}
+
+/**
+ * @brief Define a namespace for the number expression structure.
+ */
+typedef syntax_expression_t number_expression_t;
+
+/**
+ * @brief Allocate a new syntax expression, set the value, and set both the left and right child pointers to null.
+ */
+number_expression_t *number_expression_new(syntax_token_t *value)
+{
+  return expression_new(NUMBER_EXPRESSION, value, NULL, NULL);
+}
+
+/**
+ * @brief Define a namespace for the binary expression structure.
+ */
+typedef syntax_expression_t binary_expression_t;
+
+/**
+ * @brief Allocate a new syntax expression, set the operator token, and set both the left and the right expressions.
+ */
+binary_expression_t *binary_expression_new(syntax_token_t *operator, syntax_expression_t *left, syntax_expression_t *right)
+{
+  return expression_new(BINARY_EXPRESSION, operator, left, right);
+}
+
+/**
+ * @brief Define a namespace for the binary expression structure.
+ */
+typedef syntax_expression_t unary_expression_t;
+
+/**
+ * @brief Allocate a new syntax expression, set the operator token, and set both the left and the right expressions.
+ */
+unary_expression_t *unary_expression_new(syntax_token_t *operator)
+{
+  return expression_new(UNARY_EXPRESSION, operator, NULL, NULL);
 }
