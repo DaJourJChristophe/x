@@ -237,10 +237,13 @@ syntax_expression_t *parse(syntax_queue_t *queue)
   syntax_token_t *token = NULL;
   syntax_expression_t *expr = NULL;
   syntax_expression_t *temp = NULL;
+  syntax_expression_t *tamp = NULL;
   syntax_expression_t *root = NULL;
 
   syntax_expression_stack_t *symbol_stack = syntax_expression_stack_new(64);
   syntax_expression_stack_t *nodes = syntax_expression_stack_new(64);
+
+  int last_expr_kind = (-1);
 
   while ((token = syntax_queue_read(queue)) != NULL)
   {
@@ -305,6 +308,8 @@ syntax_expression_t *parse(syntax_queue_t *queue)
           throw("failed to push to the nodes stack");
         }
 
+        last_expr_kind = expr->kind;
+
         expression_destroy(expr);
         expr = NULL;
         break;
@@ -315,7 +320,30 @@ syntax_expression_t *parse(syntax_queue_t *queue)
       case SUBTRACTION:
       case STAR:
         expr = binary_expression_new(token, NULL, NULL);
+
         temp = syntax_expression_stack_peek(symbol_stack);
+        tamp = syntax_expression_stack_peek(nodes);
+
+        if (temp == NULL && tamp == NULL)
+        {
+          puts("unary operator");
+        }
+        else if (temp == NULL && tamp != NULL)
+        {
+          puts("binary operator");
+        }
+        else if (temp != NULL && tamp != NULL)
+        {
+          switch (last_expr_kind)
+          {
+            case BINARY_EXPRESSION:
+              puts("unary");
+              break;
+
+            default:
+              puts("binary operator");
+          }
+        }
 
         if (temp == NULL)
         {
@@ -347,8 +375,12 @@ syntax_expression_t *parse(syntax_queue_t *queue)
           }
         }
 
+        last_expr_kind = expr->kind;
+
         expression_destroy(expr);
+        expression_destroy(tamp);
         expr = NULL;
+        tamp = NULL;
         break;
 
       case NUMBER:
@@ -358,6 +390,8 @@ syntax_expression_t *parse(syntax_queue_t *queue)
         {
           throw("failed to push to the nodes stack");
         }
+
+        last_expr_kind = expr->kind;
 
         expression_destroy(expr);
         expr = NULL;
