@@ -218,88 +218,17 @@ int precedence(int kind)
 {
   switch (kind)
   {
-    case STAR:
-      return 3;
-
-    case DIVISION:
-      return 2;
-
-    case ADDITION:
-      return 1;
-
-    case SUBTRACTION:
-      return 0;
+    case BITWISE_XOR:       return 9;
+    case STAR:              return 8;
+    case DIVISION:          return 8;
+    case MODULUS:           return 8;
+    case ADDITION:          return 5;
+    case SUBTRACTION:       return 5;
+    case OPEN_PARENTHESIS:  return 0;
+    case CLOSE_PARENTHESIS: return 0;
   }
 
   return (-1);
-}
-
-static int max(int a, int b)
-{
-  return a > b ? a : b;
-}
-
-static int height(syntax_expression_t *node)
-{
-  if (node == NULL)
-  {
-    return 0;
-  }
-  return max(height(node->left), height(node->right)) + 1;
-}
-
-static int getcol(int h)
-{
-  if (h == 1)
-  {
-    return 1;
-  }
-  return getcol(h - 1) + getcol(h - 1) + 1;
-}
-
-static void _print_tree(syntax_expression_t ***M, syntax_expression_t *root, int col, int row, int height)
-{
-  if (root == NULL)
-  {
-    return;
-  }
-
-  M[row][col] = expression_copy(root);
-
-  _print_tree(M, root->left,  col - pow(2, height - 2), row + 1, height - 1);
-  _print_tree(M, root->right, col + pow(2, height - 2), row + 1, height - 1);
-}
-
-void print_tree(syntax_expression_t *root)
-{
-  int h = height(root);
-  int col = getcol(h);
-  syntax_expression_t ***M;
-
-  M = __calloc(h, sizeof(syntax_expression_t **));
-
-  for (int i = 0; i < h; i++)
-  {
-    M[i] = __calloc(col, sizeof(syntax_expression_t *));
-  }
-
-  _print_tree(M, root, col / 2, 0, h);
-
-  for (int i = 0; i < h; i++)
-  {
-    for (int j = 0; j < col; j++)
-    {
-      if (M[i][j] == NULL)
-      {
-        printf(" ");
-      }
-      else
-      {
-        print_expr(M[i][j]);
-      }
-    }
-    printf("\n");
-  }
 }
 
 syntax_expression_t *parse(syntax_queue_t *queue)
@@ -323,8 +252,8 @@ syntax_expression_t *parse(syntax_queue_t *queue)
       case EOE:
         while ((temp = syntax_expression_stack_pop(symbol_stack)) != NULL)
         {
-          temp->left  = syntax_expression_stack_pop(nodes);
           temp->right = syntax_expression_stack_pop(nodes);
+          temp->left  = syntax_expression_stack_pop(nodes);
 
           if (syntax_expression_stack_push(nodes, temp) == false)
           {
@@ -334,8 +263,8 @@ syntax_expression_t *parse(syntax_queue_t *queue)
           expression_destroy(temp);
           temp = NULL;
         }
+
         root = syntax_expression_stack_pop(nodes);
-        // print_tree(root);
         break;
 
       case EOL:
@@ -345,6 +274,8 @@ syntax_expression_t *parse(syntax_queue_t *queue)
         break;
 
       case ADDITION:
+      case DIVISION:
+      case SUBTRACTION:
       case STAR:
         expr = binary_expression_new(token, NULL, NULL);
         temp = syntax_expression_stack_peek(symbol_stack);
@@ -360,14 +291,15 @@ syntax_expression_t *parse(syntax_queue_t *queue)
         {
           if (precedence(temp->type) > precedence(expr->type))
           {
-            temp->left  = syntax_expression_stack_pop(nodes);
             temp->right = syntax_expression_stack_pop(nodes);
+            temp->left  = syntax_expression_stack_pop(nodes);
 
             if (syntax_expression_stack_push(nodes, temp) == false)
             {
               throw("failed to push to the nodes stack");
             }
 
+            expression_destroy(syntax_expression_stack_pop(symbol_stack));
             expression_destroy(temp);
             temp = NULL;
           }
