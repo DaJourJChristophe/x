@@ -8,6 +8,7 @@
 #include "syntax-expression-stack.h"
 #include "ast.h"
 #include "error.h"
+#include "eval.h"
 
 #include <stddef.h>
 #include <math.h>
@@ -301,7 +302,7 @@ void print_tree(syntax_expression_t *root)
   }
 }
 
-void parse(syntax_queue_t *queue)
+syntax_expression_t *parse(syntax_queue_t *queue)
 {
   syntax_token_t *token = NULL;
   syntax_expression_t *expr = NULL;
@@ -334,7 +335,7 @@ void parse(syntax_queue_t *queue)
           temp = NULL;
         }
         root = syntax_expression_stack_pop(nodes);
-        print_tree(root);
+        // print_tree(root);
         break;
 
       case EOL:
@@ -403,4 +404,6 @@ void parse(syntax_queue_t *queue)
 
   syntax_expression_stack_destroy(symbol_stack);
   syntax_expression_stack_destroy(nodes);
+
+  return root;
 }

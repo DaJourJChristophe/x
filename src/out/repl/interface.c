@@ -2,6 +2,7 @@
 #include "lexer.h"
 #include "parse.h"
 #include "syntax-queue.h"
+#include "eval.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -52,7 +53,9 @@ void getexpr(void)
     {
       syntax_queue_t *queue = compile_line(line);
 
-      parse(queue);
+      syntax_expression_t *root = parse(queue);
+
+      eval(root); printf("\n");
 
       syntax_queue_destroy(queue);
     }

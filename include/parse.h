@@ -2,7 +2,8 @@
 #define X_PARSE_H
 
 #include "syntax-queue.h"
+#include "expr.h"
 
-void parse(syntax_queue_t *queue);
+syntax_expression_t *parse(syntax_queue_t *queue);
 
 #endif/*X_PARSE_H*/
