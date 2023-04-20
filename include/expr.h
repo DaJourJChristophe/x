@@ -14,6 +14,7 @@ enum
 {
   BINARY_EXPRESSION,
   NUMBER_EXPRESSION,
+  UNARY_EXPRESSION,
 };
 
 struct syntax_node

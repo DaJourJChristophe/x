@@ -157,15 +157,22 @@ static int eval_calc(syntax_expression_t *root)
   int leftEval  = eval_calc(root->left);
   int rightEval = eval_calc(root->right);
 
-  switch (root->type)
+  switch (root->kind)
   {
-    case ADDITION:    return leftEval + rightEval;
-    case EXPONENTIAL: return pow(leftEval, rightEval);
-    case SUBTRACTION: return leftEval - rightEval;
-    case STAR:        return leftEval * rightEval;
+    case UNARY_EXPRESSION: return -leftEval;
+
+    case BINARY_EXPRESSION:
+      switch (root->type)
+      {
+        case ADDITION:    return leftEval + rightEval;
+        case EXPONENTIAL: return pow(leftEval, rightEval);
+        case SUBTRACTION: return leftEval - rightEval;
+        case STAR:        return leftEval * rightEval;
+      }
+      return leftEval / rightEval;
   }
 
-  return leftEval / rightEval;
+  return 0;
 }
 
 void eval(syntax_expression_t *root)

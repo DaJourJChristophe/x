@@ -83,6 +83,19 @@ binary_expression_t *binary_expression_new(syntax_token_t *operator, syntax_expr
 }
 
 /**
+ * @brief Define a namespace for the binary expression structure.
+ */
+typedef syntax_expression_t unary_expression_t;
+
+/**
+ * @brief Allocate a new syntax expression, set the operator token, and set both the left and the right expressions.
+ */
+unary_expression_t *unary_expression_new(syntax_token_t *operator)
+{
+  return expression_new(UNARY_EXPRESSION, operator, NULL, NULL);
+}
+
+/**
  * @brief Define a collection of character tokens.
  */
 enum
@@ -256,12 +269,26 @@ syntax_expression_t *parse(syntax_queue_t *queue)
       case EOE:
         while ((temp = syntax_expression_stack_pop(symbol_stack)) != NULL)
         {
-          temp->right = syntax_expression_stack_pop(nodes);
-          temp->left  = syntax_expression_stack_pop(nodes);
-
-          if (syntax_expression_stack_push(nodes, temp) == false)
+          switch (temp->kind)
           {
-            throw("failed to push to the nodes stack");
+            case UNARY_EXPRESSION:
+              temp->left  = syntax_expression_stack_pop(nodes);
+
+              if (syntax_expression_stack_push(nodes, temp) == false)
+              {
+                throw("failed to push to the nodes stack");
+              }
+              break;
+
+            case BINARY_EXPRESSION:
+              temp->right = syntax_expression_stack_pop(nodes);
+              temp->left  = syntax_expression_stack_pop(nodes);
+
+              if (syntax_expression_stack_push(nodes, temp) == false)
+              {
+                throw("failed to push to the nodes stack");
+              }
+              break;
           }
 
           expression_destroy(temp);
@@ -319,68 +346,77 @@ syntax_expression_t *parse(syntax_queue_t *queue)
       case EXPONENTIAL:
       case SUBTRACTION:
       case STAR:
-        expr = binary_expression_new(token, NULL, NULL);
-
         temp = syntax_expression_stack_peek(symbol_stack);
         tamp = syntax_expression_stack_peek(nodes);
 
-        if (temp == NULL && tamp == NULL)
+        if (temp == NULL &&
+            tamp == NULL)
         {
-          puts("unary operator");
+          expr = unary_expression_new(token);
+
+          if (syntax_expression_stack_push(symbol_stack, expr) == false)
+          {
+            throw("failed to push to the symbol stack");
+          }
         }
-        else if (temp == NULL && tamp != NULL)
+        else if ( temp == NULL &&
+                  tamp != NULL)
         {
-          puts("binary operator");
+          expr = binary_expression_new(token, NULL, NULL);
+
+          if (syntax_expression_stack_push(symbol_stack, expr) == false)
+          {
+            throw("failed to push to the symbol stack");
+          }
+
+          expression_destroy(tamp);
+          tamp = NULL;
         }
-        else if (temp != NULL && tamp != NULL)
+        else if ( temp != NULL &&
+                  tamp != NULL)
         {
           switch (last_expr_kind)
           {
             case BINARY_EXPRESSION:
-              puts("unary");
+              expr = unary_expression_new(token);
+
+              if (syntax_expression_stack_push(symbol_stack, expr) == false)
+              {
+                throw("failed to push to the symbol stack");
+              }
               break;
 
             default:
-              puts("binary operator");
-          }
-        }
+              expr = binary_expression_new(token, NULL, NULL);
 
-        if (temp == NULL)
-        {
-          if (syntax_expression_stack_push(symbol_stack, expr) == false)
-          {
-            throw("failed to push to the symbol stack");
-          }
-        }
-        else
-        {
-          if (precedence(temp->type) > precedence(expr->type))
-          {
-            temp->right = syntax_expression_stack_pop(nodes);
-            temp->left  = syntax_expression_stack_pop(nodes);
+              if (precedence(temp->type) > precedence(expr->type))
+              {
+                temp->right = syntax_expression_stack_pop(nodes);
+                temp->left  = syntax_expression_stack_pop(nodes);
 
-            if (syntax_expression_stack_push(nodes, temp) == false)
-            {
-              throw("failed to push to the nodes stack");
-            }
+                if (syntax_expression_stack_push(nodes, temp) == false)
+                {
+                  throw("failed to push to the nodes stack");
+                }
 
-            expression_destroy(syntax_expression_stack_pop(symbol_stack));
-            expression_destroy(temp);
-            temp = NULL;
+                expression_destroy(syntax_expression_stack_pop(symbol_stack));
+                expression_destroy(temp);
+                temp = NULL;
+              }
+
+              if (syntax_expression_stack_push(symbol_stack, expr) == false)
+              {
+                throw("failed to push to the symbol stack");
+              }
           }
 
-          if (syntax_expression_stack_push(symbol_stack, expr) == false)
-          {
-            throw("failed to push to the symbol stack");
-          }
+          expression_destroy(tamp);
+          tamp = NULL;
         }
 
         last_expr_kind = expr->kind;
-
         expression_destroy(expr);
-        expression_destroy(tamp);
         expr = NULL;
-        tamp = NULL;
         break;
 
       case NUMBER:
