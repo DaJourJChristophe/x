@@ -1,5 +1,6 @@
 #include "expr.h"
 
+#include <math.h>
 #include <stddef.h>
 #include <stdio.h>
 
@@ -159,6 +160,7 @@ static int eval_calc(syntax_expression_t *root)
   switch (root->type)
   {
     case ADDITION:    return leftEval + rightEval;
+    case EXPONENTIAL: return pow(leftEval, rightEval);
     case SUBTRACTION: return leftEval - rightEval;
     case STAR:        return leftEval * rightEval;
   }

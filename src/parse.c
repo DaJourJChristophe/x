@@ -219,6 +219,7 @@ int precedence(int kind)
   switch (kind)
   {
     case BITWISE_XOR:       return 9;
+    case EXPONENTIAL:       return 9;
     case STAR:              return 8;
     case DIVISION:          return 8;
     case MODULUS:           return 8;
@@ -275,6 +276,7 @@ syntax_expression_t *parse(syntax_queue_t *queue)
 
       case ADDITION:
       case DIVISION:
+      case EXPONENTIAL:
       case SUBTRACTION:
       case STAR:
         expr = binary_expression_new(token, NULL, NULL);
