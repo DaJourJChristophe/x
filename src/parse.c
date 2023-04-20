@@ -3,7 +3,7 @@
 #include "token.h"
 #include "cache.h"
 #include "expr.h"
-#include "syntax-expression-queue.h"
+// #include "syntax-expression-queue.h"
 #include "syntax-queue.h"
 #include "syntax-expression-stack.h"
 #include "ast.h"
@@ -233,26 +233,6 @@ int precedence(int kind)
   return (-1);
 }
 
-/*
-manually set node left upon new_node
-only set node right
-*/
-static syntax_expression_t *__insert(syntax_expression_t *node,
-                                     syntax_expression_t *new_node)
-{
-  if (node == NULL)
-  {
-    return new_node;
-  }
-  if (node->left == NULL)
-  {
-    node->left = __insert(node->left, new_node);
-    return node;
-  }
-  node->right = __insert(node->right, new_node);
-  return node;
-}
-
 static int max(int a, int b)
 {
   return a > b ? a : b;
@@ -321,46 +301,6 @@ void print_tree(syntax_expression_t *root)
   }
 }
 
-// static void ___traverse(syntax_expression_t *node, char *indent, int index)
-// {
-//   if (node == NULL)
-//   {
-//     return;
-//   }
-
-//   printf(indent);
-
-//   print_expression(node);
-
-// // └──
-// // │
-// // ├──
-
-//   ___traverse(node->left, indent, index);
-
-//   indent[index++] = ' ';
-//   indent[index++] = ' ';
-
-//   ___traverse(node->right, indent, index);
-// }
-
-// static void __traverse(syntax_expression_t *node)
-// {
-//   char indent[64];
-//   memset(indent, 0, (64 * sizeof(char)));
-//   ___traverse(node, indent, 0);
-// }
-
-/*
-3 + 4 + 5
-
-    +
-   / \
-  3   +
-     / \
-    4   5
-*/
-
 void parse(syntax_queue_t *queue)
 {
   syntax_token_t *token = NULL;
@@ -368,10 +308,8 @@ void parse(syntax_queue_t *queue)
   syntax_expression_t *temp = NULL;
   syntax_expression_t *root = NULL;
 
-  syntax_expression_queue_t *number_queue = syntax_expression_queue_new(64);
   syntax_expression_stack_t *symbol_stack = syntax_expression_stack_new(64);
-
-  syntax_expression_stack_t *expr_stack = syntax_expression_stack_new(64);
+  syntax_expression_stack_t *nodes = syntax_expression_stack_new(64);
 
   while ((token = syntax_queue_read(queue)) != NULL)
   {
@@ -384,38 +322,18 @@ void parse(syntax_queue_t *queue)
       case EOE:
         while ((temp = syntax_expression_stack_pop(symbol_stack)) != NULL)
         {
-          if (syntax_expression_queue_write(number_queue, temp) == false)
+          temp->left  = syntax_expression_stack_pop(nodes);
+          temp->right = syntax_expression_stack_pop(nodes);
+
+          if (syntax_expression_stack_push(nodes, temp) == false)
           {
-            throw(X_ERROR_SYNTAX_QUEUE_WRITE);
+            throw("failed to push to the nodes stack");
           }
+
           expression_destroy(temp);
           temp = NULL;
         }
-        while ((temp = syntax_expression_queue_read(number_queue)) != NULL)
-        {
-          switch (temp->kind)
-          {
-            case BINARY_EXPRESSION:
-              temp->left = syntax_expression_stack_pop(symbol_stack);
-              temp->right = syntax_expression_stack_pop(symbol_stack);
-              if (syntax_expression_stack_push(expr_stack, temp) == false)
-              {
-                throw("failed to push to the expr stack");
-              }
-              break;
-
-            case NUMBER_EXPRESSION:
-              if (syntax_expression_stack_push(symbol_stack, temp) == false)
-              {
-                throw("failed to push to the symbol stack");
-              }
-              break;
-          }
-        }
-        while ((temp = syntax_expression_stack_pop(expr_stack)) != NULL)
-        {
-          root = __insert(root, temp);
-        }
+        root = syntax_expression_stack_pop(nodes);
         print_tree(root);
         break;
 
@@ -441,12 +359,14 @@ void parse(syntax_queue_t *queue)
         {
           if (precedence(temp->type) > precedence(expr->type))
           {
-            if (syntax_expression_queue_write(number_queue, temp) == false)
+            temp->left  = syntax_expression_stack_pop(nodes);
+            temp->right = syntax_expression_stack_pop(nodes);
+
+            if (syntax_expression_stack_push(nodes, temp) == false)
             {
-              throw(X_ERROR_SYNTAX_QUEUE_WRITE);
+              throw("failed to push to the nodes stack");
             }
 
-            expression_destroy(syntax_expression_stack_pop(symbol_stack));
             expression_destroy(temp);
             temp = NULL;
           }
@@ -464,9 +384,9 @@ void parse(syntax_queue_t *queue)
       case NUMBER:
         expr = number_expression_new(token);
 
-        if (syntax_expression_queue_write(number_queue, expr) == false)
+        if (syntax_expression_stack_push(nodes, expr) == false)
         {
-          throw(X_ERROR_SYNTAX_QUEUE_WRITE);
+          throw("failed to push to the nodes stack");
         }
 
         expression_destroy(expr);
@@ -481,7 +401,6 @@ void parse(syntax_queue_t *queue)
     token = NULL;
   }
 
-  syntax_expression_queue_destroy(number_queue);
   syntax_expression_stack_destroy(symbol_stack);
-  syntax_expression_stack_destroy(expr_stack);
+  syntax_expression_stack_destroy(nodes);
 }
