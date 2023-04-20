@@ -31,6 +31,43 @@ class Tree
     root = null;
   }
 
+  private int toInt(char c)
+  {
+    return c - '0';
+  }
+
+  public int evalTree(TreeNode node)
+  {
+    if (node == null)
+    {
+      return 0;
+    }
+
+    if (node.left  == null &&
+        node.right == null)
+    {
+      return toInt(node.ch);
+    }
+
+    int leftEval  = evalTree(node.left);
+    int rightEval = evalTree(node.right);
+
+    if (node.ch == '+')
+    {
+      return leftEval + rightEval;
+    }
+    if (node.ch == '-')
+    {
+      return leftEval - rightEval;
+    }
+    if (node.ch == '*')
+    {
+      return leftEval * rightEval;
+    }
+
+    return leftEval / rightEval;
+  }
+
   private void _traverse(TreeNode node)
   {
     if (node == null)
@@ -101,8 +138,10 @@ public class Main
 
     tree.root = nodes.pop();
 
-    tree.traverse();
-    System.out.println();
+    System.out.println(tree.evalTree(tree.root));
+
+    // tree.traverse();
+    // System.out.println();
   }
 
   public static void main(String[] args)
