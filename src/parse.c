@@ -336,7 +336,6 @@ syntax_expression_t *parse(syntax_queue_t *queue)
         }
 
         last_expr_kind = expr->kind;
-
         expression_destroy(expr);
         expr = NULL;
         break;
@@ -349,8 +348,8 @@ syntax_expression_t *parse(syntax_queue_t *queue)
         temp = syntax_expression_stack_peek(symbol_stack);
         tamp = syntax_expression_stack_peek(nodes);
 
-        if (temp == NULL &&
-            tamp == NULL)
+        if ((temp == NULL && tamp == NULL) ||
+            (temp != NULL && tamp == NULL))
         {
           expr = unary_expression_new(token);
 
@@ -421,14 +420,42 @@ syntax_expression_t *parse(syntax_queue_t *queue)
 
       case NUMBER:
         expr = number_expression_new(token);
+        temp = syntax_expression_stack_peek(symbol_stack);
 
-        if (syntax_expression_stack_push(nodes, expr) == false)
+        if (temp != NULL)
         {
-          throw("failed to push to the nodes stack");
+          switch (temp->kind)
+          {
+            case UNARY_EXPRESSION:
+              temp->left = expr;
+
+              if (syntax_expression_stack_push(nodes, temp) == false)
+              {
+                throw("failed to push to the nodes stack");
+              }
+
+              expression_destroy(syntax_expression_stack_pop(symbol_stack));
+              break;
+
+            default:
+              if (syntax_expression_stack_push(nodes, expr) == false)
+              {
+                throw("failed to push to the nodes stack");
+              }
+          }
+
+          expression_destroy(temp);
+          temp = NULL;
+        }
+        else
+        {
+          if (syntax_expression_stack_push(nodes, expr) == false)
+          {
+            throw("failed to push to the nodes stack");
+          }
         }
 
         last_expr_kind = expr->kind;
-
         expression_destroy(expr);
         expr = NULL;
         break;
