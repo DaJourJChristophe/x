@@ -274,6 +274,41 @@ syntax_expression_t *parse(syntax_queue_t *queue)
         // print_token(token);
         break;
 
+      case CLOSE_PARENTHESIS:
+        while ((temp = syntax_expression_stack_pop(symbol_stack)) != NULL)
+        {
+          if (temp->type == OPEN_PARENTHESIS)
+          {
+            expression_destroy(temp);
+            temp = NULL;
+            break;
+          }
+
+          temp->right = syntax_expression_stack_pop(nodes);
+          temp->left  = syntax_expression_stack_pop(nodes);
+
+          if (syntax_expression_stack_push(nodes, temp) == false)
+          {
+            throw("failed to push to the nodes stack");
+          }
+
+          expression_destroy(temp);
+          temp = NULL;
+        }
+        break;
+
+      case OPEN_PARENTHESIS:
+        expr = binary_expression_new(token, NULL, NULL);
+
+        if (syntax_expression_stack_push(symbol_stack, expr) == false)
+        {
+          throw("failed to push to the nodes stack");
+        }
+
+        expression_destroy(expr);
+        expr = NULL;
+        break;
+
       case ADDITION:
       case DIVISION:
       case EXPONENTIAL:
