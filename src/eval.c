@@ -53,6 +53,8 @@ enum
   BITWISE_OR,
   BITWISE_TERNARY,
   BITWISE_XOR,
+  BITWISE_SHIFT_LEFT,
+  BITWISE_SHIFT_RIGHT,
 
   /**
    * @brief Conditional Tokens.
@@ -159,17 +161,26 @@ static int eval_calc(syntax_expression_t *root)
 
   switch (root->kind)
   {
-    case UNARY_EXPRESSION: return -leftEval;
+    case UNARY_EXPRESSION:        return -leftEval;
 
     case BINARY_EXPRESSION:
       switch (root->type)
       {
-        case ADDITION:    return leftEval + rightEval;
-        case EXPONENTIAL: return pow(leftEval, rightEval);
-        case SUBTRACTION: return leftEval - rightEval;
-        case STAR:        return leftEval * rightEval;
+        case ADDITION:            return leftEval + rightEval;
+        case EXPONENTIAL:         return pow(leftEval, rightEval);
+        case SUBTRACTION:         return leftEval - rightEval;
+        case STAR:                return leftEval * rightEval;
+        case DIVISION:            return leftEval / rightEval;
+        case MODULUS:             return leftEval % rightEval;
+        case REMAINDER:           return (int)(leftEval / rightEval);
+
+        case BITWISE_AND:         return leftEval & rightEval;
+        case BITWISE_OR:          return leftEval | rightEval;
+        case BITWISE_TERNARY:     return ~leftEval;
+        case BITWISE_XOR:         return leftEval ^ rightEval;
+        case BITWISE_SHIFT_LEFT:  return leftEval << rightEval;
+        case BITWISE_SHIFT_RIGHT: return leftEval >> rightEval;
       }
-      return leftEval / rightEval;
   }
 
   return 0;
