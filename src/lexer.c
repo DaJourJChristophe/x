@@ -381,6 +381,42 @@ static void handle_symbol_double_quote(syntax_token_t *token, const char **data)
   while (**data != 0 && **data != '"');
 }
 
+static void handle_symbol_left_caret(syntax_token_t *token, const char **data)
+{
+  if (*(*data + 1) == '<')
+  {
+    *data += 1;
+
+    token->type = BITWISE_SHIFT_LEFT;
+    token->data = NULL;
+    token->size = 0;
+  }
+  else
+  {
+    token->type = LEFT_CARET;
+    token->data = NULL;
+    token->size = 0;
+  }
+}
+
+static void handle_symbol_right_caret(syntax_token_t *token, const char **data)
+{
+  if (*(*data + 1) == '>')
+  {
+    *data += 1;
+
+    token->type = BITWISE_SHIFT_RIGHT;
+    token->data = NULL;
+    token->size = 0;
+  }
+  else
+  {
+    token->type = RIGHT_CARET;
+    token->data = NULL;
+    token->size = 0;
+  }
+}
+
 static void handle_symbol_equal_sign(syntax_token_t *token, const char **data)
 {
   if (*(*data + 1) == '>')
@@ -543,9 +579,10 @@ static const symbol_handler_t multiple_symbol_handlers[128] = {
   &handle_symbol_forward_slash,
   NULL, NULL,
   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-  NULL,
+  &handle_symbol_left_caret,
   &handle_symbol_equal_sign,
-  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+  &handle_symbol_right_caret,
+  NULL, NULL, NULL, NULL, NULL, NULL, NULL,
   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -572,9 +609,9 @@ static const int symbol_syntax_tokens[128] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   COLON,
   EOE,
-  LEFT_CARET,
   0,
-  RIGHT_CARET,
+  0,
+  0,
   0,
   ANNOTATION,
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
