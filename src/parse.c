@@ -117,8 +117,18 @@ syntax_expression_t *parse(syntax_queue_t *queue)
       case ADDITION:
       case DIVISION:
       case EXPONENTIAL:
+      case MODULUS:
+      case REMAINDER:
       case SUBTRACTION:
       case STAR:
+
+      case BITWISE_AND:
+      case BITWISE_OR:
+      case BITWISE_TERNARY:
+      case BITWISE_XOR:
+      case BITWISE_SHIFT_LEFT:
+      case BITWISE_SHIFT_RIGHT:
+
         temp = syntax_expression_stack_peek(symbol_stack);
         tamp = syntax_expression_stack_peek(nodes);
 
