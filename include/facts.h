@@ -45,6 +45,8 @@ enum
   BITWISE_OR,
   BITWISE_TERNARY,
   BITWISE_XOR,
+  BITWISE_SHIFT_LEFT,
+  BITWISE_SHIFT_RIGHT,
 
   /**
    * @brief Conditional Tokens.
