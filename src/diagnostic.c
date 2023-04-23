@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <string.h>
 
+const char invalid_assignment_expression[] = "invalid assignment expression";
 const char invalid_binary_expression[] = "invalid binary expression";
 const char invalid_unary_expression[] = "invalid unary expression";
 const char invalid_numeric_expression[] = "invalid numeric literal";

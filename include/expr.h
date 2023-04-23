@@ -15,6 +15,8 @@ enum
   BINARY_EXPRESSION,
   NUMBER_EXPRESSION,
   UNARY_EXPRESSION,
+  WORD_EXPRESSION,
+  ASSIGNMENT_EXPRESSION,
 
   NIL_LITERAL,
   BOOLEAN_LITERAL,
@@ -25,6 +27,7 @@ struct syntax_node
   int kind;
   int type;
   int ret_type;
+  int ret_kind;
 
   void *data;
   size_t size;
@@ -89,5 +92,22 @@ binary_expression_t *binary_expression_new(syntax_token_t *operator, syntax_expr
 typedef syntax_expression_t unary_expression_t;
 
 unary_expression_t *unary_expression_new(syntax_token_t *operator);
+
+/**
+ * @brief Define a namespace for the binary expression structure.
+ */
+typedef syntax_expression_t word_expression_t;
+
+word_expression_t *word_expression_new(syntax_token_t *word);
+
+/**
+ * @brief Define a namespace for the binary expression structure.
+ */
+typedef syntax_expression_t assignment_expression_t;
+
+/**
+ * @brief Allocate a new syntax expression, set the operator token, and set both the left and the right expressions.
+ */
+assignment_expression_t *assignment_expression_new(syntax_token_t *operator, syntax_expression_t *left, syntax_expression_t *right);
 
 #endif/*X_SYNTAX_EXPRESSION_H*/

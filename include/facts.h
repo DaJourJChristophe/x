@@ -2,6 +2,16 @@
 #define X_SYNTAX_FACTS_H
 
 /**
+ * @brief Define a collection of return types.
+ */
+enum
+{
+  BOOLEAN_RETURN_TYPE,
+  NIL_RETURN_TYPE,
+  NUMBER_RETURN_TYPE,
+};
+
+/**
  * @brief Define a collection of character tokens.
  */
 enum

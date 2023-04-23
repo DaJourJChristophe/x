@@ -13,6 +13,7 @@ syntax_expression_t *expression_new(int kind, syntax_token_t *value, syntax_expr
   expr->kind = kind;
   expr->type = (-1);
   expr->ret_type = (-1);
+  expr->ret_kind = (-1);
 
   expr->data = NULL;
   expr->size = 0;
@@ -117,4 +118,20 @@ binary_expression_t *binary_expression_new(syntax_token_t *operator, syntax_expr
 unary_expression_t *unary_expression_new(syntax_token_t *operator)
 {
   return expression_new(UNARY_EXPRESSION, operator, NULL, NULL);
+}
+
+/**
+ * @brief Allocate a new syntax expression, set the operator token, and set both the left and the right expressions.
+ */
+word_expression_t *word_expression_new(syntax_token_t *word)
+{
+  return expression_new(WORD_EXPRESSION, word, NULL, NULL);
+}
+
+/**
+ * @brief Allocate a new syntax expression, set the operator token, and set both the left and the right expressions.
+ */
+assignment_expression_t *assignment_expression_new(syntax_token_t *operator, syntax_expression_t *left, syntax_expression_t *right)
+{
+  return expression_new(ASSIGNMENT_EXPRESSION, operator, left, right);
 }

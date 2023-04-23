@@ -5,7 +5,6 @@
 #include "token.h"
 #include "cache.h"
 #include "expr.h"
-// #include "syntax-expression-queue.h"
 #include "syntax-queue.h"
 #include "syntax-expression-stack.h"
 #include "ast.h"
@@ -55,6 +54,18 @@ syntax_expression_t *parse(syntax_queue_t *queue)
               temp->left  = syntax_expression_stack_pop(nodes);
 
               temp = bound_unary_expression_new(temp);
+
+              if (syntax_expression_stack_push(nodes, temp) == false)
+              {
+                throw("failed to push to the nodes stack");
+              }
+              break;
+
+            case ASSIGNMENT_EXPRESSION:
+              temp->right = syntax_expression_stack_pop(nodes);
+              temp->left  = syntax_expression_stack_pop(nodes);
+
+              temp = bound_assignment_expression_new(temp);
 
               if (syntax_expression_stack_push(nodes, temp) == false)
               {
@@ -117,6 +128,32 @@ syntax_expression_t *parse(syntax_queue_t *queue)
         expr = binary_expression_new(token, NULL, NULL);
 
         if (syntax_expression_stack_push(symbol_stack, expr) == false)
+        {
+          throw("failed to push to the nodes stack");
+        }
+
+        last_expr_kind = expr->kind;
+        expression_destroy(expr);
+        expr = NULL;
+        break;
+
+      case EQUAL:
+        expr = assignment_expression_new(token, NULL, NULL);
+
+        if (syntax_expression_stack_push(symbol_stack, expr) == false)
+        {
+          throw("failed to push to the symbol stack");
+        }
+
+        last_expr_kind = expr->kind;
+        expression_destroy(expr);
+        expr = NULL;
+        break;
+
+      case WORD:
+        expr = word_expression_new(token);
+
+        if (syntax_expression_stack_push(nodes, expr) == false)
         {
           throw("failed to push to the nodes stack");
         }

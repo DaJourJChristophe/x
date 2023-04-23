@@ -14,10 +14,12 @@ struct diagnostic
 
 typedef struct diagnostic diagnostic_t;
 
+extern const char invalid_assignment_expression[128];
 extern const char invalid_binary_expression[128];
 extern const char invalid_unary_expression[128];
 extern const char invalid_numeric_expression[128];
 
+#define DIAGNOSTIC_INVALID_ASSIGNMENT_EXPRESSION  invalid_assignment_expression
 #define DIAGNOSTIC_INVALID_BINARY_EXPRESSION  invalid_binary_expression
 #define DIAGNOSTIC_INVALID_UNARY_EXPRESSION   invalid_unary_expression
 #define DIAGNOSTIC_INVALID_NUMERIC_EXPRESSION invalid_numeric_expression

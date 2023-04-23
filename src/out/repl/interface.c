@@ -4,6 +4,7 @@
 #include "parse.h"
 #include "syntax-queue.h"
 #include "eval.h"
+#include "symbol-table.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -38,6 +39,10 @@ void getexpr(void)
 {
   char *line = NULL;
 
+  symbol_table_t *table = NULL;
+
+  table = symbol_table_new();
+
   line = __calloc(MAX_LINE, sizeof(char));
 
   while (true)
@@ -62,12 +67,14 @@ void getexpr(void)
 
       if (root != NULL)
       {
-        eval(root);
+        eval(root, table);
       }
     }
   }
 
   __free(line);
+
+  symbol_table_destroy(table);
 }
 
 static const char banner_message[] = "X 1.0.0 (main, Mar 12 2023, 07:10:41) [GCC 10.2.1 20210110] on linux\nType \"help\", \"copyright\", \"credits\" or \"license\" for more information.";
