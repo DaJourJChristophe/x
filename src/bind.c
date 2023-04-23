@@ -1,131 +1,98 @@
-#include "common.h"
+#include "bind.h"
+#include "diagnostic.h"
+#include "error.h"
+#include "expr.h"
+#include "facts.h"
 
-#include <stdbool.h>
 #include <stddef.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
-struct node
+static const char *get_type_as_string(const binary_expression_t *expr)
 {
-  void *data;
-
-  struct node *left;
-  struct node *right;
-};
-
-typedef struct node node_t;
-
-node_t *node_new(void *data)
-{
-  node_t *node = NULL;
-  node = __calloc(1, sizeof(node_t));
-  node->data = data;
-  return node;
-}
-
-void node_destroy(node_t *node)
-{
-  __free(node);
-}
-
-bool bound_binary_tree_new(void *left, void *right)
-{
-  return left && right;
-}
-
-
-bool bound_unary_tree_new(void *left, void *right)
-{
-  return left && !right;
-}
-
-bool bound_numeric_tree_new(void *left, void *right)
-{
-  return !left && !right;
-}
-
-struct diagnostic
-{
-  char **data;
-  size_t n;
-};
-
-typedef struct diagnostic diagnostic_t;
-
-diagnostic_t *diagnostic_new(void)
-{
-  diagnostic_t *diagnostic = NULL;
-  diagnostic = __calloc(1, sizeof(diagnostic_t));
-  diagnostic->data = __calloc(16, sizeof(char *));
-  return diagnostic;
-}
-
-void diagnostic_destroy(diagnostic_t *diagnostic)
-{
-  const size_t n = diagnostic->n;
-  char **data = diagnostic->data;
-
-  for (uint64_t i = 0; i < n; i++)
+  if (expr == NULL)
   {
-    __free(data[i]);
+    throw("cannot get string type of expression because it is null");
   }
 
-  __free(diagnostic->data);
-  __free(diagnostic);
+  const char *boolean_type_str   = "boolean";
+  const char *nil_type_str   = "null";
+  const char *number_type_str = "number";
+  const char *plus_type_str   = " + ";
+
+  switch (expr->type)
+  {
+    case FALSE:
+    case TRUE:     return boolean_type_str;
+    case ADDITION: return plus_type_str;
+    case NIL:      return nil_type_str;
+    case NUMBER:   return number_type_str;
+  }
+
+  return "";
 }
 
-bool diagnostic_add(diagnostic_t *diagnostic, char const *errmsg)
+/**
+ * @brief Allocate a new syntax expression, set the operator token, and set both the left and the right expressions.
+ */
+bound_binary_expression_t *bound_binary_expression_new(syntax_expression_t *expr)
 {
-  diagnostic->data[diagnostic->n] = __calloc(128, sizeof(char));
-  strcpy(diagnostic->data[diagnostic->n++], errmsg);
+  if (expr->left  == NULL ||
+      expr->right == NULL)
+  {
+    diagnostic_add(diagnostics, DIAGNOSTIC_INVALID_BINARY_EXPRESSION);
+  }
+  if (( expr->left->type  != TRUE  &&
+        expr->left->type  != FALSE &&
+        expr->left->type  != NUMBER) ||
+      ( expr->right->type != TRUE  &&
+        expr->right->type != FALSE &&
+        expr->right->type != NUMBER))
+  {
+    char fmt[128];
+    memset(fmt, 0, 128 * sizeof(char));
+    sprintf(fmt, "cannot perform %s%s%s",
+      get_type_as_string(expr->left),
+      get_type_as_string(expr),
+      get_type_as_string(expr->right));
+    diagnostic_add(diagnostics, fmt);
+  }
+  if (( expr->left->type  == TRUE  ||
+        expr->left->type  == FALSE ||
+        expr->left->type  == NUMBER) &&
+      ( expr->right->type == TRUE  ||
+        expr->right->type == FALSE ||
+        expr->right->type == NUMBER))
+  {
+    expr->ret_type = NUMBER;
+  }
+  return expr;
 }
 
-#define DIAGNOSTIC_MAXBUF   4096
-
-void diagnostic_show(diagnostic_t *diagnostic)
+/**
+ * @brief Allocate a new syntax expression, set the operator token, and set both the left and the right expressions.
+ */
+bound_binary_expression_t *bound_unary_expression_new(syntax_expression_t *expr)
 {
-  const size_t n = diagnostic->n;
-  char **data = diagnostic->data;
-
-  char buffer[DIAGNOSTIC_MAXBUF];
-  memset(buffer, 0, DIAGNOSTIC_MAXBUF * sizeof(char));
-
-  for (uint64_t i = 0; i < n; i++)
+  if (expr->left  == NULL ||
+      expr->right != NULL)
   {
-    strcat(buffer, data[i]);
-    strcat(buffer, "\n");
+    diagnostic_add(diagnostics, DIAGNOSTIC_INVALID_UNARY_EXPRESSION);
   }
-
-  printf("%s", buffer);
-}
-
-static const char invalid_binary_expression[] = "invalid binary expression";
-static const char invalid_unary_expression[] = "invalid unary expression";
-static const char invalid_numeric_expression[] = "invalid numeric literal";
-
-int main(void)
-{
-  int a = 5;
-  int b = 3;
-
-  diagnostic_t *diagnostic = diagnostic_new();
-
-  if (bound_binary_tree_new(&a, NULL) == false)
+  if (expr->left->type != TRUE  &&
+      expr->left->type != FALSE &&
+      expr->left->type != NUMBER)
   {
-    diagnostic_add(diagnostic, invalid_binary_expression);
+    char fmt[128];
+    memset(fmt, 0, 128 * sizeof(char));
+    sprintf(fmt, "cannot perform %s%s",
+      get_type_as_string(expr),
+      get_type_as_string(expr->left));
+    diagnostic_add(diagnostics, fmt);
   }
-  if (bound_unary_tree_new(NULL, NULL) == false)
+  if (expr->left->type == TRUE  ||
+      expr->left->type == FALSE ||
+      expr->left->type == NUMBER)
   {
-    diagnostic_add(diagnostic, invalid_unary_expression);
+    expr->ret_type = NUMBER;
   }
-  if (bound_numeric_tree_new(&a, NULL) == false)
-  {
-    diagnostic_add(diagnostic, invalid_numeric_expression);
-  }
-
-  diagnostic_show(diagnostic);
-  diagnostic_destroy(diagnostic);
-  return EXIT_SUCCESS;
+  return expr;
 }

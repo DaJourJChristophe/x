@@ -82,6 +82,14 @@ syntax_expression_t *expression_copy(syntax_expression_t *old_expr)
 /**
  * @brief Allocate a new syntax expression, set the value, and set both the left and right child pointers to null.
  */
+nil_literal_t *nil_literal_new(syntax_token_t *value)
+{
+  return expression_new(NIL_LITERAL, value, NULL, NULL);
+}
+
+/**
+ * @brief Allocate a new syntax expression, set the value, and set both the left and right child pointers to null.
+ */
 boolean_literal_t *boolean_literal_new(syntax_token_t *value)
 {
   return expression_new(BOOLEAN_LITERAL, value, NULL, NULL);

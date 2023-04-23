@@ -16,6 +16,7 @@ enum
   NUMBER_EXPRESSION,
   UNARY_EXPRESSION,
 
+  NIL_LITERAL,
   BOOLEAN_LITERAL,
 };
 
@@ -53,6 +54,13 @@ syntax_expression_t *expression_new(int kind, syntax_token_t *value, syntax_expr
 void expression_destroy(syntax_expression_t *expr);
 
 syntax_expression_t *expression_copy(syntax_expression_t *old_expr);
+
+/**
+ * @brief Define a namespace for the binary expression structure.
+ */
+typedef syntax_expression_t nil_literal_t;
+
+nil_literal_t *nil_literal_new(syntax_token_t *value);
 
 /**
  * @brief Define a namespace for the binary expression structure.

@@ -1,4 +1,6 @@
 #include "common.h"
+#include "bind.h"
+#include "diagnostic.h"
 #include "lexer.h"
 #include "token.h"
 #include "cache.h"
@@ -18,102 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-/**
- * @brief Define a namespace for the binary expression structure.
- */
-typedef binary_expression_t bound_unary_expression_t;
-
-/**
- * @brief Define a namespace for the binary expression structure.
- */
-typedef binary_expression_t bound_binary_expression_t;
-
-const char *get_type_as_string(const binary_expression_t *expr)
-{
-  if (expr == NULL)
-  {
-    throw("cannot get string type of expression because it is null");
-  }
-
-  const char *boolean_type_str   = "boolean";
-  const char *number_type_str = "number";
-  const char *plus_type_str   = " + ";
-
-  switch (expr->type)
-  {
-    case FALSE:
-    case TRUE:     return boolean_type_str;
-    case ADDITION: return plus_type_str;
-    case NUMBER:   return number_type_str;
-  }
-
-  return NULL;
-}
-
-/**
- * @brief Allocate a new syntax expression, set the operator token, and set both the left and the right expressions.
- */
-bound_binary_expression_t *bound_binary_expression_new(syntax_expression_t *expr)
-{
-  if (expr->left  == NULL ||
-      expr->right == NULL)
-  {
-    printf("%s\n", "invalid binary expression");
-  }
-  if (( expr->left->type  != TRUE  &&
-        expr->left->type  != FALSE &&
-        expr->left->type  != NUMBER) ||
-      ( expr->right->type != TRUE  &&
-        expr->right->type != FALSE &&
-        expr->right->type != NUMBER))
-  {
-    char fmt[128];
-    memset(fmt, 0, 128 * sizeof(char));
-    sprintf(fmt, "cannot perform %s%s%s\n",
-      get_type_as_string(expr->left),
-      get_type_as_string(expr),
-      get_type_as_string(expr->right));
-    fprintf(stdout, fmt, "");
-  }
-  if (( expr->left->type  == TRUE  ||
-        expr->left->type  == FALSE ||
-        expr->left->type  == NUMBER) &&
-      ( expr->right->type == TRUE  ||
-        expr->right->type == FALSE ||
-        expr->right->type == NUMBER))
-  {
-    expr->ret_type = NUMBER;
-  }
-  return expr;
-}
-
-/**
- * @brief Allocate a new syntax expression, set the operator token, and set both the left and the right expressions.
- */
-bound_binary_expression_t *bound_unary_expression_new(syntax_expression_t *expr)
-{
-  if (expr->left  == NULL ||
-      expr->right != NULL)
-  {
-    printf("%s\n", "invalid unary expression");
-  }
-  if (expr->left->type != TRUE  &&
-      expr->left->type != FALSE &&
-      expr->left->type != NUMBER)
-  {
-    fprintf(stdout, "cannot perform %s%s%s\n",
-      get_type_as_string(expr->left),
-      get_type_as_string(expr),
-      get_type_as_string(expr->right));
-  }
-  if (expr->left->type == TRUE  ||
-      expr->left->type == FALSE ||
-      expr->left->type == NUMBER)
-  {
-    expr->ret_type = NUMBER;
-  }
-  return expr;
-}
+diagnostic_t *diagnostics = NULL;
 
 syntax_expression_t *parse(syntax_queue_t *queue)
 {
@@ -126,6 +33,8 @@ syntax_expression_t *parse(syntax_queue_t *queue)
 
   syntax_expression_stack_t *symbol_stack = syntax_expression_stack_new(64);
   syntax_expression_stack_t *nodes = syntax_expression_stack_new(64);
+
+  diagnostics = diagnostic_new();
 
   int last_expr_kind = (-1);
 
@@ -208,6 +117,19 @@ syntax_expression_t *parse(syntax_queue_t *queue)
         expr = binary_expression_new(token, NULL, NULL);
 
         if (syntax_expression_stack_push(symbol_stack, expr) == false)
+        {
+          throw("failed to push to the nodes stack");
+        }
+
+        last_expr_kind = expr->kind;
+        expression_destroy(expr);
+        expr = NULL;
+        break;
+
+      case NIL:
+        expr = nil_literal_new(token);
+
+        if (syntax_expression_stack_push(nodes, expr) == false)
         {
           throw("failed to push to the nodes stack");
         }
@@ -377,5 +299,5 @@ syntax_expression_t *parse(syntax_queue_t *queue)
   syntax_expression_stack_destroy(symbol_stack);
   syntax_expression_stack_destroy(nodes);
 
-  return root;
+  return ((diagnostic_is_empty(diagnostics)) == true ? root : NULL);
 }

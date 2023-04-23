@@ -1,4 +1,5 @@
 #include "common.h"
+#include "diagnostic.h"
 #include "lexer.h"
 #include "parse.h"
 #include "syntax-queue.h"
@@ -52,12 +53,17 @@ void getexpr(void)
     else
     {
       syntax_queue_t *queue = compile_line(line);
-
       syntax_expression_t *root = parse(queue);
 
-      eval(root); printf("\n");
-
       syntax_queue_destroy(queue);
+
+      diagnostic_show(diagnostics);
+      diagnostic_destroy(diagnostics);
+
+      if (root != NULL)
+      {
+        eval(root);
+      }
     }
   }
 
