@@ -12,6 +12,8 @@ syntax_expression_t *expression_new(int kind, syntax_token_t *value, syntax_expr
 
   expr->kind = kind;
   expr->type = (-1);
+  expr->ret_type = (-1);
+
   expr->data = NULL;
   expr->size = 0;
 
@@ -78,9 +80,12 @@ syntax_expression_t *expression_copy(syntax_expression_t *old_expr)
 }
 
 /**
- * @brief Define a namespace for the number expression structure.
+ * @brief Allocate a new syntax expression, set the value, and set both the left and right child pointers to null.
  */
-typedef syntax_expression_t number_expression_t;
+boolean_literal_t *boolean_literal_new(syntax_token_t *value)
+{
+  return expression_new(BOOLEAN_LITERAL, value, NULL, NULL);
+}
 
 /**
  * @brief Allocate a new syntax expression, set the value, and set both the left and right child pointers to null.
@@ -91,22 +96,12 @@ number_expression_t *number_expression_new(syntax_token_t *value)
 }
 
 /**
- * @brief Define a namespace for the binary expression structure.
- */
-typedef syntax_expression_t binary_expression_t;
-
-/**
  * @brief Allocate a new syntax expression, set the operator token, and set both the left and the right expressions.
  */
 binary_expression_t *binary_expression_new(syntax_token_t *operator, syntax_expression_t *left, syntax_expression_t *right)
 {
   return expression_new(BINARY_EXPRESSION, operator, left, right);
 }
-
-/**
- * @brief Define a namespace for the binary expression structure.
- */
-typedef syntax_expression_t unary_expression_t;
 
 /**
  * @brief Allocate a new syntax expression, set the operator token, and set both the left and the right expressions.

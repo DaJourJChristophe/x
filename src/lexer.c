@@ -222,6 +222,8 @@ static INLINE_VOID_T handle_word(syntax_queue_t *queue, syntax_token_t *token, c
 
     case FALSE_RESERVED_WORD:
       token->type = FALSE;
+      token->data = malloc(sizeof(int));
+      *(int *)token->data = (int)0;
       break;
 
     case FLOAT_RESERVED_WORD:
@@ -310,6 +312,8 @@ static INLINE_VOID_T handle_word(syntax_queue_t *queue, syntax_token_t *token, c
 
     case TRUE_RESERVED_WORD:
       token->type = TRUE;
+      token->data = malloc(sizeof(int));
+      *(int *)token->data = (int)1;
       break;
 
     case UNLESS_RESERVED_WORD:

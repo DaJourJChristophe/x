@@ -15,12 +15,16 @@ enum
   BINARY_EXPRESSION,
   NUMBER_EXPRESSION,
   UNARY_EXPRESSION,
+
+  BOOLEAN_LITERAL,
 };
 
 struct syntax_node
 {
   int kind;
   int type;
+  int ret_type;
+
   void *data;
   size_t size;
 
@@ -49,6 +53,13 @@ syntax_expression_t *expression_new(int kind, syntax_token_t *value, syntax_expr
 void expression_destroy(syntax_expression_t *expr);
 
 syntax_expression_t *expression_copy(syntax_expression_t *old_expr);
+
+/**
+ * @brief Define a namespace for the binary expression structure.
+ */
+typedef syntax_expression_t boolean_literal_t;
+
+boolean_literal_t *boolean_literal_new(syntax_token_t *value);
 
 /**
  * @brief Define a namespace for the number expression structure.

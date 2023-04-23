@@ -1,3 +1,4 @@
+#include "error.h"
 #include "expr.h"
 #include "facts.h"
 
@@ -20,6 +21,10 @@ static int eval_calc(syntax_expression_t *root)
   if (root->left  == NULL &&
       root->right == NULL)
   {
+    if (root->data == NULL)
+    {
+      throw("node data cannot be evaluated because it is null");
+    }
     return *(int *)root->data;
   }
 
