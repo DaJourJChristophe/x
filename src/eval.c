@@ -1,3 +1,12 @@
+/**
+ * @file eval.c
+ * @author Da'Jour J. Christophe (dajour.christophe@gmail.com)
+ * @brief
+ * @version 0.1
+ * @date 2023-04-23
+ *
+ * @copyright Copyright (c) 2023 Da'Jour J. Christophe. All rights reserved.
+ */
 #include "common.h"
 #include "error.h"
 #include "expr.h"
@@ -73,7 +82,7 @@ static syntax_expression_t *eval_calc(syntax_expression_t *root, symbol_table_t 
     case BINARY_EXPRESSION:
 
       temp = lval;
-      if (temp->kind == WORD_EXPRESSION)
+      if (temp->kind == WORD_LITERAL)
       {
         token.type = NUMBER;
         token.size = sizeof(int);
@@ -87,7 +96,7 @@ static syntax_expression_t *eval_calc(syntax_expression_t *root, symbol_table_t 
       }
 
       temp = rval;
-      if (temp->kind == WORD_EXPRESSION)
+      if (temp->kind == WORD_LITERAL)
       {
         token.type = NUMBER;
         token.size = sizeof(int);

@@ -1,3 +1,12 @@
+/**
+ * @file parse.c
+ * @author Da'Jour J. Christophe (dajour.christophe@gmail.com)
+ * @brief
+ * @version 0.1
+ * @date 2023-04-23
+ *
+ * @copyright Copyright (c) 2023 Da'Jour J. Christophe. All rights reserved.
+ */
 #include "common.h"
 #include "bind.h"
 #include "diagnostic.h"
@@ -19,8 +28,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+/**
+ * @brief
+ */
 diagnostic_t *diagnostics = NULL;
 
+/**
+ * @brief
+ */
 syntax_expression_t *parse(syntax_queue_t *queue)
 {
   syntax_token_t *token = NULL;

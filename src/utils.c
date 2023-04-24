@@ -1,140 +1,18 @@
+/**
+ * @file utils.c
+ * @author Da'Jour J. Christophe (dajour.christophe@gmail.com)
+ * @brief
+ * @version 0.1
+ * @date 2023-04-23
+ *
+ * @copyright Copyright (c) 2023 Da'Jour J. Christophe. All rights reserved.
+ */
 #include "error.h"
 #include "expr.h"
+#include "facts.h"
 #include "token.h"
 
 #include <stdio.h>
-
-/**
- * @brief Define a collection of character tokens.
- */
-enum
-{
-  /**
-   * @brief General Purpose Tokens.
-   */
-  DOT,
-  EOE,
-  LEXER_EOF,
-  EOL,
-  SPACE,
-  STAR,
-  SYMBOL,
-  TAB,
-  TEXT,
-  UNDEFINED,
-  WORD,
-
-  /**
-   * @brief Numeric Tokens.
-   */
-  DECIMAL,
-  NUMBER,
-
-  /**
-   * @brief Mathematical Operator Tokens.
-   */
-  ADDITION,
-  DIVISION,
-  EQUAL,
-  EXPONENTIAL,
-  MODULUS,
-  REMAINDER,
-  SUBTRACTION,
-
-  /**
-   * @brief Bitwise Operator Tokens.
-   */
-  BITWISE_AND,
-  BITWISE_OR,
-  BITWISE_TERNARY,
-  BITWISE_XOR,
-
-  /**
-   * @brief Conditional Tokens.
-   */
-  CONDITIONAL_AND,
-  CONDITIONAL_OR,
-
-  /**
-   * @brief Containment Tokens.
-   */
-  LEFT_CARET,
-  OPEN_CURLY_BRACKET,
-  OPEN_PARENTHESIS,
-  OPEN_SQUARE_BRACKET,
-  CLOSE_CURLY_BRACKET,
-  CLOSE_PARENTHESIS,
-  CLOSE_SQUARE_BRACKET,
-  RIGHT_CARET,
-
-  /**
-   * @brief Architecture Tokens.
-   */
-  LAMBDA,
-
-  /**
-   * @brief Comparator Tokens.
-   */
-  EQUALS,
-
-  /**
-   * @brief Iterator Tokens.
-   */
-  DECREMENT,
-  INCREMENT,
-
-  /**
-   * @brief Separator Tokens.
-   */
-  COLON,
-  COMMA,
-
-  /**
-   * @brief Special Tokens.
-   */
-  ANNOTATION,
-
-  /**
-   * @brief Reserved Word Tokens.
-   */
-  ABSTRACT,
-  BOOLEAN,
-  BREAK,
-  CASE,
-  CLASS,
-  CONST,
-  DEFAULT,
-  DOUBLE,
-  EXPORT,
-  FALSE,
-  FLOAT,
-  FOR,
-  IF,
-  IMMUTABLE,
-  IMPORT,
-  INTEGER,
-  IS,
-  MATRIX,
-  NIL,
-  OBJECT,
-  PACKAGE,
-  PRINT,
-  PRIVATE,
-  PROTECTED,
-  PUBLIC,
-  RETURN,
-  SCALAR,
-  SET,
-  STATIC,
-  STRING,
-  SWITCH,
-  TRUE,
-  UNLESS,
-  VECTOR,
-  VOID,
-  WHILE,
-  YIELD,
-};
 
 void print_expr(syntax_expression_t *expr)
 {
@@ -165,7 +43,7 @@ void print_expr(syntax_expression_t *expr)
       }
       break;
 
-    case NUMBER_EXPRESSION:
+    case NUMBER_LITERAL:
       printf("%d", *(int *)expr->data);
       break;
   }
@@ -200,7 +78,7 @@ void print_expression(syntax_expression_t *expr)
       }
       break;
 
-    case NUMBER_EXPRESSION:
+    case NUMBER_LITERAL:
       printf("[NUMBER EXPRESSION <%d>]\n", *(int *)expr->data);
       break;
   }

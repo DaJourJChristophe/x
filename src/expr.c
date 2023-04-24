@@ -1,6 +1,17 @@
+/**
+ * @file expr.c
+ * @author Da'Jour J. Christophe (dajour.christophe@gmail.com)
+ * @brief
+ * @version 0.1
+ * @date 2023-04-23
+ *
+ * @copyright Copyright (c) 2023 Da'Jour J. Christophe. All rights reserved.
+ */
 #include "common.h"
 #include "expr.h"
 #include "token.h"
+
+#include <string.h>
 
 /**
  * @brief Allocate a new syntax expression and set the value, left child, and right child.
@@ -101,7 +112,7 @@ boolean_literal_t *boolean_literal_new(syntax_token_t *value)
  */
 number_expression_t *number_expression_new(syntax_token_t *value)
 {
-  return expression_new(NUMBER_EXPRESSION, value, NULL, NULL);
+  return expression_new(NUMBER_LITERAL, value, NULL, NULL);
 }
 
 /**
@@ -125,7 +136,7 @@ unary_expression_t *unary_expression_new(syntax_token_t *operator)
  */
 word_expression_t *word_expression_new(syntax_token_t *word)
 {
-  return expression_new(WORD_EXPRESSION, word, NULL, NULL);
+  return expression_new(WORD_LITERAL, word, NULL, NULL);
 }
 
 /**
@@ -141,7 +152,7 @@ assignment_expression_t *assignment_expression_new(syntax_token_t *operator, syn
  */
 declaration_expression_t *declaration_expression_new(syntax_token_t *type)
 {
-  return expression_new(DECLARATION_EXPRESSION, type, NULL, NULL);
+  return expression_new(DECLARATION_LITERAL, type, NULL, NULL);
 }
 
 /**
@@ -149,7 +160,7 @@ declaration_expression_t *declaration_expression_new(syntax_token_t *type)
  */
 variable_expression_t *variable_expression_new(syntax_token_t *name)
 {
-  return expression_new(VARIABLE_EXPRESSION, name, NULL, NULL);
+  return expression_new(VARIABLE_LITERAL, name, NULL, NULL);
 }
 
 /**
@@ -157,5 +168,5 @@ variable_expression_t *variable_expression_new(syntax_token_t *name)
  */
 integer_expression_t *integer_expression_new(syntax_token_t *value)
 {
-  return expression_new(INTEGER_EXPRESSION, value, NULL, NULL);
+  return expression_new(INTEGER_LITERAL, value, NULL, NULL);
 }
