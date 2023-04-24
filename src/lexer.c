@@ -186,154 +186,265 @@ static INLINE_VOID_T handle_word(syntax_queue_t *queue, syntax_token_t *token, c
   {
     case ABSTRACT_RESERVED_WORD:
       token->type = ABSTRACT;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case BOOLEAN_RESERVED_WORD:
       token->type = BOOLEAN;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case BREAK_RESERVED_WORD:
       token->type = BREAK;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case CASE_RESERVED_WORD:
       token->type = CASE;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case CLASS_RESERVED_WORD:
       token->type = CLASS;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case CONST_RESERVED_WORD:
       token->type = CONST;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case DEFAULT_RESERVED_WORD:
       token->type = DEFAULT;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case DOUBLE_RESERVED_WORD:
       token->type = DOUBLE;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case EXPORT_RESERVED_WORD:
       token->type = EXPORT;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case FALSE_RESERVED_WORD:
       token->type = FALSE;
+      __free(token->data);
+      token->data = NULL;
       token->data = malloc(sizeof(int));
       *(int *)token->data = (int)0;
+      token->size = sizeof(int);
       break;
 
     case FLOAT_RESERVED_WORD:
       token->type = FLOAT;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case FOR_RESERVED_WORD:
       token->type = FOR;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case IF_RESERVED_WORD:
       token->type = IF;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case IMMUTABLE_RESERVED_WORD:
       token->type = IMMUTABLE;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case IMPORT_RESERVED_WORD:
       token->type = IMPORT;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case INTEGER_RESERVED_WORD:
       token->type = INTEGER;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case IS_RESERVED_WORD:
       token->type = IS;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case MATRIX_RESERVED_WORD:
       token->type = MATRIX;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case NIL_RESERVED_WORD:
       token->type = NIL;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case OBJECT_RESERVED_WORD:
       token->type = OBJECT;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case PACKAGE_RESERVED_WORD:
       token->type = PACKAGE;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case PRINT_RESERVED_WORD:
       token->type = PRINT;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case PRIVATE_RESERVED_WORD:
       token->type = PRIVATE;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case PROTECTED_RESERVED_WORD:
       token->type = PROTECTED;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case PUBLIC_RESERVED_WORD:
       token->type = PUBLIC;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case RETURN_RESERVED_WORD:
       token->type = RETURN;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case SCALAR_RESERVED_WORD:
       token->type = SCALAR;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case SET_RESERVED_WORD:
       token->type = SET;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case STATIC_RESERVED_WORD:
       token->type = STATIC;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case STRING_RESERVED_WORD:
       token->type = STRING;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case SWITCH_RESERVED_WORD:
       token->type = SWITCH;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case TRUE_RESERVED_WORD:
       token->type = TRUE;
+      __free(token->data);
+      token->data = NULL;
       token->data = malloc(sizeof(int));
       *(int *)token->data = (int)1;
+      token->size = sizeof(int);
       break;
 
     case UNLESS_RESERVED_WORD:
       token->type = UNLESS;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case VECTOR_RESERVED_WORD:
       token->type = VECTOR;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case VOID_RESERVED_WORD:
       token->type = VOID;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case WHILE_RESERVED_WORD:
       token->type = WHILE;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
 
     case YIELD_RESERVED_WORD:
       token->type = YIELD;
+      __free(token->data);
+      token->data = NULL;
+      token->size = 0;
       break;
   }
 
