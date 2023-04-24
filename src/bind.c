@@ -33,6 +33,87 @@ static const char *get_type_as_string(const binary_expression_t *expr)
 /**
  * @brief Allocate a new syntax expression, set the operator token, and set both the left and the right expressions.
  */
+bound_declaration_expression_t *bound_declaration_expression_new(syntax_expression_t *expr)
+{
+  if (expr->left  != NULL ||
+      expr->right != NULL)
+  {
+    diagnostic_add(diagnostics, DIAGNOSTIC_INVALID_BINARY_EXPRESSION);
+  }
+
+  expr->ret_type = expr->type;
+
+  switch (expr->ret_type)
+  {
+    case BOOLEAN:
+      expr->ret_kind = BOOLEAN_RETURN_TYPE;
+      break;
+
+    case INTEGER:
+      expr->ret_kind = INTEGER_RETURN_TYPE;
+      break;
+
+    default:
+      throw("unrecognized return type");
+  }
+
+  return expr;
+}
+
+/**
+ * @brief Allocate a new syntax expression, set the operator token, and set both the left and the right expressions.
+ */
+bound_integer_expression_t *bound_integer_expression_new(syntax_expression_t *expr)
+{
+  if (expr->left  != NULL ||
+      expr->right != NULL)
+  {
+    diagnostic_add(diagnostics, DIAGNOSTIC_INVALID_BINARY_EXPRESSION);
+  }
+
+  expr->ret_type = expr->type;
+  expr->ret_kind = INTEGER_RETURN_TYPE;
+
+  return expr;
+}
+
+/**
+ * @brief Allocate a new syntax expression, set the operator token, and set both the left and the right expressions.
+ */
+bound_boolean_expression_t *bound_boolean_expression_new(syntax_expression_t *expr)
+{
+  if (expr->left  != NULL ||
+      expr->right != NULL)
+  {
+    diagnostic_add(diagnostics, DIAGNOSTIC_INVALID_BINARY_EXPRESSION);
+  }
+
+  expr->ret_type = expr->type;
+  expr->ret_kind = BOOLEAN_RETURN_TYPE;
+
+  return expr;
+}
+
+/**
+ * @brief Allocate a new syntax expression, set the operator token, and set both the left and the right expressions.
+ */
+bound_number_expression_t *bound_number_expression_new(syntax_expression_t *expr)
+{
+  if (expr->left  != NULL ||
+      expr->right != NULL)
+  {
+    diagnostic_add(diagnostics, DIAGNOSTIC_INVALID_BINARY_EXPRESSION);
+  }
+
+  expr->ret_type = expr->type;
+  expr->ret_kind = NUMBER_RETURN_TYPE;
+
+  return expr;
+}
+
+/**
+ * @brief Allocate a new syntax expression, set the operator token, and set both the left and the right expressions.
+ */
 bound_assignment_expression_t *bound_assignment_expression_new(syntax_expression_t *expr)
 {
   if (expr->left  == NULL ||
@@ -41,10 +122,11 @@ bound_assignment_expression_t *bound_assignment_expression_new(syntax_expression
     diagnostic_add(diagnostics, DIAGNOSTIC_INVALID_BINARY_EXPRESSION);
   }
 
-  if (( expr->left->kind  != WORD_EXPRESSION) ||
+  if (( expr->left->kind  != DECLARATION_EXPRESSION) ||
       ( expr->right->kind != BOOLEAN_LITERAL   &&
         expr->right->kind != BINARY_EXPRESSION &&
-        expr->right->kind != NUMBER_EXPRESSION))
+        expr->right->kind != NUMBER_EXPRESSION &&
+        expr->right->kind != INTEGER_EXPRESSION))
   {
     char fmt[128];
     memset(fmt, 0, 128 * sizeof(char));
@@ -55,31 +137,14 @@ bound_assignment_expression_t *bound_assignment_expression_new(syntax_expression
     diagnostic_add(diagnostics, fmt);
   }
 
-  switch (expr->right->type)
+  if (expr->left->ret_kind != expr->right->ret_kind)
   {
-    case TRUE:
-      expr->ret_type = TRUE;
-      break;
-
-    case FALSE:
-      expr->ret_type = FALSE;
-      break;
-
-    case NUMBER:
-      expr->ret_type = NUMBER;
-      break;
+    diagnostic_add(diagnostics, "left-handle declaration of type ... cannot equal a right-hand expression of type ...");
   }
-
-  switch (expr->right->type)
+  else
   {
-    case TRUE:
-    case FALSE:
-      expr->ret_kind = BOOLEAN_RETURN_TYPE;
-      break;
-
-    case NUMBER:
-      expr->ret_kind = NUMBER_RETURN_TYPE;
-      break;
+    expr->ret_type = expr->left->type;
+    expr->ret_kind = expr->left->ret_kind;
   }
 
   return expr;
@@ -101,7 +166,7 @@ bound_binary_expression_t *bound_binary_expression_new(syntax_expression_t *expr
         expr->left->kind  != WORD_EXPRESSION) ||
       ( expr->right->kind != BOOLEAN_LITERAL   &&
         expr->right->kind != NUMBER_EXPRESSION &&
-        expr->right->kind  != WORD_EXPRESSION))
+        expr->right->kind != WORD_EXPRESSION))
   {
     char fmt[128];
     memset(fmt, 0, 128 * sizeof(char));
@@ -112,24 +177,33 @@ bound_binary_expression_t *bound_binary_expression_new(syntax_expression_t *expr
     diagnostic_add(diagnostics, fmt);
   }
 
-  if (( expr->left->kind  == BOOLEAN_LITERAL   ||
-        expr->left->kind  == NUMBER_EXPRESSION ||
-        expr->left->kind  == WORD_EXPRESSION) &&
-      ( expr->right->kind == BOOLEAN_LITERAL   ||
-        expr->right->kind == NUMBER_EXPRESSION ||
-        expr->right->kind == WORD_EXPRESSION))
+  if (expr->left->ret_kind  == BOOLEAN_RETURN_TYPE &&
+      expr->right->ret_kind == BOOLEAN_RETURN_TYPE)
   {
-    expr->ret_type = NUMBER;
+    expr->ret_type = BOOLEAN;
+    expr->ret_kind = BOOLEAN_RETURN_TYPE;
   }
-
-  if (( expr->left->kind  == BOOLEAN_LITERAL   ||
-        expr->left->kind  == NUMBER_EXPRESSION ||
-        expr->left->kind  == WORD_EXPRESSION) &&
-      ( expr->right->kind == BOOLEAN_LITERAL   ||
-        expr->right->kind == NUMBER_EXPRESSION ||
-        expr->right->kind == WORD_EXPRESSION))
+  else if ( expr->left->ret_kind  == INTEGER_RETURN_TYPE &&
+            expr->right->ret_kind == INTEGER_RETURN_TYPE)
   {
-    expr->ret_kind = NUMBER_RETURN_TYPE;
+    expr->ret_type = INTEGER;
+    expr->ret_kind = INTEGER_RETURN_TYPE;
+  }
+  else if ( expr->left->ret_kind  == BOOLEAN_RETURN_TYPE &&
+            expr->right->ret_kind == INTEGER_RETURN_TYPE)
+  {
+    expr->ret_type = INTEGER;
+    expr->ret_kind = INTEGER_RETURN_TYPE;
+  }
+  else if ( expr->left->ret_kind  == INTEGER_RETURN_TYPE &&
+            expr->right->ret_kind == BOOLEAN_RETURN_TYPE)
+  {
+    expr->ret_type = INTEGER;
+    expr->ret_kind = INTEGER_RETURN_TYPE;
+  }
+  else
+  {
+    throw("could not determine the return type of the binary expression");
   }
 
   return expr;
@@ -145,9 +219,9 @@ bound_unary_expression_t *bound_unary_expression_new(syntax_expression_t *expr)
   {
     diagnostic_add(diagnostics, DIAGNOSTIC_INVALID_UNARY_EXPRESSION);
   }
-  if (expr->left->type != TRUE  &&
-      expr->left->type != FALSE &&
-      expr->left->type != NUMBER)
+
+  if (expr->left->ret_kind != BOOLEAN_RETURN_TYPE  &&
+      expr->left->ret_kind != INTEGER_RETURN_TYPE)
   {
     char fmt[128];
     memset(fmt, 0, 128 * sizeof(char));
@@ -156,17 +230,16 @@ bound_unary_expression_t *bound_unary_expression_new(syntax_expression_t *expr)
       get_type_as_string(expr->left));
     diagnostic_add(diagnostics, fmt);
   }
-  if (expr->left->type == TRUE  ||
-      expr->left->type == FALSE ||
-      expr->left->type == NUMBER)
+
+  switch (expr->type)
   {
-    expr->ret_type = NUMBER;
+    case SUBTRACTION:
+      expr->ret_type = INTEGER_RETURN_TYPE;
+      break;
+
+    default:
+      throw("could not determine the return of the unary expression");
   }
-  if (expr->left->type == TRUE  ||
-      expr->left->type == FALSE ||
-      expr->left->type == NUMBER)
-  {
-    expr->ret_kind = NUMBER_RETURN_TYPE;
-  }
+
   return expr;
 }

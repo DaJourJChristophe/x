@@ -135,3 +135,27 @@ assignment_expression_t *assignment_expression_new(syntax_token_t *operator, syn
 {
   return expression_new(ASSIGNMENT_EXPRESSION, operator, left, right);
 }
+
+/**
+ * @brief Allocate a new syntax expression, set the operator token, and set both the left and the right expressions.
+ */
+declaration_expression_t *declaration_expression_new(syntax_token_t *type)
+{
+  return expression_new(DECLARATION_EXPRESSION, type, NULL, NULL);
+}
+
+/**
+ * @brief Allocate a new syntax expression, set the operator token, and set both the left and the right expressions.
+ */
+variable_expression_t *variable_expression_new(syntax_token_t *name)
+{
+  return expression_new(VARIABLE_EXPRESSION, name, NULL, NULL);
+}
+
+/**
+ * @brief Allocate a new syntax expression, set the operator token, and set both the left and the right expressions.
+ */
+integer_expression_t *integer_expression_new(syntax_token_t *value)
+{
+  return expression_new(INTEGER_EXPRESSION, value, NULL, NULL);
+}

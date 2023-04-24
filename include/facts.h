@@ -9,6 +9,7 @@ enum
   BOOLEAN_RETURN_TYPE,
   NIL_RETURN_TYPE,
   NUMBER_RETURN_TYPE,
+  INTEGER_RETURN_TYPE,
 };
 
 /**
@@ -36,6 +37,7 @@ enum
    */
   DECIMAL,
   NUMBER,
+  INTEGER_VALUE,
 
   /**
    * @brief Mathematical Operator Tokens.

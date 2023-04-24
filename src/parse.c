@@ -32,6 +32,7 @@ syntax_expression_t *parse(syntax_queue_t *queue)
 
   syntax_expression_stack_t *symbol_stack = syntax_expression_stack_new(64);
   syntax_expression_stack_t *nodes = syntax_expression_stack_new(64);
+  syntax_expression_stack_t *declarations = syntax_expression_stack_new(64);
 
   diagnostics = diagnostic_new();
 
@@ -150,10 +151,12 @@ syntax_expression_t *parse(syntax_queue_t *queue)
         expr = NULL;
         break;
 
-      case WORD:
-        expr = word_expression_new(token);
+      case BOOLEAN:
+      case INTEGER:
+        expr = declaration_expression_new(token);
+        expr = bound_declaration_expression_new(expr);
 
-        if (syntax_expression_stack_push(nodes, expr) == false)
+        if (syntax_expression_stack_push(declarations, expr) == false)
         {
           throw("failed to push to the nodes stack");
         }
@@ -161,6 +164,38 @@ syntax_expression_t *parse(syntax_queue_t *queue)
         last_expr_kind = expr->kind;
         expression_destroy(expr);
         expr = NULL;
+        break;
+
+      case WORD:
+        temp = syntax_expression_stack_peek(declarations);
+
+        if (temp != NULL)
+        {
+          temp->data = token->data;
+
+          if (syntax_expression_stack_push(nodes, temp) == false)
+          {
+            throw("failed to push to the nodes stack");
+          }
+
+          expression_destroy(syntax_expression_stack_pop(declarations));
+          last_expr_kind = temp->kind;
+          expression_destroy(temp);
+          temp = NULL;
+        }
+        else
+        {
+          expr = word_expression_new(token);
+
+          if (syntax_expression_stack_push(nodes, expr) == false)
+          {
+            throw("failed to push to the nodes stack");
+          }
+
+          last_expr_kind = expr->kind;
+          expression_destroy(expr);
+          expr = NULL;
+        }
         break;
 
       case NIL:
@@ -179,6 +214,7 @@ syntax_expression_t *parse(syntax_queue_t *queue)
       case TRUE:
       case FALSE:
         expr = boolean_literal_new(token);
+        expr = bound_boolean_expression_new(expr);
 
         if (syntax_expression_stack_push(nodes, expr) == false)
         {
@@ -280,9 +316,57 @@ syntax_expression_t *parse(syntax_queue_t *queue)
         expr = NULL;
         break;
 
+      case INTEGER_VALUE:
+        expr = integer_expression_new(token);
+        temp = syntax_expression_stack_peek(symbol_stack);
+
+        expr = bound_integer_expression_new(expr);
+
+        if (temp != NULL)
+        {
+          switch (temp->kind)
+          {
+            case UNARY_EXPRESSION:
+              temp->left = expr;
+
+              temp = bound_unary_expression_new(temp);
+
+              if (syntax_expression_stack_push(nodes, temp) == false)
+              {
+                throw("failed to push to the nodes stack");
+              }
+
+              expression_destroy(syntax_expression_stack_pop(symbol_stack));
+              break;
+
+            default:
+              if (syntax_expression_stack_push(nodes, expr) == false)
+              {
+                throw("failed to push to the nodes stack");
+              }
+          }
+
+          expression_destroy(temp);
+          temp = NULL;
+        }
+        else
+        {
+          if (syntax_expression_stack_push(nodes, expr) == false)
+          {
+            throw("failed to push to the nodes stack");
+          }
+        }
+
+        last_expr_kind = expr->kind;
+        expression_destroy(expr);
+        expr = NULL;
+        break;
+
       case NUMBER:
         expr = number_expression_new(token);
         temp = syntax_expression_stack_peek(symbol_stack);
+
+        expr = bound_number_expression_new(expr);
 
         if (temp != NULL)
         {
@@ -335,6 +419,7 @@ syntax_expression_t *parse(syntax_queue_t *queue)
 
   syntax_expression_stack_destroy(symbol_stack);
   syntax_expression_stack_destroy(nodes);
+  syntax_expression_stack_destroy(declarations);
 
   return ((diagnostic_is_empty(diagnostics)) == true ? root : NULL);
 }

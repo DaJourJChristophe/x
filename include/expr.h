@@ -17,6 +17,9 @@ enum
   UNARY_EXPRESSION,
   WORD_EXPRESSION,
   ASSIGNMENT_EXPRESSION,
+  DECLARATION_EXPRESSION,
+  VARIABLE_EXPRESSION,
+  INTEGER_EXPRESSION,
 
   NIL_LITERAL,
   BOOLEAN_LITERAL,
@@ -109,5 +112,35 @@ typedef syntax_expression_t assignment_expression_t;
  * @brief Allocate a new syntax expression, set the operator token, and set both the left and the right expressions.
  */
 assignment_expression_t *assignment_expression_new(syntax_token_t *operator, syntax_expression_t *left, syntax_expression_t *right);
+
+/**
+ * @brief Define a namespace for the binary expression structure.
+ */
+typedef syntax_expression_t declaration_expression_t;
+
+/**
+ * @brief Allocate a new syntax expression, set the operator token, and set both the left and the right expressions.
+ */
+declaration_expression_t *declaration_expression_new(syntax_token_t *type);
+
+/**
+ * @brief Define a namespace for the binary expression structure.
+ */
+typedef syntax_expression_t variable_expression_t;
+
+/**
+ * @brief Allocate a new syntax expression, set the operator token, and set both the left and the right expressions.
+ */
+variable_expression_t *variable_expression_new(syntax_token_t *name);
+
+/**
+ * @brief Define a namespace for the binary expression structure.
+ */
+typedef syntax_expression_t integer_expression_t;
+
+/**
+ * @brief Allocate a new syntax expression, set the operator token, and set both the left and the right expressions.
+ */
+integer_expression_t *integer_expression_new(syntax_token_t *value);
 
 #endif/*X_SYNTAX_EXPRESSION_H*/

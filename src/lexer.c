@@ -147,7 +147,7 @@ done:
 
 static INLINE_VOID_T handle_number(syntax_queue_t *queue, syntax_token_t *token, const char **data)
 {
-  token->type = NUMBER;
+  token->type = INTEGER_VALUE;
   token->size = sizeof(int);
 
   token->data = __malloc(sizeof(int));
