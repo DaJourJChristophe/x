@@ -187,6 +187,7 @@ syntax_expression_t *parse(syntax_queue_t *queue)
         if (temp != NULL)
         {
           temp->data = token->data;
+          temp->size = token->size;
 
           if (syntax_expression_stack_push(nodes, temp) == false)
           {
@@ -234,6 +235,20 @@ syntax_expression_t *parse(syntax_queue_t *queue)
         if (syntax_expression_stack_push(nodes, expr) == false)
         {
           throw("failed to push to the nodes stack");
+        }
+
+        last_expr_kind = expr->kind;
+        expression_destroy(expr);
+        expr = NULL;
+        break;
+
+      case DECREMENT:
+      case INCREMENT:
+        expr = unary_expression_new(token);
+
+        if (syntax_expression_stack_push(symbol_stack, expr) == false)
+        {
+          throw("failed to push to the symbol stack");
         }
 
         last_expr_kind = expr->kind;

@@ -49,6 +49,28 @@ static syntax_expression_t *eval_calc(syntax_expression_t *root, symbol_table_t 
     case UNARY_EXPRESSION:
       switch (root->type)
       {
+        case INCREMENT:
+          token.type = NUMBER;
+          token.size = sizeof(int);
+          token.data = __malloc(sizeof(int));
+          *(int *)token.data = ++(*(int *)lval->data);
+          retval = number_expression_new(&token);
+          __free(token.data);
+          token.data = NULL;
+          expression_destroy(lval);
+          break;
+
+        case DECREMENT:
+          token.type = NUMBER;
+          token.size = sizeof(int);
+          token.data = __malloc(sizeof(int));
+          *(int *)token.data = --(*(int *)lval->data);
+          retval = number_expression_new(&token);
+          __free(token.data);
+          token.data = NULL;
+          expression_destroy(lval);
+          break;
+
         case SUBTRACTION:
           token.type = NUMBER;
           token.size = sizeof(int);

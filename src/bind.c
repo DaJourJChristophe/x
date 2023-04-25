@@ -245,6 +245,8 @@ bound_unary_expression_t *bound_unary_expression_new(syntax_expression_t *expr)
 
   switch (expr->type)
   {
+    case DECREMENT:
+    case INCREMENT:
     case SUBTRACTION:
       expr->ret_type = INTEGER_RETURN_TYPE;
       break;
