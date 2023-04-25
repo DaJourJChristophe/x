@@ -47,6 +47,21 @@ static syntax_expression_t *eval_calc(syntax_expression_t *root, symbol_table_t 
   switch (root->kind)
   {
     case UNARY_EXPRESSION:
+
+      temp = lval;
+      if (temp->kind == WORD_LITERAL)
+      {
+        token.type = NUMBER;
+        token.size = sizeof(int);
+        token.data = __malloc(sizeof(int));
+        memcpy(token.data, symbol_table_get(table, temp->data, temp->size, NULL), sizeof(int));
+        expression_destroy(temp);
+        temp = NULL;
+        lval = number_expression_new(&token);
+        __free(token.data);
+        token.data = NULL;
+      }
+
       switch (root->type)
       {
         case INCREMENT:
@@ -65,6 +80,17 @@ static syntax_expression_t *eval_calc(syntax_expression_t *root, symbol_table_t 
           token.size = sizeof(int);
           token.data = __malloc(sizeof(int));
           *(int *)token.data = --(*(int *)lval->data);
+          retval = number_expression_new(&token);
+          __free(token.data);
+          token.data = NULL;
+          expression_destroy(lval);
+          break;
+
+        case ADDITION:
+          token.type = NUMBER;
+          token.size = sizeof(int);
+          token.data = __malloc(sizeof(int));
+          *(int *)token.data = *(int *)lval->data;
           retval = number_expression_new(&token);
           __free(token.data);
           token.data = NULL;

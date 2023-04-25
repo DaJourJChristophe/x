@@ -90,13 +90,15 @@ bound_binary_expression_t *bound_binary_expression_new(syntax_expression_t *expr
     diagnostic_add(diagnostics, DIAGNOSTIC_INVALID_BINARY_EXPRESSION);
   }
 
-  if (( expr->left->kind  != BOOLEAN_LITERAL &&
-        expr->left->kind  != INTEGER_LITERAL &&
-        expr->left->kind  != NUMBER_LITERAL  &&
+  if (( expr->left->kind  != UNARY_EXPRESSION &&
+        expr->left->kind  != BOOLEAN_LITERAL  &&
+        expr->left->kind  != INTEGER_LITERAL  &&
+        expr->left->kind  != NUMBER_LITERAL   &&
         expr->left->kind  != WORD_LITERAL) ||
-      ( expr->right->kind != BOOLEAN_LITERAL &&
-        expr->right->kind != INTEGER_LITERAL &&
-        expr->right->kind != NUMBER_LITERAL  &&
+      ( expr->right->kind != UNARY_EXPRESSION &&
+        expr->right->kind != BOOLEAN_LITERAL  &&
+        expr->right->kind != INTEGER_LITERAL  &&
+        expr->right->kind != NUMBER_LITERAL   &&
         expr->right->kind != WORD_LITERAL))
   {
     char fmt[128];
@@ -247,7 +249,9 @@ bound_unary_expression_t *bound_unary_expression_new(syntax_expression_t *expr)
   {
     case DECREMENT:
     case INCREMENT:
+    case ADDITION:
     case SUBTRACTION:
+    case BITWISE_TERNARY:
       expr->ret_type = INTEGER_RETURN_TYPE;
       break;
 
