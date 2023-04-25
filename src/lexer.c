@@ -590,6 +590,7 @@ static void handle_symbol_minus_sign(syntax_token_t *token, const char **data)
   {
     token->type = SUBTRACTION;
     token->data = NULL;
+    token->size = 0;
   }
 }
 
@@ -763,10 +764,13 @@ static INLINE_VOID_T handle_symbol(syntax_queue_t *queue, syntax_token_t *token,
     if (probable_token != 0)
     {
       token->type = probable_token;
+      token->data = NULL;
+      token->size = 0;
     }
     else
     {
       token->type = SYMBOL;
+      token->data = NULL;
       token->size = 0;
     }
   }
