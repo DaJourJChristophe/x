@@ -9,8 +9,9 @@
  */
 #include "common.h"
 #include "error.h"
-#include "linked-list.h"
+#include "ds/linked-list.h"
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
 #include <stdio.h>
@@ -29,7 +30,11 @@
 /**
  * @brief
  */
-linked_list_node_t *linked_list_node_new(void *data, const size_t size)
+linked_list_node_t *linked_list_node_new(
+  linked_list_t *list,
+  void *data,
+  const size_t size
+)
 {
   if (data == NULL || size == 0)
   {
@@ -39,36 +44,41 @@ linked_list_node_t *linked_list_node_new(void *data, const size_t size)
   linked_list_node_t *node = NULL;
   node = __malloc(LINKED_LIST_NODE_SIZE);
 
-  node->data = __malloc(size);
+  node->data = list->dcopy(data, size);
   node->size = size;
   node->prev = NULL;
   node->next = NULL;
 
-  memcpy(node->data, data, size);
   return node;
 }
 
 /**
  * @brief
  */
-void linked_list_node_destroy(linked_list_node_t *node)
+void linked_list_node_destroy(linked_list_t *list, linked_list_node_t *node)
 {
   if (node == NULL)
   {
     return;
   }
-
-  __free(node->data);
+  list->dfree(node->data);
   __free(node);
 }
 
 /**
  * @brief
  */
-linked_list_t *linked_list_new(void)
+linked_list_t *linked_list_new(
+  void *(*dcopy)(void *, const size_t),
+  void  (*dfree)(void *)
+)
 {
   linked_list_t *list = NULL;
   list = __calloc(1, LINKED_LIST_SIZE);
+
+  list->dcopy = dcopy;
+  list->dfree = dfree;
+
   return list;
 }
 
@@ -94,7 +104,7 @@ void linked_list_destroy(linked_list_t *list)
   while (node != NULL)
   {
     next = node->next;
-    linked_list_node_destroy(node);
+    linked_list_node_destroy(list, node);
     node = NULL;
     node = next;
     next = NULL;
@@ -115,12 +125,12 @@ void linked_list_push(linked_list_t *list, void *data, const size_t size)
 
   if (list->head == NULL)
   {
-    list->head = linked_list_node_new(data, size);
+    list->head = linked_list_node_new(list, data, size);
     list->tail = list->head;
     return;
   }
 
-  list->tail->next = linked_list_node_new(data, size);
+  list->tail->next = linked_list_node_new(list, data, size);
   list->tail->next->prev = list->tail;
   list->tail = list->tail->next;
 }
@@ -134,14 +144,39 @@ void *linked_list_pop(linked_list_t *list)
   {
     throw("cannot pop linked-list because list pointer is null");
   }
+  if (list->tail == NULL)
+  {
+    return NULL;
+  }
 
   const size_t size = list->tail->size;
-  void *data = __malloc(size);
-  memcpy(data, list->tail->data, size);
+  void *data = list->dcopy(list->tail->data, size);
   list->tail = list->tail->prev;
-  linked_list_node_destroy(list->tail->next);
+  if (list->tail == NULL)
+  {
+    list->head = NULL;
+    goto done;
+  }
+  linked_list_node_destroy(list, list->tail->next);
   list->tail->next = NULL;
+done:
   return data;
+}
+
+/**
+ * @brief
+ */
+void *linked_list_poll(linked_list_t *list)
+{
+  if (list == NULL)
+  {
+    throw("cannot poll linked-list because list pointer is null");
+  }
+  if (list->tail == NULL)
+  {
+    return NULL;
+  }
+  return list->dcopy(list->tail->data, list->tail->size);
 }
 
 /**
@@ -184,23 +219,45 @@ void linked_list_reverse(linked_list_t *list, linked_list_callback_t fn)
   }
 }
 
-// int main(void)
-// {
-//   linked_list_t *list = linked_list_new();
+/**
+ * @brief
+ */
+void *linked_list_reverse_find(linked_list_t *list, bool (*fn)(const void *, const size_t))
+{
+  linked_list_node_t *node = NULL;
+  node = list->tail;
 
-//   linked_list_push(list, &(int){3}, sizeof(int));
-//   linked_list_push(list, &(int){5}, sizeof(int));
-//   linked_list_push(list, &(int){7}, sizeof(int));
-//   linked_list_push(list, &(int){9}, sizeof(int));
+  while (node != NULL)
+  {
+    if (true == fn((const void *)node->data, (const size_t)node->size))
+    {
+      return list->dcopy(node->data, node->size);
+    }
+    node = node->prev;
+  }
 
-//   linked_list_foreach(list, &forward);
-//   printf("\n");
+  return NULL;
+}
 
-//   __free(linked_list_pop(list));
+/**
+ * @brief
+ */
+void *linked_list_reverse_map(linked_list_t *list, void *(*fn)(const void *, const size_t))
+{
+  linked_list_node_t *node = NULL;
+  void *retval = NULL;
 
-//   linked_list_reverse(list, &backward);
-//   printf("\n");
+  node = list->tail;
 
-//   linked_list_destroy(list);
-//   return EXIT_SUCCESS;
-// }
+  while (node != NULL)
+  {
+    retval = fn((const void *)node->data, (const size_t)node->size);
+    if (NULL != retval)
+    {
+      return retval;
+    }
+    node = node->prev;
+  }
+
+  return NULL;
+}

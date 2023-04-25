@@ -59,6 +59,73 @@ struct hashmap {
     void *edata;
 };
 
+size_t hashmap_size = sizeof(struct hashmap);
+
+struct hashmap *hashmap_copy(struct hashmap *map)
+{
+  size_t elsize = map->elsize;
+  size_t cap = map->cap;
+  size_t ncap = 16;
+  if (cap < ncap) {
+      cap = ncap;
+  } else {
+      while (ncap < cap) {
+          ncap *= 2;
+      }
+      cap = ncap;
+  }
+  size_t bucketsz = sizeof(struct bucket) + elsize;
+  while (bucketsz & (sizeof(uintptr_t)-1)) {
+      bucketsz++;
+  }
+  // hashmap + spare + edata
+  size_t size = sizeof(struct hashmap)+bucketsz*2;
+
+  struct hashmap *copy = map->malloc(size);
+  if (!copy)
+  {
+    return NULL;
+  }
+  memset(copy, 0, sizeof(struct hashmap));
+
+  copy->elsize = map->elsize;
+  copy->bucketsz = map->bucketsz;
+  copy->seed0 = map->seed0;
+  copy->seed1 = map->seed1;
+  copy->hash = map->hash;
+  copy->compare = map->compare;
+  copy->elfree = map->elfree;
+  copy->udata = map->udata;
+  copy->spare = map->spare;
+  copy->edata = map->edata;
+  copy->cap = map->cap;
+  copy->nbuckets = map->nbuckets;
+  copy->mask = map->mask;
+
+  copy->buckets = map->malloc(copy->bucketsz * copy->nbuckets);
+  if (!copy->buckets)
+  {
+    map->free(copy);
+    return NULL;
+  }
+
+  memset(copy->buckets, 0, copy->bucketsz * copy->nbuckets);
+
+  for (uint64_t i = 0; i < copy->nbuckets; i++)
+  {
+    memcpy((copy->buckets + (i * copy->bucketsz)),
+           ( map->buckets + (i * copy->bucketsz)), copy->bucketsz);
+  }
+
+  copy->growat = map->growat;
+  copy->shrinkat = map->shrinkat;
+  copy->malloc = map->malloc;
+  copy->realloc = map->realloc;
+  copy->free = map->free;
+
+  return copy;
+}
+
 static struct bucket *bucket_at(struct hashmap *map, size_t index) {
     return (struct bucket*)(((char*)map->buckets)+(map->bucketsz*index));
 }
@@ -745,4 +812,9 @@ map_t *map_new(void)
 void map_destroy(map_t *map)
 {
   hashmap_free(map);
+}
+
+map_t *map_copy(map_t *map)
+{
+  return hashmap_copy(map);
 }

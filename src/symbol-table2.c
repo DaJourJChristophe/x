@@ -8,6 +8,11 @@ symbol_table_t *symbol_table_new(void)
   return map_new();
 }
 
+symbol_table_t *symbol_table_copy(symbol_table_t *table)
+{
+  return map_copy(table);
+}
+
 void symbol_table_destroy(symbol_table_t *table)
 {
   map_destroy(table);
