@@ -1,0 +1,620 @@
+
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+/**
+ * @brief Define a collection of character tokens.
+ */
+enum
+{
+  /**
+   * @brief Internal Tokens.
+   */
+  BAD_TOKEN = 0,
+
+  /**
+   * @brief Whitespace Tokens.
+   */
+  EOF_TOKEN,
+  EOL_TOKEN,
+  SPACE_TOKEN,
+
+  /**
+   * @brief General Purpose Tokens.
+   */
+  DOT_TOKEN,
+  EOE_TOKEN,
+  STAR_TOKEN,
+  SYMBL_TOKEN,
+  TAB_TOKEN,
+  TEXT_TOKEN,
+  WORD_TOKEN,
+  DOUBLE_QUOTE_TOKEN,
+  SINGLE_QUOTE_TOKEN,
+  APOSTROPHE_TOKEN,
+  HASH_TOKEN,
+  DIGIT_TOKEN,
+  QUESTION_MARK_TOKEN,
+  UPPER_CASE_LETTER_TOKEN,
+  LOWER_CASE_LETTER_TOKEN,
+  FORWARD_SLASH_TOKEN,
+  BACK_SLASH_TOKEN,
+  UNDERSCORE_TOKEN,
+
+  /**
+   * @brief Numeric Tokens.
+   */
+  DECIMAL_TOKEN,
+  NUMBER_TOKEN,
+  INT_TOKEN,
+
+  /**
+   * @brief Mathematical Operator Tokens.
+   */
+  PLUS_TOKEN,
+  EQUAL_TOKEN,
+  EXPONENTIAL_TOKEN,
+  MODULUS_TOKEN,
+  REMAINDER_TOKEN,
+  MINUS_TOKEN,
+
+  /**
+   * @brief Bitwise Operator Tokens.
+   */
+  BITWISE_AND_TOKEN,
+  BITWISE_OR_TOKEN,
+  BITWISE_TERNARY_TOKEN,
+  BITWISE_XOR_TOKEN,
+  BITWISE_SHIFT_LEFT_TOKEN,
+  BITWISE_SHIFT_RIGHT_TOKEN,
+
+  /**
+   * @brief Conditional Tokens.
+   */
+  CONDITIONAL_AND_TOKEN,
+  CONDITIONAL_OR_TOKEN,
+
+  LESS_THAN_OR_EQUAL_TO,
+  GREATER_THEN_OR_EQUAL_TO,
+
+  /**
+   * @brief Containment Tokens.
+   */
+  LEFT_CARET_TOKEN,
+  OPEN_CURLY_BRACKET_TOKEN,
+  OPEN_PARENTHESIS_TOKEN,
+  OPEN_SQUARE_BRACKET_TOKEN,
+  CLOSE_CURLY_BRACKET_TOKEN,
+  CLOSE_PARENTHESIS_TOKEN,
+  CLOSE_SQUARE_BRACKET_TOKEN,
+  RIGHT_CARET_TOKEN,
+
+  /**
+   * @brief Architecture Tokens.
+   */
+  LAMBDA_TOKEN,
+
+  /**
+   * @brief Comparator Tokens.
+   */
+  EQUALS_TOKEN,
+
+  /**
+   * @brief Iterator Tokens.
+   */
+  DECREMENT_TOKEN,
+  INCREMENT_TOKEN,
+
+  /**
+   * @brief Separator Tokens.
+   */
+  COLON_TOKEN,
+  COMMA_TOKEN,
+
+  /**
+   * @brief Special Tokens.
+   */
+  ANNOTATION_TOKEN,
+
+  /**
+   * @brief Reserved Word Tokens.
+   */
+  ABSTRACT_TOKEN,
+  BOOLEAN_TOKEN,
+  BREAK_TOKEN,
+  CASE_TOKEN,
+  CLASS_TOKEN,
+  CONST_TOKEN,
+  DEFAULT_TOKEN,
+  DOUBLE_TOKEN,
+  EXPORT_TOKEN,
+  FALSE_TOKEN,
+  FLOAT_TOKEN,
+  FOR_TOKEN,
+  IF_TOKEN,
+  IMMUTABLE_TOKEN,
+  IMPORT_TOKEN,
+  INTEGER_TOKEN,
+  IS_TOKEN,
+  MATRIX_TOKEN,
+  NIL_TOKEN,
+  OBJECT_TOKEN,
+  PACKAGE_TOKEN,
+  PRINT_TOKEN,
+  PRIVATE_TOKEN,
+  PROTECTED_TOKEN,
+  PUBLIC_TOKEN,
+  RETURN_TOKEN,
+  SCALAR_TOKEN,
+  SET_TOKEN,
+  STATIC_TOKEN,
+  STRING_TOKEN,
+  SWITCH_TOKEN,
+  TRUE_TOKEN,
+  UNLESS_TOKEN,
+  VECTOR_TOKEN,
+  VOID_TOKEN,
+  WHILE_TOKEN,
+  YIELD_TOKEN,
+};
+
+/**
+ * @brief Define the maximum depth of a character combination.
+ */
+#define MAX_COMB_DEPTH   ((int)3)
+
+/**
+ * @brief Define the maximum possible character value range.
+ */
+#define MAX_CHAR_RNG     ((int)128)
+
+/**
+ * @brief
+ */
+static const int chrtbl[MAX_COMB_DEPTH][MAX_CHAR_RNG] = {
+  {
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    TAB_TOKEN,
+    EOL_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    SPACE_TOKEN,
+    BAD_TOKEN,
+    DOUBLE_QUOTE_TOKEN,
+    HASH_TOKEN,
+    BAD_TOKEN,
+    MODULUS_TOKEN,
+    BITWISE_AND_TOKEN,
+    SINGLE_QUOTE_TOKEN,
+    OPEN_PARENTHESIS_TOKEN,
+    CLOSE_PARENTHESIS_TOKEN,
+    STAR_TOKEN,
+    PLUS_TOKEN,
+    COMMA_TOKEN,
+    MINUS_TOKEN,
+    DOT_TOKEN,
+    FORWARD_SLASH_TOKEN,
+    DIGIT_TOKEN,
+    DIGIT_TOKEN,
+    DIGIT_TOKEN,
+    DIGIT_TOKEN,
+    DIGIT_TOKEN,
+    DIGIT_TOKEN,
+    DIGIT_TOKEN,
+    DIGIT_TOKEN,
+    DIGIT_TOKEN,
+    DIGIT_TOKEN,
+    COLON_TOKEN,
+    EOE_TOKEN,
+    LEFT_CARET_TOKEN,
+    EQUAL_TOKEN,
+    RIGHT_CARET_TOKEN,
+    QUESTION_MARK_TOKEN,
+    ANNOTATION_TOKEN,
+    UPPER_CASE_LETTER_TOKEN,
+    UPPER_CASE_LETTER_TOKEN,
+    UPPER_CASE_LETTER_TOKEN,
+    UPPER_CASE_LETTER_TOKEN,
+    UPPER_CASE_LETTER_TOKEN,
+    UPPER_CASE_LETTER_TOKEN,
+    UPPER_CASE_LETTER_TOKEN,
+    UPPER_CASE_LETTER_TOKEN,
+    UPPER_CASE_LETTER_TOKEN,
+    UPPER_CASE_LETTER_TOKEN,
+    UPPER_CASE_LETTER_TOKEN,
+    UPPER_CASE_LETTER_TOKEN,
+    UPPER_CASE_LETTER_TOKEN,
+    UPPER_CASE_LETTER_TOKEN,
+    UPPER_CASE_LETTER_TOKEN,
+    UPPER_CASE_LETTER_TOKEN,
+    UPPER_CASE_LETTER_TOKEN,
+    UPPER_CASE_LETTER_TOKEN,
+    UPPER_CASE_LETTER_TOKEN,
+    UPPER_CASE_LETTER_TOKEN,
+    UPPER_CASE_LETTER_TOKEN,
+    UPPER_CASE_LETTER_TOKEN,
+    UPPER_CASE_LETTER_TOKEN,
+    UPPER_CASE_LETTER_TOKEN,
+    UPPER_CASE_LETTER_TOKEN,
+    UPPER_CASE_LETTER_TOKEN,
+    OPEN_SQUARE_BRACKET_TOKEN,
+    BACK_SLASH_TOKEN,
+    CLOSE_SQUARE_BRACKET_TOKEN,
+    BITWISE_XOR_TOKEN,
+    UNDERSCORE_TOKEN,
+    APOSTROPHE_TOKEN,
+    LOWER_CASE_LETTER_TOKEN,
+    LOWER_CASE_LETTER_TOKEN,
+    LOWER_CASE_LETTER_TOKEN,
+    LOWER_CASE_LETTER_TOKEN,
+    LOWER_CASE_LETTER_TOKEN,
+    LOWER_CASE_LETTER_TOKEN,
+    LOWER_CASE_LETTER_TOKEN,
+    LOWER_CASE_LETTER_TOKEN,
+    LOWER_CASE_LETTER_TOKEN,
+    LOWER_CASE_LETTER_TOKEN,
+    LOWER_CASE_LETTER_TOKEN,
+    LOWER_CASE_LETTER_TOKEN,
+    LOWER_CASE_LETTER_TOKEN,
+    LOWER_CASE_LETTER_TOKEN,
+    LOWER_CASE_LETTER_TOKEN,
+    LOWER_CASE_LETTER_TOKEN,
+    LOWER_CASE_LETTER_TOKEN,
+    LOWER_CASE_LETTER_TOKEN,
+    LOWER_CASE_LETTER_TOKEN,
+    LOWER_CASE_LETTER_TOKEN,
+    LOWER_CASE_LETTER_TOKEN,
+    LOWER_CASE_LETTER_TOKEN,
+    LOWER_CASE_LETTER_TOKEN,
+    LOWER_CASE_LETTER_TOKEN,
+    LOWER_CASE_LETTER_TOKEN,
+    LOWER_CASE_LETTER_TOKEN,
+    OPEN_CURLY_BRACKET_TOKEN,
+    BITWISE_OR_TOKEN,
+    CLOSE_CURLY_BRACKET_TOKEN,
+    BITWISE_TERNARY_TOKEN,
+    BAD_TOKEN,
+  }, {
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    CONDITIONAL_AND_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    LEFT_CARET_TOKEN,
+    EQUAL_TOKEN,
+    RIGHT_CARET_TOKEN
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    CONDITIONAL_OR_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+  },{
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+    BAD_TOKEN,
+  },
+};
+
+static int gettok(const char *data)
+{
+  const int n = MAX_COMB_DEPTH;
+  int selection = BAD_TOKEN;
+  int previous_selection = BAD_TOKEN;
+  int i = 0;
+
+  do
+  {
+    selection = chrtbl[i++][(int)(*(data++))];
+
+    switch (selection)
+    {
+      case EQUAL_TOKEN:
+        /**
+         * NOTE: Implement backtracking here .. :P
+         */
+        switch (previous_selection)
+        {
+          case LEFT_CARET_TOKEN:
+            selection = LESS_THAN_OR_EQUAL_TO;
+            break;
+
+          case EQUAL_TOKEN:
+            break;
+
+          case RIGHT_CARET_TOKEN:
+            selection = GREATER_THEN_OR_EQUAL_TO;
+            break;
+        }
+        break;
+    }
+
+    previous_selection = selection;
+  }
+  while (*data && i < n && selection);
+
+  return selection;
+}
+
+int main(void)
+{
+  int selection = gettok("<=");
+  if (selection == 0)
+  {
+    fprintf(stderr, "\033[0;31m[fail] FatalError: %s\n\nAborted\n\033[0m", "Encountered an unsupported character.");
+  }
+  return EXIT_SUCCESS;
+}
+
+
+
+
+
