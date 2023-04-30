@@ -147,7 +147,7 @@ definitions:
   - name: DEFAULT_TOK
     value: 0
 
-  - name: DOUBLE_QUOTATION_TOK
+  - name: DOUBLE_TOK
     value: 14
 
   - name: EXPORT_TOK

@@ -12,6 +12,29 @@ def readfile(filepath: str):
       print(exc)
   return data
 
+def lookup_definition(connection, name: str) -> int:
+  query: str = 'select * from definition where name=?'
+
+  data: tuple = (name,)
+  rows = ()
+
+  try:
+    cursor = connection.cursor()
+    cursor.execute(query, data)
+    rows = cursor.fetchall()
+    cursor.close()
+  except sqlite3.Error as err:
+    print('SQLite error: %s' % (' '.join(err.args)))
+    print("Exception class is: ", err.__class__)
+    print('SQLite traceback: ')
+    exc_type, exc_value, exc_tb = sys.exc_info()
+    print(traceback.format_exception(exc_type, exc_value, exc_tb))
+
+  if len(rows) == 0:
+    return 0
+
+  return rows[0][0]
+
 def main() -> int:
 
   connection = sqlite3.connect('tmp/db/syntax.sqlite3')
@@ -27,8 +50,20 @@ def main() -> int:
       if target_key not in _token:
         raise Exception(f"token does not contain {target_key} parameter")
 
+    _toktyp: int = lookup_definition(connection, _token["type"])
     current_timestamp: datetime = datetime.utcnow()
-    data: tuple = (None, _token["repr"], _token["type"], _token["data"], _token["size"], current_timestamp, current_timestamp,)
+
+    data: tuple = (
+      None,
+
+      _token["repr"],
+      _toktyp,
+      _token["data"],
+      _token["size"],
+
+      current_timestamp,
+      current_timestamp,
+    )
 
     try:
       cursor = connection.cursor()
