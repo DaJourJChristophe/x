@@ -9,6 +9,8 @@
 .vscode
 __pycache__
 
+include/facts.h
+
 bin/*
 !bin/.keep
 build/
