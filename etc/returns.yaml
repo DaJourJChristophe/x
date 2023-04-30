@@ -1,0 +1,37 @@
+returns:
+
+  - name: "BOOLEAN_RETURN_TYPE"
+    value: 0
+
+  - name: "DOUBLE_RETURN_TYPE"
+    value: 0
+
+  - name: "FLOAT_RETURN_TYPE"
+    value: 0
+
+  - name: "INTEGER_RETURN_TYPE"
+    value: 0
+
+  - name: "MATRIX_RETURN_TYPE"
+    value: 0
+
+  - name: "NIL_RETURN_TYPE"
+    value: 0
+
+  - name: "NUMBER_RETURN_TYPE"
+    value: 0
+
+  - name: "OBJECT_RETURN_TYPE"
+    value: 0
+
+  - name: "SCALAR_RETURN_TYPE"
+    value: 0
+
+  - name: "STRING_RETURN_TYPE"
+    value: 0
+
+  - name: "VECTOR_RETURN_TYPE"
+    value: 0
+
+  - name: "VOID_RETURN_TYPE"
+    value: 0
