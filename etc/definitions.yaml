@@ -1,0 +1,239 @@
+definitions:
+
+  - name: "BAD_TOK"
+    value: 0
+
+  - name: "EOF_TOK"
+    value: 2
+
+  - name: "TAB_TOK"
+    value: 13
+
+  - name: "EOL_TOK"
+    value: 3
+
+  - name: "SPACE_TOK"
+    value: 12
+
+  - name: "REMAINDER_TOK"
+    value: 7
+
+  - name: "MODULUS_TOK"
+    value: 0
+
+  - name: "BITWISE_AND_TOK"
+    value: 0
+
+  - name: "SINGLE_QUOTATION_TOK"
+    value: 0
+
+  - name: "OPEN_PARENTHESIS_TOK"
+    value: 0
+
+  - name: "CLOSE_PARENTHESIS_TOK"
+    value: 0
+
+  - name: "STAR_TOK"
+    value: 10
+
+  - name: "PLUS_TOK"
+    value: 0
+
+  - name: "COMMA_TOK"
+    value: 0
+
+  - name: "HYPHEN_TOK"
+    value: 0
+
+  - name: "DOT_TOK"
+    value: 6
+
+  - name: "SLASH_TOK"
+    value: 9
+
+  - name: "COLON_TOK"
+    value: 0
+
+  - name: "EOE_TOK"
+    value: 1
+
+  - name: "LEFT_CARET_TOK"
+    value: 0
+
+  - name: "EQUAL_TOK"
+    value: 0
+
+  - name: "RIGHT_CARET_TOK"
+    value: 0
+
+  - name: "QUESTION_MARK_TOK"
+    value: 8
+
+  - name: "ANNOTATION_TOK"
+    value: 0
+
+  - name: "OPEN_SQUARE_BRACKET_TOK"
+    value: 0
+
+  - name: "BACKSLASH_TOK"
+    value: 5
+
+  - name: "CLOSE_SQUARE_BRACKET_TOK"
+    value: 0
+
+  - name: "BITWISE_XOR_TOK"
+    value: 0
+
+  - name: "UNDERSCORE_TOK"
+    value: 11
+
+  - name: "APOSTROPHE_TOK"
+    value: 4
+
+  - name: "OPEN_CURLY_BRACKET_TOK"
+    value: 0
+
+  - name: "BITWISE_OR_TOK"
+    value: 0
+
+  - name: "CLOSE_CURLY_BRACKET_TOK"
+    value: 0
+
+  - name: "BITWISE_TERNARY_TOK"
+    value: 0
+
+  - name: "EXPONENTIAL_TOK"
+    value: 0
+
+  - name: "COND_AND_TOK"
+    value: 0
+
+  - name: "COND_OR_TOK"
+    value: 0
+
+  - name: "BITWISE_SHFT_LEFT_TOK"
+    value: 0
+
+  - name: "BITWISE_SHFT_RIGHT_TOK"
+    value: 0
+
+  - name: "DECREMENT_TOK"
+    value: 0
+
+  - name: "INCREMENT_TOK"
+    value: 0
+
+  - name: "COND_EQUALS_TOK"
+    value: 0
+
+  - name: ABSTRACT_TOK
+    value: 0
+
+  - name: BOOLEAN_TOK
+    value: 0
+
+  - name: BREAK_TOK
+    value: 0
+
+  - name: CASE_TOK
+    value: 0
+
+  - name: CLASS_TOK
+    value: 0
+
+  - name: CONST_TOK
+    value: 0
+
+  - name: DEFAULT_TOK
+    value: 0
+
+  - name: DOUBLE_QUOTATION_TOK
+    value: 14
+
+  - name: EXPORT_TOK
+    value: 0
+
+  - name: FALSE_TOK
+    value: 0
+
+  - name: FLOAT_TOK
+    value: 0
+
+  - name: FOR_TOK
+    value: 0
+
+  - name: IF_TOK
+    value: 0
+
+  - name: IMMUTABLE_TOK
+    value: 0
+
+  - name: IMPORT_TOK
+    value: 0
+
+  - name: INTEGER_TOK
+    value: 0
+
+  - name: IS_TOK
+    value: 0
+
+  - name: MATRIX_TOK
+    value: 0
+
+  - name: NIL_TOK
+    value: 0
+
+  - name: OBJECT_TOK
+    value: 0
+
+  - name: PACKAGE_TOK
+    value: 0
+
+  - name: PRINT_TOK
+    value: 0
+
+  - name: PRIVATE_TOK
+    value: 0
+
+  - name: PROTECTED_TOK
+    value: 0
+
+  - name: PUBLIC_TOK
+    value: 0
+
+  - name: RETURN_TOK
+    value: 0
+
+  - name: SCALAR_TOK
+    value: 0
+
+  - name: SET_TOK
+    value: 0
+
+  - name: STATIC_TOK
+    value: 0
+
+  - name: STRING_TOK
+    value: 0
+
+  - name: SWITCH_TOK
+    value: 0
+
+  - name: TRUE_TOK
+    value: 0
+
+  - name: UNLESS_TOK
+    value: 0
+
+  - name: VECTOR_TOK
+    value: 0
+
+  - name: VOID_TOK
+    value: 0
+
+  - name: WHILE_TOK
+    value: 0
+
+  - name: YIELD_TOK
+    value: 0
+

@@ -15,20 +15,20 @@ def readfile(filepath: str):
 def main() -> int:
 
   connection = sqlite3.connect('tmp/db/syntax.sqlite3')
-  query: str = 'insert into token (id,repr,type,data,size,created,modified) values (?,?,?,?,?,?,?)'
+  query: str = 'insert into definition (id,name,value,created,modified) values (?,?,?,?,?)'
 
-  _tokens = readfile("etc/tokens.yaml")
-  if "tokens" not in _tokens:
-    raise Exception("tokens does not contain tokens parent element")
+  _definitions = readfile("etc/definitions.yaml")
+  if "definitions" not in _definitions:
+    raise Exception("definitions does not contain definitions parent element")
 
-  for _token in _tokens["tokens"]:
+  for _definition in _definitions["definitions"]:
 
-    for target_key in ["repr","type","data","size"]:
-      if target_key not in _token:
+    for target_key in ["name","value"]:
+      if target_key not in _definition:
         raise Exception(f"token does not contain {target_key} parameter")
 
     current_timestamp: datetime = datetime.utcnow()
-    data: tuple = (None, _token["repr"], _token["type"], _token["data"], _token["size"], current_timestamp, current_timestamp,)
+    data: tuple = (None, _definition["name"], 0, current_timestamp, current_timestamp,)
 
     try:
       cursor = connection.cursor()
