@@ -19,6 +19,7 @@ add_executable(ae_test
 )
 add_executable(lexer_test
   "${CMAKE_CURRENT_SOURCE_DIR}/lexer_test.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/../src/utils.c"
 )
 add_executable(queue_test
   "${CMAKE_CURRENT_SOURCE_DIR}/ds/queue_test.c"
@@ -28,7 +29,7 @@ add_executable(stack_test
 )
 
 target_include_directories(ae_test    PRIVATE "${PROJECT_SOURCE_DIR}/include/cmocka")
-target_include_directories(lexer_test PRIVATE "${PROJECT_SOURCE_DIR}/include/cmocka")
+target_include_directories(lexer_test PRIVATE "${PROJECT_SOURCE_DIR}/include/" "${PROJECT_SOURCE_DIR}/include/cmocka")
 target_include_directories(queue_test PRIVATE "${PROJECT_SOURCE_DIR}/include/cmocka")
 target_include_directories(stack_test PRIVATE "${PROJECT_SOURCE_DIR}/include/cmocka")
 

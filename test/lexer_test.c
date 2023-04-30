@@ -7,6 +7,7 @@
 #include "lexer.h"
 #include "syntax-queue.h"
 #include "token.h"
+#include "utils.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -44,434 +45,434 @@ static void compile_line_test(void unused **state)
   struct test_data data[] = {{
     .input="\n",
     .expected={
-      {.type=EOL,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=EOL_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="\t",
     .expected={
-      {.type=TAB,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=TAB_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input=" ",
     .expected={
-      {.type=SPACE,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=SPACE_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input=";",
     .expected={
-      {.type=EOE,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=EOE_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="<",
     .expected={
-      {.type=LEFT_CARET,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=LEFT_CARET_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="{",
     .expected={
-      {.type=OPEN_CURLY_BRACKET,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=OPEN_CURLY_BRACKET_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="(",
     .expected={
-      {.type=OPEN_PARENTHESIS,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=OPEN_PARENTHESIS_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="[",
     .expected={
-      {.type=OPEN_SQUARE_BRACKET,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=OPEN_SQUARE_BRACKET_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="}",
     .expected={
-      {.type=CLOSE_CURLY_BRACKET,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=CLOSE_CURLY_BRACKET_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input=")",
     .expected={
-      {.type=CLOSE_PARENTHESIS,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=CLOSE_PARENTHESIS_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="]",
     .expected={
-      {.type=CLOSE_SQUARE_BRACKET,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=CLOSE_SQUARE_BRACKET_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input=">",
     .expected={
-      {.type=RIGHT_CARET,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=RIGHT_CARET_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="@",
     .expected={
-      {.type=ANNOTATION,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=ANNOTATION_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input=",",
     .expected={
-      {.type=COMMA,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=COMMA_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input=":",
     .expected={
-      {.type=COLON,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=COLON_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="\%",
     .expected={
-      {.type=MODULUS,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=MODULUS_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="=",
     .expected={
-      {.type=EQUAL,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=EQUAL_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input=":",
     .expected={
-      {.type=COLON,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=COLON_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="*",
     .expected={
-      {.type=STAR,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=STAR_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="/",
     .expected={
-      {.type=DIVISION,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=SLASH_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="+",
     .expected={
-      {.type=ADDITION,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=PLUS_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="-",
     .expected={
-      {.type=SUBTRACTION,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=HYPHEN_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="**",
     .expected={
-      {.type=EXPONENTIAL,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=EXPONENTIAL_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="#",
     .expected={
-      {.type=REMAINDER,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=REMAINDER_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="&",
     .expected={
-      {.type=BITWISE_AND,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=BITWISE_AND_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="|",
     .expected={
-      {.type=BITWISE_OR,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=BITWISE_OR_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="^",
     .expected={
-      {.type=BITWISE_XOR,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=BITWISE_XOR_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="~",
     .expected={
-      {.type=BITWISE_TERNARY,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=BITWISE_TERNARY_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="<<",
     .expected={
-      {.type=BITWISE_SHIFT_LEFT,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=BITWISE_SHFT_LEFT_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input=">>",
     .expected={
-      {.type=BITWISE_SHIFT_RIGHT,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=BITWISE_SHFT_RIGHT_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="&&",
     .expected={
-      {.type=CONDITIONAL_AND,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=COND_AND_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="||",
     .expected={
-      {.type=CONDITIONAL_OR,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=COND_OR_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="--",
     .expected={
-      {.type=DECREMENT,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=DECREMENT_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="++",
     .expected={
-      {.type=INCREMENT,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=INCREMENT_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="==",
     .expected={
-      {.type=EQUALS,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=COND_EQUALS_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="abstract",
     .expected={
-      {.type=ABSTRACT,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=ABSTRACT_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="boolean",
     .expected={
-      {.type=BOOLEAN,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=BOOLEAN_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="break",
     .expected={
-      {.type=BREAK,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=BREAK_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="case",
     .expected={
-      {.type=CASE,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=CASE_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="class",
     .expected={
-      {.type=CLASS,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=CLASS_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="const",
     .expected={
-      {.type=CONST,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=CONST_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="default",
     .expected={
-      {.type=DEFAULT,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=DEFAULT_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="double",
     .expected={
-      {.type=DOUBLE,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=DOUBLE_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="export",
     .expected={
-      {.type=EXPORT,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=EXPORT_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="false",
     .expected={
-      {.type=FALSE,.data=&(int){0},.size=sizeof(int),},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=FALSE_TOK,.data=&(int){0},.size=sizeof(int),},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="float",
     .expected={
-      {.type=FLOAT,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=FLOAT_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="for",
     .expected={
-      {.type=FOR,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=FOR_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="if",
     .expected={
-      {.type=IF,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=IF_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="immutable",
     .expected={
-      {.type=IMMUTABLE,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=IMMUTABLE_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="import",
     .expected={
-      {.type=IMPORT,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=IMPORT_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="int",
     .expected={
-      {.type=INTEGER,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=INTEGER_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="is",
     .expected={
-      {.type=IS,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=IS_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="matrix",
     .expected={
-      {.type=MATRIX,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=MATRIX_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="null",
     .expected={
-      {.type=NIL,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=NIL_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="object",
     .expected={
-      {.type=OBJECT,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=OBJECT_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="package",
     .expected={
-      {.type=PACKAGE,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=PACKAGE_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="print",
     .expected={
-      {.type=PRINT,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=PRINT_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="private",
     .expected={
-      {.type=PRIVATE,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=PRIVATE_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="protected",
     .expected={
-      {.type=PROTECTED,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=PROTECTED_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="public",
     .expected={
-      {.type=PUBLIC,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=PUBLIC_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="return",
     .expected={
-      {.type=RETURN,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=RETURN_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="scalar",
     .expected={
-      {.type=SCALAR,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=SCALAR_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="set",
     .expected={
-      {.type=SET,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=SET_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="static",
     .expected={
-      {.type=STATIC,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=STATIC_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="string",
     .expected={
-      {.type=STRING,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=STRING_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="switch",
     .expected={
-      {.type=SWITCH,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=SWITCH_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="true",
     .expected={
-      {.type=TRUE,.data=&(int){1},.size=sizeof(int),},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=TRUE_TOK,.data=&(int){1},.size=sizeof(int),},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="unless",
     .expected={
-      {.type=UNLESS,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=UNLESS_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="vector",
     .expected={
-      {.type=VECTOR,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=VECTOR_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="void",
     .expected={
-      {.type=VOID,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=VOID_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="while",
     .expected={
-      {.type=WHILE,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=WHILE_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   },{
     .input="yield",
     .expected={
-      {.type=YIELD,.data=NULL,.size=0,},
-      {.type=LEXER_EOF,.data=NULL,.size=0,},
+      {.type=YIELD_TOK,.data=NULL,.size=0,},
+      {.type=EOF_TOK,.data=NULL,.size=0,},
     },
   }};
 
@@ -487,8 +488,21 @@ static void compile_line_test(void unused **state)
 
     while ((token = syntax_queue_read(tokens)) != NULL)
     {
-      assert_true(compare_token(token, &data[i].expected[j++]));
+      // printf("from actual: ");
+      // print_token(token);
+
+      // printf("from expected: ");
+      // print_token((syntax_token_t *)&data[i].expected[j]);
+
+      const bool result = compare_token(token, &data[i].expected[j++]);
+      if (result == false)
+      {
+        printf("%s %s\n", "caught a fail by", data[i].input);
+      }
+      assert_true(result);
     }
+
+    // printf("\n");
 
     syntax_queue_destroy(tokens);
   }

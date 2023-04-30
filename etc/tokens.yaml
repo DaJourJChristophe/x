@@ -1,0 +1,5 @@
+tokens:
+  - repr: "\0"
+    type: BAD_TOK
+    data: null
+    size: 0

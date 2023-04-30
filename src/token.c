@@ -1,6 +1,9 @@
 #include "common.h"
 #include "token.h"
 
+#include <stddef.h>
+#include <string.h>
+
 /**
  * @brief Allocate a new syntax token and set both the type and the data;
  */
@@ -21,6 +24,9 @@ syntax_token_t *syntax_token_new(int type, void *data, size_t const n)
  */
 void syntax_token_destroy(syntax_token_t *token)
 {
-  __free(token->data);
+  if (token != NULL)
+  {
+    __free(token->data);
+  }
   __free(token);
 }

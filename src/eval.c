@@ -51,7 +51,7 @@ static syntax_expression_t *eval_calc(syntax_expression_t *root, symbol_table_t 
       temp = lval;
       if (temp->kind == WORD_LITERAL)
       {
-        token.type = NUMBER;
+        token.type = NUM_TOK;
         token.size = sizeof(int);
         token.data = __malloc(sizeof(int));
         memcpy(token.data, symbol_table_get(table, temp->data, temp->size, NULL), sizeof(int));
@@ -64,8 +64,8 @@ static syntax_expression_t *eval_calc(syntax_expression_t *root, symbol_table_t 
 
       switch (root->type)
       {
-        case INCREMENT:
-          token.type = NUMBER;
+        case INCREMENT_TOK:
+          token.type = NUM_TOK;
           token.size = sizeof(int);
           token.data = __malloc(sizeof(int));
           *(int *)token.data = ++(*(int *)lval->data);
@@ -75,8 +75,8 @@ static syntax_expression_t *eval_calc(syntax_expression_t *root, symbol_table_t 
           expression_destroy(lval);
           break;
 
-        case DECREMENT:
-          token.type = NUMBER;
+        case DECREMENT_TOK:
+          token.type = NUM_TOK;
           token.size = sizeof(int);
           token.data = __malloc(sizeof(int));
           *(int *)token.data = --(*(int *)lval->data);
@@ -86,8 +86,8 @@ static syntax_expression_t *eval_calc(syntax_expression_t *root, symbol_table_t 
           expression_destroy(lval);
           break;
 
-        case ADDITION:
-          token.type = NUMBER;
+        case PLUS_TOK:
+          token.type = NUM_TOK;
           token.size = sizeof(int);
           token.data = __malloc(sizeof(int));
           *(int *)token.data = *(int *)lval->data;
@@ -97,8 +97,8 @@ static syntax_expression_t *eval_calc(syntax_expression_t *root, symbol_table_t 
           expression_destroy(lval);
           break;
 
-        case SUBTRACTION:
-          token.type = NUMBER;
+        case HYPHEN_TOK:
+          token.type = NUM_TOK;
           token.size = sizeof(int);
           token.data = __malloc(sizeof(int));
           *(int *)token.data = -(*(int *)lval->data);
@@ -108,8 +108,8 @@ static syntax_expression_t *eval_calc(syntax_expression_t *root, symbol_table_t 
           expression_destroy(lval);
           break;
 
-        case BITWISE_TERNARY:
-          token.type = NUMBER;
+        case BITWISE_TERNARY_TOK:
+          token.type = NUM_TOK;
           token.size = sizeof(int);
           token.data = __malloc(sizeof(int));
           *(int *)token.data = ~(*(int *)lval->data);
@@ -132,7 +132,7 @@ static syntax_expression_t *eval_calc(syntax_expression_t *root, symbol_table_t 
       temp = lval;
       if (temp->kind == WORD_LITERAL)
       {
-        token.type = NUMBER;
+        token.type = NUM_TOK;
         token.size = sizeof(int);
         token.data = __malloc(sizeof(int));
         memcpy(token.data, symbol_table_get(table, temp->data, temp->size, NULL), sizeof(int));
@@ -146,7 +146,7 @@ static syntax_expression_t *eval_calc(syntax_expression_t *root, symbol_table_t 
       temp = rval;
       if (temp->kind == WORD_LITERAL)
       {
-        token.type = NUMBER;
+        token.type = NUM_TOK;
         token.size = sizeof(int);
         token.data = __malloc(sizeof(int));
         memcpy(token.data, symbol_table_get(table, temp->data, temp->size, NULL), sizeof(int));
@@ -159,8 +159,8 @@ static syntax_expression_t *eval_calc(syntax_expression_t *root, symbol_table_t 
 
       switch (root->type)
       {
-        case ADDITION:
-          token.type = NUMBER;
+        case PLUS_TOK:
+          token.type = NUM_TOK;
           token.size = sizeof(int);
           token.data = __malloc(sizeof(int));
           *(int *)token.data = *(int *)lval->data + *(int *)rval->data;
@@ -171,8 +171,8 @@ static syntax_expression_t *eval_calc(syntax_expression_t *root, symbol_table_t 
           expression_destroy(rval);
           break;
 
-        case EXPONENTIAL:
-          token.type = NUMBER;
+        case EXPONENTIAL_TOK:
+          token.type = NUM_TOK;
           token.size = sizeof(int);
           token.data = __malloc(sizeof(int));
           *(int *)token.data = (int)pow(*(int *)lval->data, *(int *)rval->data);
@@ -183,8 +183,8 @@ static syntax_expression_t *eval_calc(syntax_expression_t *root, symbol_table_t 
           expression_destroy(rval);
           break;
 
-        case SUBTRACTION:
-          token.type = NUMBER;
+        case HYPHEN_TOK:
+          token.type = NUM_TOK;
           token.size = sizeof(int);
           token.data = __malloc(sizeof(int));
           *(int *)token.data = *(int *)lval->data - *(int *)rval->data;
@@ -195,8 +195,8 @@ static syntax_expression_t *eval_calc(syntax_expression_t *root, symbol_table_t 
           expression_destroy(rval);
           break;
 
-        case STAR:
-          token.type = NUMBER;
+        case STAR_TOK:
+          token.type = NUM_TOK;
           token.size = sizeof(int);
           token.data = __malloc(sizeof(int));
           *(int *)token.data = *(int *)lval->data * *(int *)rval->data;
@@ -207,8 +207,8 @@ static syntax_expression_t *eval_calc(syntax_expression_t *root, symbol_table_t 
           expression_destroy(rval);
           break;
 
-        case DIVISION:
-          token.type = NUMBER;
+        case SLASH_TOK:
+          token.type = NUM_TOK;
           token.size = sizeof(int);
           token.data = __malloc(sizeof(int));
           *(int *)token.data = *(int *)lval->data / *(int *)rval->data;
@@ -219,8 +219,8 @@ static syntax_expression_t *eval_calc(syntax_expression_t *root, symbol_table_t 
           expression_destroy(rval);
           break;
 
-        case MODULUS:
-          token.type = NUMBER;
+        case MODULUS_TOK:
+          token.type = NUM_TOK;
           token.size = sizeof(int);
           token.data = __malloc(sizeof(int));
           *(int *)token.data = *(int *)lval->data % *(int *)rval->data;
@@ -231,8 +231,8 @@ static syntax_expression_t *eval_calc(syntax_expression_t *root, symbol_table_t 
           expression_destroy(rval);
           break;
 
-        case REMAINDER:
-          token.type = NUMBER;
+        case REMAINDER_TOK:
+          token.type = NUM_TOK;
           token.size = sizeof(int);
           token.data = __malloc(sizeof(int));
           *(int *)token.data = (int)(*(int *)lval->data / *(int *)rval->data);
@@ -243,8 +243,8 @@ static syntax_expression_t *eval_calc(syntax_expression_t *root, symbol_table_t 
           expression_destroy(rval);
           break;
 
-        case BITWISE_AND:
-          token.type = NUMBER;
+        case BITWISE_AND_TOK:
+          token.type = NUM_TOK;
           token.size = sizeof(int);
           token.data = __malloc(sizeof(int));
           *(int *)token.data = *(int *)lval->data & *(int *)rval->data;
@@ -255,8 +255,8 @@ static syntax_expression_t *eval_calc(syntax_expression_t *root, symbol_table_t 
           expression_destroy(rval);
           break;
 
-        case BITWISE_OR:
-          token.type = NUMBER;
+        case BITWISE_OR_TOK:
+          token.type = NUM_TOK;
           token.size = sizeof(int);
           token.data = __malloc(sizeof(int));
           *(int *)token.data = *(int *)lval->data | *(int *)rval->data;
@@ -267,8 +267,8 @@ static syntax_expression_t *eval_calc(syntax_expression_t *root, symbol_table_t 
           expression_destroy(rval);
           break;
 
-        case BITWISE_XOR:
-          token.type = NUMBER;
+        case BITWISE_XOR_TOK:
+          token.type = NUM_TOK;
           token.size = sizeof(int);
           token.data = __malloc(sizeof(int));
           *(int *)token.data = *(int *)lval->data ^ *(int *)rval->data;
@@ -279,8 +279,8 @@ static syntax_expression_t *eval_calc(syntax_expression_t *root, symbol_table_t 
           expression_destroy(rval);
           break;
 
-        case BITWISE_SHIFT_LEFT:
-          token.type = NUMBER;
+        case BITWISE_SHFT_LEFT_TOK:
+          token.type = NUM_TOK;
           token.size = sizeof(int);
           token.data = __malloc(sizeof(int));
           *(int *)token.data = *(int *)lval->data << *(int *)rval->data;
@@ -291,8 +291,8 @@ static syntax_expression_t *eval_calc(syntax_expression_t *root, symbol_table_t 
           expression_destroy(rval);
           break;
 
-        case BITWISE_SHIFT_RIGHT:
-          token.type = NUMBER;
+        case BITWISE_SHFT_RIGHT_TOK:
+          token.type = NUM_TOK;
           token.size = sizeof(int);
           token.data = __malloc(sizeof(int));
           *(int *)token.data = *(int *)lval->data >> *(int *)rval->data;

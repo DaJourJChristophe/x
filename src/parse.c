@@ -57,11 +57,11 @@ syntax_expression_t *parse(syntax_queue_t *queue)
   {
     switch (token->type)
     {
-      case LEXER_EOF:
+      case EOF_TOK:
         // print_token(token);
         break;
 
-      case EOE:
+      case EOE_TOK:
         while ((temp = syntax_expression_stack_pop(symbol_stack)) != NULL)
         {
           switch (temp->kind)
@@ -109,16 +109,16 @@ syntax_expression_t *parse(syntax_queue_t *queue)
         root = syntax_expression_stack_pop(nodes);
         break;
 
-      case EOL:
-      case TAB:
-      case SPACE:
+      case EOL_TOK:
+      case TAB_TOK:
+      case SPACE_TOK:
         // print_token(token);
         break;
 
-      case CLOSE_PARENTHESIS:
+      case CLOSE_PARENTHESIS_TOK:
         while ((temp = syntax_expression_stack_pop(symbol_stack)) != NULL)
         {
-          if (temp->type == OPEN_PARENTHESIS)
+          if (temp->type == OPEN_PARENTHESIS_TOK)
           {
             expression_destroy(temp);
             temp = NULL;
@@ -140,7 +140,7 @@ syntax_expression_t *parse(syntax_queue_t *queue)
         }
         break;
 
-      case OPEN_PARENTHESIS:
+      case OPEN_PARENTHESIS_TOK:
         expr = binary_expression_new(token, NULL, NULL);
 
         if (syntax_expression_stack_push(symbol_stack, expr) == false)
@@ -153,7 +153,7 @@ syntax_expression_t *parse(syntax_queue_t *queue)
         expr = NULL;
         break;
 
-      case EQUAL:
+      case EQUAL_TOK:
         expr = assignment_expression_new(token, NULL, NULL);
 
         if (syntax_expression_stack_push(symbol_stack, expr) == false)
@@ -166,8 +166,8 @@ syntax_expression_t *parse(syntax_queue_t *queue)
         expr = NULL;
         break;
 
-      case BOOLEAN:
-      case INTEGER:
+      case BOOLEAN_TOK:
+      case INTEGER_TOK:
         expr = declaration_expression_new(token);
         expr = bound_declaration_expression_new(expr);
 
@@ -181,7 +181,7 @@ syntax_expression_t *parse(syntax_queue_t *queue)
         expr = NULL;
         break;
 
-      case WORD:
+      case WORD_TOK:
         temp = syntax_expression_stack_peek(declarations);
 
         if (temp != NULL)
@@ -214,7 +214,7 @@ syntax_expression_t *parse(syntax_queue_t *queue)
         }
         break;
 
-      case NIL:
+      case NIL_TOK:
         expr = nil_literal_new(token);
 
         if (syntax_expression_stack_push(nodes, expr) == false)
@@ -227,8 +227,8 @@ syntax_expression_t *parse(syntax_queue_t *queue)
         expr = NULL;
         break;
 
-      case TRUE:
-      case FALSE:
+      case TRUE_TOK:
+      case FALSE_TOK:
         expr = boolean_literal_new(token);
         expr = bound_boolean_expression_new(expr);
 
@@ -242,8 +242,8 @@ syntax_expression_t *parse(syntax_queue_t *queue)
         expr = NULL;
         break;
 
-      case DECREMENT:
-      case INCREMENT:
+      case DECREMENT_TOK:
+      case INCREMENT_TOK:
         expr = unary_expression_new(token);
 
         if (syntax_expression_stack_push(symbol_stack, expr) == false)
@@ -256,20 +256,20 @@ syntax_expression_t *parse(syntax_queue_t *queue)
         expr = NULL;
         break;
 
-      case ADDITION:
-      case DIVISION:
-      case EXPONENTIAL:
-      case MODULUS:
-      case REMAINDER:
-      case SUBTRACTION:
-      case STAR:
+      case PLUS_TOK:
+      case SLASH_TOK:
+      case EXPONENTIAL_TOK:
+      case MODULUS_TOK:
+      case REMAINDER_TOK:
+      case HYPHEN_TOK:
+      case STAR_TOK:
 
-      case BITWISE_AND:
-      case BITWISE_OR:
-      case BITWISE_TERNARY:
-      case BITWISE_XOR:
-      case BITWISE_SHIFT_LEFT:
-      case BITWISE_SHIFT_RIGHT:
+      case BITWISE_AND_TOK:
+      case BITWISE_OR_TOK:
+      case BITWISE_TERNARY_TOK:
+      case BITWISE_XOR_TOK:
+      case BITWISE_SHFT_LEFT_TOK:
+      case BITWISE_SHFT_RIGHT_TOK:
 
         temp = syntax_expression_stack_peek(symbol_stack);
         tamp = syntax_expression_stack_peek(nodes);
@@ -346,7 +346,7 @@ syntax_expression_t *parse(syntax_queue_t *queue)
         expr = NULL;
         break;
 
-      case INTEGER_VALUE:
+      case INT_TOK:
         expr = integer_expression_new(token);
         temp = syntax_expression_stack_peek(symbol_stack);
 
@@ -392,7 +392,7 @@ syntax_expression_t *parse(syntax_queue_t *queue)
         expr = NULL;
         break;
 
-      case NUMBER:
+      case NUM_TOK:
         expr = number_expression_new(token);
         temp = syntax_expression_stack_peek(symbol_stack);
 

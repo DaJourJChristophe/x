@@ -30,11 +30,11 @@ static const char *get_type_as_string(const binary_expression_t *expr)
 
   switch (expr->type)
   {
-    case FALSE:
-    case TRUE:     return boolean_type_str;
-    case ADDITION: return plus_type_str;
-    case NIL:      return nil_type_str;
-    case NUMBER:   return number_type_str;
+    case FALSE_TOK:
+    case TRUE_TOK: return boolean_type_str;
+    case PLUS_TOK: return plus_type_str;
+    case NIL_TOK:  return nil_type_str;
+    case NUM_TOK:  return number_type_str;
   }
 
   return "";
@@ -113,25 +113,25 @@ bound_binary_expression_t *bound_binary_expression_new(syntax_expression_t *expr
   if (expr->left->ret_kind  == BOOLEAN_RETURN_TYPE &&
       expr->right->ret_kind == BOOLEAN_RETURN_TYPE)
   {
-    expr->ret_type = BOOLEAN;
+    expr->ret_type = BOOLEAN_TOK;
     expr->ret_kind = BOOLEAN_RETURN_TYPE;
   }
   else if ( expr->left->ret_kind  == INTEGER_RETURN_TYPE &&
             expr->right->ret_kind == INTEGER_RETURN_TYPE)
   {
-    expr->ret_type = INTEGER;
+    expr->ret_type = INTEGER_TOK;
     expr->ret_kind = INTEGER_RETURN_TYPE;
   }
   else if ( expr->left->ret_kind  == BOOLEAN_RETURN_TYPE &&
             expr->right->ret_kind == INTEGER_RETURN_TYPE)
   {
-    expr->ret_type = INTEGER;
+    expr->ret_type = INTEGER_TOK;
     expr->ret_kind = INTEGER_RETURN_TYPE;
   }
   else if ( expr->left->ret_kind  == INTEGER_RETURN_TYPE &&
             expr->right->ret_kind == BOOLEAN_RETURN_TYPE)
   {
-    expr->ret_type = INTEGER;
+    expr->ret_type = INTEGER_TOK;
     expr->ret_kind = INTEGER_RETURN_TYPE;
   }
   else
@@ -174,11 +174,11 @@ bound_declaration_expression_t *bound_declaration_expression_new(syntax_expressi
 
   switch (expr->ret_type)
   {
-    case BOOLEAN:
+    case BOOLEAN_TOK:
       expr->ret_kind = BOOLEAN_RETURN_TYPE;
       break;
 
-    case INTEGER:
+    case INTEGER_TOK:
       expr->ret_kind = INTEGER_RETURN_TYPE;
       break;
 
@@ -247,11 +247,11 @@ bound_unary_expression_t *bound_unary_expression_new(syntax_expression_t *expr)
 
   switch (expr->type)
   {
-    case DECREMENT:
-    case INCREMENT:
-    case ADDITION:
-    case SUBTRACTION:
-    case BITWISE_TERNARY:
+    case DECREMENT_TOK:
+    case INCREMENT_TOK:
+    case PLUS_TOK:
+    case HYPHEN_TOK:
+    case BITWISE_TERNARY_TOK:
       expr->ret_type = INTEGER_RETURN_TYPE;
       break;
 

@@ -20,4 +20,8 @@ typedef struct token token_t;
  */
 typedef token_t syntax_token_t;
 
+syntax_token_t *syntax_token_new(int type, void *data, size_t const n);
+
+void syntax_token_destroy(syntax_token_t *token);
+
 #endif/*X_TOKEN_H*/
