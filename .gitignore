@@ -2,10 +2,12 @@
 *.class
 *.o
 *.out
+*.pyc
 *.so
 *.so.*
 
 .vscode
+__pycache__
 
 bin/*
 !bin/.keep

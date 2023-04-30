@@ -1,5 +1,391 @@
 tokens:
+
   - repr: "\0"
     type: BAD_TOK
+    data: null
+    size: 0
+
+  - repr: "\t"
+    type: TAB_TOK
+    data: null
+    size: 0
+
+  - repr: "\n"
+    type: EOL_TOK
+    data: null
+    size: 0
+
+  - repr: " "
+    type: SPACE_TOK
+    data: null
+    size: 0
+
+  - repr: "#"
+    type: REMAINDER_TOK
+    data: null
+    size: 0
+
+  - repr: "%"
+    type: MODULUS_TOK
+    data: null
+    size: 0
+
+  - repr: "&"
+    type: BITWISE_AND_TOK
+    data: null
+    size: 0
+
+  - repr: "'"
+    type: SINGLE_QUOTATION_TOK
+    data: null
+    size: 0
+
+  - repr: "("
+    type: OPEN_PARENTHESIS_TOK
+    data: null
+    size: 0
+
+  - repr: ")"
+    type: CLOSE_PARENTHESIS_TOK
+    data: null
+    size: 0
+
+  - repr: "*"
+    type: STAR_TOK
+    data: null
+    size: 0
+
+  - repr: "+"
+    type: PLUS_TOK
+    data: null
+    size: 0
+
+  - repr: ","
+    type: COMMA_TOK
+    data: null
+    size: 0
+
+  - repr: "-"
+    type: HYPHEN_TOK
+    data: null
+    size: 0
+
+  - repr: "."
+    type: DOT_TOK
+    data: null
+    size: 0
+
+  - repr: "/"
+    type: SLASH_TOK
+    data: null
+    size: 0
+
+  - repr: ":"
+    type: COLON_TOK
+    data: null
+    size: 0
+
+  - repr: ";"
+    type: EOE_TOK
+    data: null
+    size: 0
+
+  - repr: "<"
+    type: LEFT_CARET_TOK
+    data: null
+    size: 0
+
+  - repr: "="
+    type: EQUAL_TOK
+    data: null
+    size: 0
+
+  - repr: ">"
+    type: RIGHT_CARET_TOK
+    data: null
+    size: 0
+
+  - repr: "?"
+    type: QUESTION_MARK_TOK
+    data: null
+    size: 0
+
+  - repr: "@"
+    type: ANNOTATION_TOK
+    data: null
+    size: 0
+
+  - repr: "["
+    type: OPEN_SQUARE_BRACKET_TOK
+    data: null
+    size: 0
+
+  - repr: "\\"
+    type: BACKSLASH_TOK
+    data: null
+    size: 0
+
+  - repr: "]"
+    type: CLOSE_SQUARE_BRACKET_TOK
+    data: null
+    size: 0
+
+  - repr: "^"
+    type: BITWISE_XOR_TOK
+    data: null
+    size: 0
+
+  - repr: "_"
+    type: UNDERSCORE_TOK
+    data: null
+    size: 0
+
+  - repr: "`"
+    type: APOSTROPHE_TOK
+    data: null
+    size: 0
+
+  - repr: "{"
+    type: OPEN_CURLY_BRACKET_TOK
+    data: null
+    size: 0
+
+  - repr: "|"
+    type: BITWISE_OR_TOK
+    data: null
+    size: 0
+
+  - repr: "}"
+    type: CLOSE_CURLY_BRACKET_TOK
+    data: null
+    size: 0
+
+  - repr: "~"
+    type: BITWISE_TERNARY_TOK
+    data: null
+    size: 0
+
+  - repr: "**"
+    type: EXPONENTIAL_TOK
+    data: null
+    size: 0
+
+  - repr: "&&"
+    type: COND_AND_TOK
+    data: null
+    size: 0
+
+  - repr: "||"
+    type: COND_OR_TOK
+    data: null
+    size: 0
+
+  - repr: "<<"
+    type: BITWISE_SHFT_LEFT_TOK
+    data: null
+    size: 0
+
+  - repr: ">>"
+    type: BITWISE_SHFT_RIGHT_TOK
+    data: null
+    size: 0
+
+  - repr: "--"
+    type: DECREMENT_TOK
+    data: null
+    size: 0
+
+  - repr: "++"
+    type: INCREMENT_TOK
+    data: null
+    size: 0
+
+  - repr: "=="
+    type: COND_EQUALS_TOK
+    data: null
+    size: 0
+
+  - repr: "abstract"
+    type: ABSTRACT_TOK
+    data: null
+    size: 0
+
+  - repr: "boolean"
+    type: BOOLEAN_TOK
+    data: null
+    size: 0
+
+  - repr: "break"
+    type: BREAK_TOK
+    data: null
+    size: 0
+
+  - repr: "case"
+    type: CASE_TOK
+    data: null
+    size: 0
+
+  - repr: "class"
+    type: CLASS_TOK
+    data: null
+    size: 0
+
+  - repr: "const"
+    type: CONST_TOK
+    data: null
+    size: 0
+
+  - repr: "default"
+    type: DEFAULT_TOK
+    data: null
+    size: 0
+
+  - repr: "double"
+    type: DOUBLE_TOK
+    data: null
+    size: 0
+
+  - repr: "export"
+    type: EXPORT_TOK
+    data: null
+    size: 0
+
+  - repr: "false"
+    type: FALSE_TOK
+    data: 0
+    size: 4
+
+  - repr: "float"
+    type: FLOAT_TOK
+    data: null
+    size: 0
+
+  - repr: "for"
+    type: FOR_TOK
+    data: null
+    size: 0
+
+  - repr: "if"
+    type: IF_TOK
+    data: null
+    size: 0
+
+  - repr: "immutable"
+    type: IMMUTABLE_TOK
+    data: null
+    size: 0
+
+  - repr: "import"
+    type: IMPORT_TOK
+    data: null
+    size: 0
+
+  - repr: "int"
+    type: INTEGER_TOK
+    data: null
+    size: 0
+
+  - repr: "is"
+    type: IS_TOK
+    data: null
+    size: 0
+
+  - repr: "matrix"
+    type: MATRIX_TOK
+    data: null
+    size: 0
+
+  - repr: "null"
+    type: NIL_TOK
+    data: null
+    size: 0
+
+  - repr: "object"
+    type: OBJECT_TOK
+    data: null
+    size: 0
+
+  - repr: "package"
+    type: PACKAGE_TOK
+    data: null
+    size: 0
+
+  - repr: "print"
+    type: PRINT_TOK
+    data: null
+    size: 0
+
+  - repr: "private"
+    type: PRIVATE_TOK
+    data: null
+    size: 0
+
+  - repr: "protected"
+    type: PROTECTED_TOK
+    data: null
+    size: 0
+
+  - repr: "public"
+    type: PUBLIC_TOK
+    data: null
+    size: 0
+
+  - repr: "return"
+    type: RETURN_TOK
+    data: null
+    size: 0
+
+  - repr: "scalar"
+    type: SCALAR_TOK
+    data: null
+    size: 0
+
+  - repr: "set"
+    type: SET_TOK
+    data: null
+    size: 0
+
+  - repr: "static"
+    type: STATIC_TOK
+    data: null
+    size: 0
+
+  - repr: "string"
+    type: STRING_TOK
+    data: null
+    size: 0
+
+  - repr: "switch"
+    type: SWITCH_TOK
+    data: null
+    size: 0
+
+  - repr: "true"
+    type: TRUE_TOK
+    data: 1
+    size: 4
+
+  - repr: "unless"
+    type: UNLESS_TOK
+    data: null
+    size: 0
+
+  - repr: "vector"
+    type: VECTOR_TOK
+    data: null
+    size: 0
+
+  - repr: "void"
+    type: VOID_TOK
+    data: null
+    size: 0
+
+  - repr: "while"
+    type: WHILE_TOK
+    data: null
+    size: 0
+
+  - repr: "yield"
+    type: YIELD_TOK
     data: null
     size: 0
