@@ -25,7 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-char __internal_module_name__[] = "Lexer";
+static char __internal_module_name__[] = "Lexer";
 
 #define MAXBUF      (1 << 20)
 #define MAX_QUEUE   1024
@@ -825,19 +825,27 @@ static syntax_queue_t *parse(syntax_token_trie_t *trie, const char *data)
     const char *start = *ptr;
     x_log(levels.debug, "Cached the current string pointer position for reuse", "");
 
+    x_log(levels.info, "Search the preprocessed trie data structure in an attempt to generate a syntax token", "");
+
     /**
      * NOTE: If the literal search does not work attempt a pattern search.
      */
     if (syntax_token_trie_search(trie, retptr, ptr) == false)
     {
+      x_log(levels.info, "The trie was not able to find a suitable character combination", "");
+
       *ptr = start;
+
+      x_log(levels.info, "Perform a singular character ASCII evaluation to find a suitable repeated ASCII expression", "");
 
       if (ae_match(**ptr, ae_is_digit))
       {
+        x_log(levels.info, "Perform a repeated digit ASCII expression", "");
         handle_number(queue, retptr, ptr);
       }
       else if (ae_match(**ptr, ae_is_alnum))
       {
+        x_log(levels.info, "Perform a repeated alnum ASCII expression", "");
         handle_word(queue, retptr, ptr);
       }
       else
@@ -846,13 +854,19 @@ static syntax_queue_t *parse(syntax_token_trie_t *trie, const char *data)
       }
     }
 
+    x_log(levels.info, "Insert the generated syntax token into the syntax token queue", "");
+
     if (syntax_queue_write(queue, retptr) == false)
     {
       die(X_ERROR_SYNTAX_QUEUE_WRITE, __FILE__, __func__);
     }
   }
   while (**ptr);
+
+  x_log(levels.info, "Generate an EOF syntax token", "");
   handle_end_of_file(queue, retptr);
+
+  x_log(levels.debug, "Return the syntax token queue pointer to the caller", "");
   return queue;
 }
 
