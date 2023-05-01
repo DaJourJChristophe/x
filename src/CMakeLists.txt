@@ -16,6 +16,17 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
   "${CMAKE_CURRENT_SOURCE_DIR}/ds/map.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/ds/queue.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/ds/stack.c"
+
+  "${CMAKE_CURRENT_SOURCE_DIR}/log/filename.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/log/hierarchy.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/log/log.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/log/message.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/log/position.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/log/prefix.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/log/std.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/log/style.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/log/timestamp.c"
+
   "${CMAKE_CURRENT_SOURCE_DIR}/ast.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/bind.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/cache.c"
