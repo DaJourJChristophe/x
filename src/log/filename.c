@@ -19,8 +19,8 @@ void filename(char *buffer, const size_t size, const char *text, text_style_t *p
 
   memset(&reset_properties, 0, sizeof(text_style_t));
 
-  compile(reset, TEXT_STYLE_MAXBUF, &reset_properties);
-  compile(primary, TEXT_STYLE_MAXBUF, properties);
+  log_compile(reset, TEXT_STYLE_MAXBUF, &reset_properties);
+  log_compile(primary, TEXT_STYLE_MAXBUF, properties);
 
   const char fmt[] = "%s%s%s";
   sprintf(buffer, fmt, primary, text, reset);

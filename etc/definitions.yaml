@@ -144,6 +144,9 @@ definitions:
   - name: "COND_EQUALS_TOK"
     value: 0
 
+  - name: LAMBDA_TOK
+    value: 0
+
   - name: ABSTRACT_TOK
     value: 0
 

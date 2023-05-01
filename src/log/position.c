@@ -25,8 +25,8 @@ void position(
 
   memset(&reset_properties, 0, sizeof(text_style_t));
 
-  compile(reset, TEXT_STYLE_MAXBUF, &reset_properties);
-  compile(primary, TEXT_STYLE_MAXBUF, properties);
+  log_compile(reset, TEXT_STYLE_MAXBUF, &reset_properties);
+  log_compile(primary, TEXT_STYLE_MAXBUF, properties);
 
   const char fmt[] = "%sLn: %d%s, %sCh: %d%s";
   sprintf(buffer, fmt, primary, line, reset, primary, ch, reset);

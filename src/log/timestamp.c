@@ -137,8 +137,8 @@ void timestamp(char *buffer, text_style_t *properties)
 
   memset(&reset_properties, 0, sizeof(text_style_t));
 
-  compile(reset, TEXT_STYLE_MAXBUF, &reset_properties);
-  compile(primary, TEXT_STYLE_MAXBUF, properties);
+  log_compile(reset, TEXT_STYLE_MAXBUF, &reset_properties);
+  log_compile(primary, TEXT_STYLE_MAXBUF, properties);
 
   sprintf(buffer, "%s%s, %s %d %d %d:%d:%d %s",
     primary, days[weekday(day, (mon + 1), yr)], months[mon], day, yr, hr, min, sec, reset);

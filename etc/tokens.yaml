@@ -235,6 +235,11 @@ tokens:
     data: null
     size: 0
 
+  - repr: "=>"
+    type: LAMBDA_TOK
+    data: null
+    size: 0
+
   - repr: "abstract"
     type: ABSTRACT_TOK
     data: null

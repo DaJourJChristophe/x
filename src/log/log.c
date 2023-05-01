@@ -7,17 +7,18 @@
 #include <stdlib.h>
 #include <string.h>
 
-static void log_info(
-  const char *message,
-  const char *filename,
-  const char *module,
-  const char *class,
-  const char *function,
-  const int line,
-  const int ch,
-  const char *description
+void log_info(
+  const char unused *message,
+  const char unused *filename,
+  const char unused *module,
+  const char unused *class,
+  const char unused *function,
+  const int unused line,
+  const int unused ch,
+  const char unused *description
 )
 {
+#if defined(VERBOSE)
   const char prefix_text[] = "info";
   text_style_t prefix_properties;
   memset(&prefix_properties, 0, sizeof(text_style_t));
@@ -34,19 +35,21 @@ static void log_info(
     description,
     &prefix_properties
   );
+#endif/*VERBOSE*/
 }
 
-static void log_debug(
-  const char *message,
-  const char *filename,
-  const char *module,
-  const char *class,
-  const char *function,
-  const int line,
-  const int ch,
-  const char *description
+void log_debug(
+  const char unused *message,
+  const char unused *filename,
+  const char unused *module,
+  const char unused *class,
+  const char unused *function,
+  const int unused line,
+  const int unused ch,
+  const char unused *description
 )
 {
+#if defined(NDEBUG)
   const char prefix_text[] = "debug";
   text_style_t prefix_properties;
   memset(&prefix_properties, 0, sizeof(text_style_t));
@@ -63,9 +66,10 @@ static void log_debug(
     description,
     &prefix_properties
   );
+#endif/*NDEBUG*/
 }
 
-static void log_deprecated(
+void log_deprecated(
   const char *message,
   const char *filename,
   const char *module,
@@ -95,7 +99,7 @@ static void log_deprecated(
   );
 }
 
-static void log_warn(
+void log_warn(
   const char *message,
   const char *filename,
   const char *module,
@@ -124,7 +128,7 @@ static void log_warn(
   );
 }
 
-static void log_error(
+void log_error(
   const char *message,
   const char *filename,
   const char *module,
@@ -153,7 +157,7 @@ static void log_error(
   );
 }
 
-static void log_scream(
+void log_scream(
   const char *message,
   const char *filename,
   const char *module,
@@ -180,50 +184,5 @@ static void log_scream(
     ch,
     description,
     &prefix_properties
-  );
-}
-
-typedef void (*log_function_t)(
-  const char *,
-  const char *,
-  const char *,
-  const char *,
-  const char *,
-  const int,
-  const int,
-  const char *
-);
-
-static const log_function_t functions[] = {
-  &log_info,
-  &log_debug,
-  &log_deprecated,
-  &log_warn,
-  &log_error,
-  &log_scream,
-};
-
-enum
-{
-  LOG_INFO,
-  LOG_DEBUG,
-  LOG_DEPRECATED,
-  LOG_WARN,
-  LOG_ERROR,
-  LOG_FATAL,
-};
-
-void x_log(const int level, const char *message, const char *description)
-{
-  log_function_t function;
-  function = functions[level];
-  function(
-    message,
-    "logger.py",
-    "Logger",
-    "Logger",
-    "print",
-    12, 36,
-    description
   );
 }

@@ -34,7 +34,7 @@ set(CMAKE_C_STANDARD_REQUIRED OFF)
 
 # Set C flags for various cmake build environments.
 set(CMAKE_C_FLAGS "-Wall -Wextra -Werror -std=c99")  # add -pedantic later
-set(CMAKE_C_FLAGS_DEBUG "-O0 -ggdb3 -DNDEBUG")
+set(CMAKE_C_FLAGS_DEBUG "-O0 -ggdb3 -DNDEBUG -DVERBOSE")
 set(CMAKE_C_FLAGS_RELEASE "-O3")
 
 # Set a custom binary output directory path.

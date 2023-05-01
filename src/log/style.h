@@ -75,6 +75,6 @@ typedef struct text_style text_style_t;
 /**
  * @brief
  */
-void compile(char *buffer, const size_t size, text_style_t *style);
+void log_compile(char *buffer, const size_t size, text_style_t *style);
 
 #endif/*X_LOG_STYLE_H*/

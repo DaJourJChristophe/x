@@ -478,21 +478,40 @@ int main(void)
   global_token_diction = syntax_token_trie_new();
 
   const char database[] = "tmp/db/syntax.sqlite3";
-  // char *output = NULL;
+  char *output = NULL;
   int rc;
 
-  // rc = fetch_definitions_from_database(database);
-  // if (rc != EXIT_SUCCESS)
-  // {
-  //   fprintf(stderr, "%s\n", "failed to fetch syntax token definitions from the local database");
-  //   return EXIT_FAILURE;
-  // }
-  // rc = fetch_returns_from_database(database);
-  // if (rc != EXIT_SUCCESS)
-  // {
-  //   fprintf(stderr, "%s\n", "failed to fetch syntax token definitions from the local database");
-  //   return EXIT_FAILURE;
-  // }
+  rc = fetch_definitions_from_database(database);
+  if (rc != EXIT_SUCCESS)
+  {
+    fprintf(stderr, "%s\n", "failed to fetch syntax token definitions from the local database");
+    return EXIT_FAILURE;
+  }
+  rc = fetch_returns_from_database(database);
+  if (rc != EXIT_SUCCESS)
+  {
+    fprintf(stderr, "%s\n", "failed to fetch syntax token definitions from the local database");
+    return EXIT_FAILURE;
+  }
+
+  output = create_enum();
+
+  FILE *fd;
+  fd = fopen("include/facts.h", "wb");
+  if (fd == NULL)
+  {
+    fprintf(stderr, "%s\n", "file couldn't be opened");
+    exit(EXIT_FAILURE);
+  }
+
+  size_t n;
+
+  n = fwrite(output, 1, strlen(output), fd);
+  printf("bytes written into file are : %d\n", n);
+  __free(output);
+  fclose(fd);
+  fd = NULL;
+
   rc = fetch_tokens_from_database(database);
   if (rc != EXIT_SUCCESS)
   {
@@ -500,7 +519,6 @@ int main(void)
     return EXIT_FAILURE;
   }
 
-  FILE *fd;
   fd = fopen("trie.data", "wb");
   if (fd == NULL)
   {
@@ -508,24 +526,10 @@ int main(void)
     exit(EXIT_FAILURE);
   }
 
-  const size_t n = fwrite(global_token_diction, 1, syntax_token_trie_size(global_token_diction), fd);
+  n = fwrite(global_token_diction, 1, syntax_token_trie_size(global_token_diction), fd);
   printf("bytes written into file are : %d\n", n);
   fclose(fd);
-
-  // output = create_enum();
-
-  // FILE *fd;
-  // fd = fopen("include/facts.h", "wb");
-  // if (fd == NULL)
-  // {
-  //   fprintf(stderr, "%s\n", "file couldn't be opened");
-  //   exit(EXIT_FAILURE);
-  // }
-
-  // const size_t n = fwrite(output, 1, strlen(output), fd);
-  // printf("bytes written into file are : %d\n", n);
-  // __free(output);
-  // fclose(fd);
+  fd = NULL;
 
   return EXIT_SUCCESS;
 }

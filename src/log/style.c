@@ -7,7 +7,7 @@
 /**
  * @brief
  */
-void compile(char *buffer, const size_t size, text_style_t *style)
+void log_compile(char *buffer, const size_t size, text_style_t *style)
 {
   memset(buffer, 0, size * sizeof(char));
 

@@ -20,9 +20,9 @@ void prefix(char *buffer, const size_t size, const char *text, text_style_t *pro
   memset(&bracket_properties, 0, sizeof(text_style_t));
   memset(&reset_properties, 0, sizeof(text_style_t));
 
-  compile(brackets, TEXT_STYLE_MAXBUF, &bracket_properties);
-  compile(reset, TEXT_STYLE_MAXBUF, &reset_properties);
-  compile(primary, TEXT_STYLE_MAXBUF, properties);
+  log_compile(brackets, TEXT_STYLE_MAXBUF, &bracket_properties);
+  log_compile(reset, TEXT_STYLE_MAXBUF, &reset_properties);
+  log_compile(primary, TEXT_STYLE_MAXBUF, properties);
 
   const char fmt[] = "%s[%s%s%s%s%s]%s";
   sprintf(buffer, fmt, brackets, reset, primary, text, reset, brackets, reset);
