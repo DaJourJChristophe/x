@@ -227,14 +227,3 @@ void x_log(const int level, const char *message, const char *description)
     description
   );
 }
-
-// int main(void)
-// {
-//   x_log(levels.info, "This is a Hello, World message from the Logger module", "This is a Hello, World message from the Logger module");
-//   x_log(levels.debug, "This is a Hello, World message from the Logger module", "This is a Hello, World message from the Logger module");
-//   x_log(levels.deprecated, "This is a Hello, World message from the Logger module", "This is a Hello, World message from the Logger module");
-//   x_log(levels.warn, "This is a Hello, World message from the Logger module", "This is a Hello, World message from the Logger module");
-//   x_log(levels.error, "This is a Hello, World message from the Logger module", "This is a Hello, World message from the Logger module");
-//   x_log(levels.fatal, "This is a Hello, World message from the Logger module", "This is a Hello, World message from the Logger module");
-//   return EXIT_SUCCESS;
-// }

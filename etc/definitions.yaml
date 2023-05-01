@@ -15,6 +15,24 @@ definitions:
   - name: "SPACE_TOK"
     value: 12
 
+  - name: "FLT_POINT_TOK"
+    value: 12
+
+  - name: "DIGIT_TOK"
+    value: 12
+
+  - name: "INT_TOK"
+    value: 12
+
+  - name: "NUM_TOK"
+    value: 12
+
+  - name: "TEXT_TOK"
+    value: 12
+
+  - name: "WORD_TOK"
+    value: 12
+
   - name: "REMAINDER_TOK"
     value: 7
 

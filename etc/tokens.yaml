@@ -20,6 +20,36 @@ tokens:
     data: null
     size: 0
 
+  - repr: ""
+    type: FLT_POINT_TOK
+    data: null
+    size: 0
+
+  - repr: ""
+    type: DIGIT_TOK
+    data: null
+    size: 0
+
+  - repr: ""
+    type: INT_TOK
+    data: null
+    size: 0
+
+  - repr: ""
+    type: NUM_TOK
+    data: null
+    size: 0
+
+  - repr: ""
+    type: TEXT_TOK
+    data: null
+    size: 0
+
+  - repr: ""
+    type: WORD_TOK
+    data: null
+    size: 0
+
   - repr: "#"
     type: REMAINDER_TOK
     data: null
