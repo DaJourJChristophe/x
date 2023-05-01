@@ -12,6 +12,10 @@
 #define unused __attribute__ ((unused))
 #endif/*unused*/
 
+#define INTERN_T static
+
+#define INLINE_VOID_T inline void always_inline
+
 static inline void always_inline warn(const char *message,
   const char *file_name, const char *func_name)
 {

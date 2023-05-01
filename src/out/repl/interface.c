@@ -6,13 +6,14 @@
 #include "eval.h"
 #include "symbol-table.h"
 #include "log/log.h"
+#include "internal/module.h"
 
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define __MODULE__    "REPL"
+char __internal_module_name__[] = "REPL";
 
 #define MAX_LINE    128
 
@@ -40,6 +41,8 @@ static void getline(char *buf)
 
 void getexpr(void)
 {
+  X_EXPORT_MODULE_NAME_SYMBOL();
+
   x_log(levels.info, "Starting the compile front-end", "");
 
   symbol_table_t *table = NULL;
@@ -113,9 +116,9 @@ static const char banner_message[] = "X 1.0.0 (main, Mar 12 2023, 07:10:41) [GCC
 
 void banner(void)
 {
+  X_EXPORT_MODULE_NAME_SYMBOL();
+
   x_log(levels.info, "Printing the REPL banner", "");
   printf("%s\n", banner_message);
   x_log(levels.debug, "Printed the REPL banner", "");
 }
-
-#undef __MODULE__

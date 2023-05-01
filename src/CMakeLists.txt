@@ -17,6 +17,8 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
   "${CMAKE_CURRENT_SOURCE_DIR}/ds/queue.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/ds/stack.c"
 
+  "${CMAKE_CURRENT_SOURCE_DIR}/internal/module.c"
+
   "${CMAKE_CURRENT_SOURCE_DIR}/log/filename.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/log/hierarchy.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/log/log.c"

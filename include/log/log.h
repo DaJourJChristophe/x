@@ -2,6 +2,7 @@
 #define X_LOG_LOG_H
 
 #include "common.h"
+#include "internal/module.h"
 
 struct levels
 {
@@ -115,7 +116,7 @@ static log_function_t function;
   function( \
     message, \
     __FILE__, \
-    __MODULE__, \
+    X_MODULE_NAME_SYMBOL, \
     "Logger", \
     __func__, \
     __LINE__, \

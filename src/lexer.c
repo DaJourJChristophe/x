@@ -16,6 +16,7 @@
 #include "log/log.h"
 #include "syntax-queue.h"
 #include "token.h"
+#include "internal/module.h"
 
 #include <limits.h>
 #include <stddef.h>
@@ -24,7 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define __MODULE__    "Lexer"
+char __internal_module_name__[] = "Lexer";
 
 #define MAXBUF      (1 << 20)
 #define MAX_QUEUE   1024
@@ -806,6 +807,8 @@ typedef struct syntax_token_insert syntax_token_insert_t;
  */
 static syntax_queue_t *parse(syntax_token_trie_t *trie, const char *data)
 {
+  X_EXPORT_MODULE_NAME_SYMBOL();
+
   x_log(levels.info, "Parsing the end-user input", "");
 
   const char **ptr = &data;
@@ -874,10 +877,10 @@ syntax_queue_t *compile(const char *filepath)
 
 syntax_queue_t *compile_line(const char *data)
 {
+  X_EXPORT_MODULE_NAME_SYMBOL();
+
   x_log(levels.info, "Executing the lexer parser", "");
   syntax_queue_t *queue = parse(global_token_diction, data);
   x_log(levels.debug, "Executed the lexer parser", "");
   return queue;
 }
-
-#undef __MODULE__
