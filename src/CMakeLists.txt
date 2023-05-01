@@ -38,7 +38,7 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
   "${CMAKE_CURRENT_SOURCE_DIR}/io.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/lexer.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/parse.c"
-  "${CMAKE_CURRENT_SOURCE_DIR}/symbol-table2.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/symbol-table.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/utils.c"
 )
 
