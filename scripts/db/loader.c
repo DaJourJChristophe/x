@@ -1,11 +1,13 @@
 #include "common.h"
 #include "token.h"
+#include "utils.h"
 
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
 
 #define BAD_TOK 0
 
@@ -278,11 +280,11 @@ void syntax_token_trie_insert(syntax_token_trie_t *trie, const char *key, const 
 int main(void)
 {
   syntax_token_trie_t trie;
-  char buffer[(1 << 20)];
-  int n;
+  uint8_t buffer[(1 << 20)];
+  ssize_t n;
 
   memset(&trie, 0, sizeof(syntax_token_trie_t));
-  memset(buffer, 0, (1 << 20) * sizeof(char));
+  memset(buffer, 0, (1 << 20) * sizeof(uint8_t));
 
   n = readfile(buffer, "trie.data");
   if (n < 0)
@@ -290,32 +292,53 @@ int main(void)
     fprintf(stderr, "%s\n", "Failed to read the data file from the disk.");
     exit(EXIT_FAILURE);
   }
-  else if (n >= (1 << 20))
+  else if (n > (1 << 20))
   {
     fprintf(stderr, "%s\n", "Attempting to read too much data into the data buffer");
     exit(EXIT_FAILURE);
   }
 
-  memcpy(&trie, buffer, n);
+  uint8_t *ptr = buffer;
+  size_t count;
 
-  if (trie.root == NULL)
+  for (int64_t i = 0; i < n; i += count)
   {
-    fprintf(stderr, "%s\n", "Trie root is null");
-    exit(EXIT_FAILURE);
-  }
-  else if (trie.root->children == NULL)
-  {
-    fprintf(stderr, "%s\n", "Trie root.children is null");
-    exit(EXIT_FAILURE);
+    count = 0;
+
+    syntax_token_t *token = syntax_token_from_bytes(ptr);
+    count = sizeof(int) + sizeof(size_t) + token->size;
+    ptr += count;
+
+    bool isWordEnd = *ptr;
+    count += sizeof(bool);
+    ptr += count;
+
+    print_token(token);
+
+    printf("t: %d, d: %p, s: %lu, e: %u\n",
+      token->type, token->data, token->size, isWordEnd);
+
+    syntax_token_destroy(token);
   }
 
-  const char data[] = "||";
-  const char *original = data;
-  const char **key = &original;
-  syntax_token_t rettok;
-  memset(&rettok, 0, sizeof(syntax_token_t));
+  // if (trie.root == NULL)
+  // {
+  //   fprintf(stderr, "%s\n", "Trie root is null");
+  //   exit(EXIT_FAILURE);
+  // }
+  // else if (trie.root->children == NULL)
+  // {
+  //   fprintf(stderr, "%s\n", "Trie root.children is null");
+  //   exit(EXIT_FAILURE);
+  // }
 
-  printf("%u\n", syntax_token_trie_search(&trie, &rettok, key));
+  // const char data[] = "||";
+  // const char *original = data;
+  // const char **key = &original;
+  // syntax_token_t rettok;
+  // memset(&rettok, 0, sizeof(syntax_token_t));
+
+  // printf("%u\n", syntax_token_trie_search(&trie, &rettok, key));
 
   return EXIT_SUCCESS;
 }
